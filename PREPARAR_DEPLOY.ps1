@@ -17,8 +17,8 @@ if (!(Test-Path .git)) {
 
 # 3. Adicionar arquivos e Commit
 git add .
-git commit -m "feat: setup produção vercel"
-Write-Host "Arquivos preparados e commit realizado." -ForegroundColor Green
+git commit -m "fix: remove legacy vite files and cleanup for vercel build"
+Write-Host "Limpeza de arquivos legados realizada e commit criado." -ForegroundColor Green
 
 # 4. Perguntar URL do GitHub
 $githubUrl = Read-Host "Cole aqui a URL do seu repositório GitHub (ex: https://github.com/usuario/sistema-zeladoria.git)"

@@ -1,6 +1,8 @@
 import { getCondominios, getFinanceMonths } from './actions'
 import MainContent from './components/MainContent'
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
     const [condominios, financeMonths] = await Promise.all([
         getCondominios(),
