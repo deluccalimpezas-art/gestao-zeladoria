@@ -157,8 +157,12 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                         <RHManagerView
                             data={masterRH}
                             onSave={async (updated) => {
-                                setMasterRH(updated);
-                                await saveMasterRH(updated);
+                                const res = await saveMasterRH(updated);
+                                if (res && !res.success) {
+                                    alert("Falha ao salvar no banco: " + res.error);
+                                } else {
+                                    setMasterRH(updated);
+                                }
                             }}
                             onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
                             availableMonths={financeMonths.map(m => m.monthName)}
@@ -205,3 +209,4 @@ function AlertCard({ alert }: { alert: Alert }) {
         </div>
     );
 }
+
