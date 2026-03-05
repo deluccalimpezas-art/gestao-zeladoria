@@ -239,3 +239,5 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
         return { success: false, error: String(error) };
     }
 }
+
+
