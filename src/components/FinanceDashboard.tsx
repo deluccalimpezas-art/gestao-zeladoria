@@ -265,3 +265,7 @@ export function FinanceDashboard({ monthsData, onUpload, isUploading, employeesC
         </div >
     );
 }
+            }
+        </div >
+    );
+}
