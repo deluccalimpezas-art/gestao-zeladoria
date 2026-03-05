@@ -13,60 +13,82 @@ export async function getCondominios() {
 }
 
 export async function upsertCondominio(data: any) {
-    const { id, nome, cnpj, endereco, valorContrato, inicio, termino } = data
-    const result = await prisma.condominio.upsert({
-        where: { id: id || '00000000-0000-0000-0000-000000000000' }, // Use a dummy UUID that won't match if no id
-        update: {
-            nome,
-            cnpj,
-            endereco,
-            // mapping extra fields if needed, but keeping it simple for now as requested
-        },
-        create: {
-            nome,
-            cnpj,
-            endereco
-        },
-    })
-    revalidatePath('/')
-    return result
+    try {
+        const { id, nome, cnpj, endereco, valorContrato, inicio, termino } = data;
+
+        // Fix empty string unique constraint issue:
+        const cleanCnpj = cnpj && cnpj.trim() !== '' ? cnpj : null;
+
+        const result = await prisma.condominio.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: {
+                nome,
+                cnpj: cleanCnpj,
+                endereco,
+            },
+            create: {
+                nome,
+                cnpj: cleanCnpj,
+                endereco
+            },
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (error: any) {
+        console.error("Erro ao salvar condomínio:", error);
+        return { success: false, error: error.message };
+    }
 }
 
 export async function deleteCondominio(id: string) {
-    await prisma.condominio.delete({ where: { id } })
-    revalidatePath('/')
+    try {
+        await prisma.condominio.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao deletar condomínio:", error);
+        return { success: false, error: error.message };
+    }
 }
 
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {
-    const { id, nome, cargo, salario, condominio } = data
+    try {
+        const { id, nome, cargo, salario, condominio } = data;
 
-    // Resolve condominioId from name if not provided
-    let cId = data.condominioId;
-    if (!cId && condominio) {
-        const c = await prisma.condominio.findFirst({ where: { nome: condominio } });
-        if (c) cId = c.id;
+        // Resolve condominioId from name if not provided
+        let cId = data.condominioId;
+        if (!cId && condominio) {
+            const c = await prisma.condominio.findFirst({ where: { nome: condominio } });
+            if (c) cId = c.id;
+        }
+
+        if (!cId) {
+            console.error(`Não foi possível salvar funcionário ${nome} pois o condomínio "${condominio}" não foi encontrado no banco.`);
+            return { success: false, error: "Condomínio não encontrado." };
+        }
+
+        const result = await prisma.funcionario.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: {
+                nome,
+                cargo,
+                salarioBase: salario || 0,
+                condominioId: cId
+            },
+            create: {
+                nome,
+                cargo,
+                salarioBase: salario || 0,
+                condominioId: cId
+            },
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (error: any) {
+        console.error("Erro ao salvar funcionário:", error);
+        return { success: false, error: error.message };
     }
-
-    if (!cId) return null; // Can't save employee without a valid condo
-
-    const result = await prisma.funcionario.upsert({
-        where: { id: id || '00000000-0000-0000-0000-000000000000' },
-        update: {
-            nome,
-            cargo,
-            salarioBase: salario || 0,
-            condominioId: cId
-        },
-        create: {
-            nome,
-            cargo,
-            salarioBase: salario || 0,
-            condominioId: cId
-        },
-    })
-    revalidatePath('/')
-    return result
 }
 
 // Financeiro
@@ -93,16 +115,26 @@ export async function createFinanceMonth(mes: number, ano: number) {
 }
 
 export async function saveMasterRH(data: { condominios: any[], funcionarios: any[] }) {
-    // This is a simplified bulk sync. For production, individual upserts or transactions are better.
-    // For now, let's upsert everything provided.
+    try {
+        let errors = [];
 
-    for (const condo of data.condominios) {
-        await upsertCondominio(condo);
+        for (const condo of data.condominios) {
+            const res = await upsertCondominio(condo);
+            if (!res.success) errors.push(`Erro Condomínio: ${res.error}`);
+        }
+
+        for (const func of data.funcionarios) {
+            const res = await upsertFuncionario(func);
+            if (!res.success) errors.push(`Erro Funcionário: ${res.error}`);
+        }
+
+        revalidatePath('/');
+        if (errors.length > 0) {
+            return { success: false, error: errors.join(" | ") };
+        }
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro crítico no saveMasterRH:", error);
+        return { success: false, error: String(error) };
     }
-
-    for (const func of data.funcionarios) {
-        await upsertFuncionario(func);
-    }
-
-    revalidatePath('/')
 }
