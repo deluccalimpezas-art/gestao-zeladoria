@@ -189,6 +189,42 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                 });
             }
         }
+
+        // 3. Aniversário de Empresa
+        if (func.dataAdmissao) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let adm: Date;
+            if (func.dataAdmissao.includes('/')) {
+                const [dia, mes, ano] = func.dataAdmissao.split('/');
+                adm = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+            } else {
+                const [ano, mes, dia] = func.dataAdmissao.split('-');
+                adm = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+            }
+
+            if (!isNaN(adm.getTime())) {
+                const anosEmpresa = hoje.getFullYear() - adm.getFullYear();
+                if (anosEmpresa > 0) {
+                    const aniversarioAnoAtual = new Date(hoje.getFullYear(), adm.getMonth(), adm.getDate());
+                    const diffTime = aniversarioAnoAtual.getTime() - hoje.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays >= 0 && diffDays <= 15) {
+                        alertas.push({
+                            id: `rh-aniversario-${func.nome.replace(/\s+/g, '-').toLowerCase()}`,
+                            type: 'ferias',
+                            category: 'funcionario',
+                            title: func.nome,
+                            subtitle: diffDays === 0 ? '🎉 HOJE!' : `Em ${diffDays} dia${diffDays > 1 ? 's' : ''}`,
+                            deadline: `Aniversário de Empresa (${anosEmpresa} ano${anosEmpresa > 1 ? 's' : ''})`,
+                            description: `Parabenize o colaborador pelo seu tempo de casa!`
+                        });
+                    }
+                }
+            }
+        }
     });
 
     // Ordenar: vencidos primeiro, depois por urgência
@@ -200,3 +236,4 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
 
     return alertas;
 }
+
