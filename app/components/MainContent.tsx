@@ -6,7 +6,8 @@ import {
     Users,
     Menu,
     Search,
-    PieChart
+    PieChart,
+    PenTool
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -14,6 +15,7 @@ import { gerarAlertasRH, gerarAlertasCondominios } from '@/lib/alertEngine';
 import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { RHManagerView } from '@/components/RHManagerView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
+import { ContractGeneratorView } from './ContractGeneratorView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -30,7 +32,7 @@ interface MainContentProps {
 
 export default function MainContent({ initialCondos, initialFinanceMonths }: MainContentProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -138,6 +140,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 {sidebarOpen && <span className="font-medium">Financeiro</span>}
                             </button>
                         </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('contratos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'contratos' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <PenTool className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Gerar Contratos</span>}
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -201,6 +212,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
                             availableMonths={financeMonths.map(m => m.monthName)}
                         />
+                    ) : activeTab === 'contratos' ? (
+                        <ContractGeneratorView />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
