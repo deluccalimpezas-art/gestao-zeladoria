@@ -19,6 +19,7 @@ import {
     upsertCondominio,
     deleteCondominio,
     createFinanceMonth,
+    duplicateFinanceMonth,
     saveMasterRH
 } from '../actions';
 
@@ -40,6 +41,13 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     const [financeMonths] = useState<MonthlyFinanceData[]>(initialFinanceMonths || []);
     const [isUploadingExcel] = useState(false);
     const [isNewMonthModalOpen, setIsNewMonthModalOpen] = useState(false);
+    const [newMesInput, setNewMesInput] = useState(new Date().getMonth() + 1);
+    const [newAnoInput, setNewAnoInput] = useState(new Date().getFullYear());
+
+    const [duplicateContext, setDuplicateContext] = useState<any>(null); // To store { sourceMonthId, mes, ano }
+    const [dupMesInput, setDupMesInput] = useState(new Date().getMonth() + 2 > 12 ? 1 : new Date().getMonth() + 2);
+    const [dupAnoInput, setDupAnoInput] = useState(new Date().getMonth() + 2 > 12 ? new Date().getFullYear() + 1 : new Date().getFullYear());
+
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
 
     const employeesCount = useMemo(() => masterRH.funcionarios.length, [masterRH.funcionarios]);
@@ -74,8 +82,22 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     };
 
     const onCreateMonth = async () => {
-        await createFinanceMonth(new Date().getMonth() + 1, new Date().getFullYear());
-        setIsNewMonthModalOpen(false);
+        const res = await createFinanceMonth(newMesInput, newAnoInput);
+        if (res && !res.success) {
+            alert('Falha ao criar mês: ' + res.error);
+        } else {
+            setIsNewMonthModalOpen(false);
+        }
+    };
+
+    const handleDuplicateMonth = async () => {
+        if (!duplicateContext) return;
+        const res = await duplicateFinanceMonth(duplicateContext.sourceMonthId, dupMesInput, dupAnoInput);
+        if (res && !res.success) {
+            alert('Falha ao duplicar: ' + res.error);
+        } else {
+            setDuplicateContext(null);
+        }
     };
 
     return (
@@ -153,6 +175,18 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 </section>
                             </div>
                         </div>
+                    ) : activeTab === 'financeiro' ? (
+                        <FinanceDashboard
+                            monthsData={financeMonths}
+                            employeesCount={employeesCount}
+                            onUpload={handleExcelUpload}
+                            isUploading={isUploadingExcel}
+                            onDeleteMonth={handleDeleteMonth}
+                            onUpdateMonth={onUpdateCondo}
+                            onDuplicateMonth={(month: any) => setDuplicateContext({ sourceMonthId: month.id, mes: dupMesInput, ano: dupAnoInput })}
+                            onCreateFromRHBase={() => setIsNewMonthModalOpen(true)}
+                            hasRHBase={masterRH.condominios.length > 0}
+                        />
                     ) : activeTab === 'rh' ? (
                         <RHManagerView
                             data={masterRH}
@@ -167,32 +201,46 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
                             availableMonths={financeMonths.map(m => m.monthName)}
                         />
-                    ) : activeTab === 'financeiro' ? (
-                        <FinanceDashboard
-                            monthsData={financeMonths}
-                            employeesCount={employeesCount}
-                            onUpload={handleExcelUpload}
-                            isUploading={isUploadingExcel}
-                            onDeleteMonth={handleDeleteMonth}
-                            onUpdateMonth={onUpdateCondo}
-                            onDuplicateMonth={() => { }}
-                            onCreateFromRHBase={() => setIsNewMonthModalOpen(true)}
-                            hasRHBase={masterRH.condominios.length > 0}
-                        />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
                 </div>
 
-                <Modal isOpen={isNewMonthModalOpen} onClose={() => setIsNewMonthModalOpen(false)} title="Criar Novo Mês">
-                    <div className="space-y-4 p-4">
-                        <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white p-2 rounded">Confirmar Criação</button>
+                <Modal isOpen={isNewMonthModalOpen} onClose={() => setIsNewMonthModalOpen(false)} title="Criar Novo Mês da Base">
+                    <div className="space-y-4 p-4 text-slate-800">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1">Mês (Numérico)</label>
+                                <input type="number" min="1" max="12" value={newMesInput} onChange={e => setNewMesInput(Number(e.target.value))} className="w-full border rounded p-2" />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1">Ano</label>
+                                <input type="number" value={newAnoInput} onChange={e => setNewAnoInput(Number(e.target.value))} className="w-full border rounded p-2" />
+                            </div>
+                        </div>
+                        <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Confirmar Criação</button>
+                    </div>
+                </Modal>
+
+                <Modal isOpen={!!duplicateContext} onClose={() => setDuplicateContext(null)} title="Duplicar Mês Anterior">
+                    <div className="space-y-4 p-4 text-slate-800">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1">Novo Mês (Destino)</label>
+                                <input type="number" min="1" max="12" value={dupMesInput} onChange={e => setDupMesInput(Number(e.target.value))} className="w-full border rounded p-2" />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1">Ano (Destino)</label>
+                                <input type="number" value={dupAnoInput} onChange={e => setDupAnoInput(Number(e.target.value))} className="w-full border rounded p-2" />
+                            </div>
+                        </div>
+                        <button onClick={handleDuplicateMonth} className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700">Confirmar Duplicação</button>
                     </div>
                 </Modal>
 
                 {importConfirm && (
                     <Modal isOpen={true} onClose={() => setImportConfirm(null)} title="Confirmar Importação">
-                        <div className="p-4">Deseja importar de {importConfirm.monthName}?</div>
+                        <div className="p-4 text-slate-800">Deseja importar de {importConfirm.monthName}?</div>
                     </Modal>
                 )}
             </main>
@@ -209,4 +257,5 @@ function AlertCard({ alert }: { alert: Alert }) {
         </div>
     );
 }
+
 
