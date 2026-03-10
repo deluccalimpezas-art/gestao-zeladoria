@@ -54,17 +54,23 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="text-slate-600 text-xs font-bold">R$</span>
-                            <input
-                                value={new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(condo.valorContrato || 0)}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => {
-                                    const val = parseFloat(e.target.value.replace(/\./g, '').replace(',', '.'));
-                                    if (!isNaN(val)) onUpdate('valorContrato', val);
-                                }}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="Valor"
-                            />
+                            {isExpanded ? (
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={condo.valorContrato || ''}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-text"
+                                    placeholder="Valor"
+                                />
+                            ) : (
+                                <input
+                                    value={new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(condo.valorContrato || 0)}
+                                    readOnly={true}
+                                    className="bg-transparent border-none outline-none rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-pointer"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -217,16 +223,23 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: Employe
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="text-slate-600 text-xs font-bold">R$</span>
-                            <input
-                                value={new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(employee.salario || 0)}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => {
-                                    const val = parseFloat(e.target.value.replace(/\./g, '').replace(',', '.'));
-                                    if (!isNaN(val)) onUpdate('salario', val);
-                                }}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-blue-400 font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                            />
+                            {isExpanded ? (
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={employee.salario || ''}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => onUpdate('salario', parseFloat(e.target.value) || 0)}
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-blue-400 font-bold text-sm cursor-text"
+                                    placeholder="Salário base"
+                                />
+                            ) : (
+                                <input
+                                    value={new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(employee.salario || 0)}
+                                    readOnly={true}
+                                    className="bg-transparent border-none outline-none rounded px-2 py-0.5 w-full text-blue-400 font-bold text-sm cursor-pointer"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
