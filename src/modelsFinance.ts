@@ -45,8 +45,8 @@ export interface ImpostoData {
 }
 
 export interface MonthlyFinanceData {
-    monthName: string; // Ex: 'Janeiro', 'Fevereiro'
-    year: number; // Ex: 2026
+    id: string;
+    monthName: string; // Ex: 'Janeiro 2026', 'Planilha Extra'
     receitaBruta: number;
     inssRetido: number;
     receitaLiquida: number;

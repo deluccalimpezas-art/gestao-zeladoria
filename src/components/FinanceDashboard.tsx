@@ -10,17 +10,15 @@ const MonthDetailView = dynamic(() => import('./MonthDetailView').then(mod => mo
 
 interface FinanceDashboardProps {
     monthsData: MonthlyFinanceData[];
-    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    isUploading: boolean;
     employeesCount: number;
-    onDeleteMonth: (monthName: string, year: number) => void;
-    onUpdateMonth: (oldName: string, oldYear: number, updatedMonth: MonthlyFinanceData) => void;
+    onDeleteMonth: (monthName: string) => void;
+    onUpdateMonth: (updatedMonth: MonthlyFinanceData) => void;
     onDuplicateMonth: (month: MonthlyFinanceData) => void;
     onCreateFromRHBase: () => void;
     hasRHBase: boolean;
 }
 
-export function FinanceDashboard({ monthsData, onUpload, isUploading, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase }: FinanceDashboardProps) {
+export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase }: FinanceDashboardProps) {
     const [selectedMonth, setSelectedMonth] = useState<MonthlyFinanceData | null>(null);
     const summary = calculateFinanceSummary(monthsData);
 
@@ -40,11 +38,11 @@ export function FinanceDashboard({ monthsData, onUpload, isUploading, employeesC
     if (selectedMonth) {
         return (
             <MonthDetailView
-                key={`${selectedMonth.monthName}-${selectedMonth.year}`}
+                key={selectedMonth.id || selectedMonth.monthName}
                 month={selectedMonth}
                 onBack={() => setSelectedMonth(null)}
                 onSave={(updated) => {
-                    onUpdateMonth(selectedMonth.monthName, selectedMonth.year, updated);
+                    onUpdateMonth(updated);
                 }}
             />
         );
@@ -57,54 +55,48 @@ export function FinanceDashboard({ monthsData, onUpload, isUploading, employeesC
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Painel Financeiro</h1>
-                    <p className="text-slate-400 mt-1">Acumulados e médias anuais baseados nas planilhas importadas.</p>
+                    <p className="text-slate-400 mt-1">Acumulados e médias anuais gerados a partir da base do RH.</p>
                 </div>
                 <div>
-                    <input
-                        type="file"
-                        accept=".xlsx"
-                        id="excelUpload"
-                        className="hidden"
-                        onChange={onUpload}
-                    />
                     <div className="flex flex-col md:flex-row gap-3">
-                        {hasRHBase && (
+                        {hasRHBase ? (
                             <button
                                 onClick={onCreateFromRHBase}
                                 className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20 w-full md:w-auto"
                             >
-                                <Plus className="w-4 h-4" />
-                                Criar Mês da Base RH
+                                <Plus className="w-5 h-5" />
+                                Criar Novo Mês da Base RH
                             </button>
+                        ) : (
+                            <div className="text-sm text-slate-400 flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                Preencha a Base RH primeiro para criar os meses!
+                            </div>
                         )}
-                        <label
-                            htmlFor="excelUpload"
-                            className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-lg shadow-emerald-500/20 w-full md:w-auto"
-                        >
-                            <Upload className="w-4 h-4" />
-                            {isUploading ? 'Processando Planilha...' : 'Importar Planilha (.xlsx)'}
-                        </label>
                     </div>
                 </div>
             </div>
 
-            {monthsData.length === 0 && !isUploading && (
-                <div className="bg-slate-800 border border-slate-700 hover:border-emerald-500/50 transition-colors rounded-2xl p-16 text-center shadow-lg w-full mt-4 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
-                    <div className={`absolute top-0 left-0 w-full h-1 bg-emerald-500`}></div>
+            {monthsData.length === 0 && (
+                <div className="bg-slate-800 border border-slate-700 hover:border-indigo-500/50 transition-colors rounded-2xl p-16 text-center shadow-lg w-full mt-4 flex flex-col items-center justify-center relative overflow-hidden group">
+                    <div className={`absolute top-0 left-0 w-full h-1 bg-indigo-500`}></div>
                     <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center mb-6">
-                        <Upload className="w-10 h-10 text-emerald-500" />
+                        <DollarSign className="w-10 h-10 text-indigo-500" />
                     </div>
 
                     <h3 className="text-2xl font-bold text-white mb-3">Seu Painel Financeiro está vazio</h3>
                     <p className="text-slate-400 max-w-xl mx-auto text-lg mb-8 leading-relaxed">
-                        Vamos começar? Suba a sua primeira planilha de controle financeiro do mês. O sistema irá ler o formato automaticamente e gerar seu Dashboard gerencial, salvando o progresso para acessos futuros.
+                        Seu fluxo de trabalho agora é muito mais simples. Basta ter os Condomínios e Funcionários listados na Base RH e criar um mês novo para que o sistema puxe e cruze os dados automaticamente.
                     </p>
-                    <label
-                        htmlFor="excelUpload"
-                        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-full text-base font-bold transition-all transform hover:scale-105 cursor-pointer shadow-xl shadow-emerald-500/30"
-                    >
-                        <Upload className="w-5 h-5" /> Importar Planilha (.xlsx) Agora
-                    </label>
+                    {hasRHBase ? (
+                        <button
+                            onClick={onCreateFromRHBase}
+                            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-full text-base font-bold transition-all transform hover:scale-105 shadow-xl shadow-indigo-500/30"
+                        >
+                            <Plus className="w-5 h-5" /> Criar o Primeiro Mês (Base RH)
+                        </button>
+                    ) : (
+                        <p className="text-amber-500 font-bold bg-amber-500/10 p-4 rounded-xl">Vá para a Aba Base de Dados RH primeiro e cadastre seus condomínios!</p>
+                    )}
                 </div>
             )}
 
@@ -239,19 +231,19 @@ export function FinanceDashboard({ monthsData, onUpload, isUploading, employeesC
                                             </p>
                                         </div>
                                     </button>
-                                    <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); onDuplicateMonth(month); }}
-                                            className="bg-indigo-500/90 hover:bg-indigo-500 text-white p-2 rounded-full shadow-lg hover:scale-110"
-                                            title="Duplicar Mês"
-                                        >
-                                            <Copy className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); onDeleteMonth(month.monthName, month.year); }}
-                                            className="bg-red-500/90 hover:bg-red-500 text-white p-2 rounded-full shadow-lg hover:scale-110"
-                                            title="Excluir Mês"
-                                        >
+                                        <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDuplicateMonth(month); }}
+                                                className="bg-indigo-500/90 hover:bg-indigo-500 text-white p-2 rounded-full shadow-lg hover:scale-110"
+                                                title="Duplicar Mês"
+                                            >
+                                                <Copy className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDeleteMonth(month.monthName); }}
+                                                className="bg-red-500/90 hover:bg-red-500 text-white p-2 rounded-full shadow-lg hover:scale-110"
+                                                title="Excluir Mês"
+                                            >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>

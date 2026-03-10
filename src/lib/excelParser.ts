@@ -64,8 +64,8 @@ function extractBasicMonthLayout(workbook: xlsx.WorkBook, sheetName: string): Mo
             const inss = sorted[2];
 
             return {
+                id: '', // Empty ID as generated from excel import not db
                 monthName: sheetName,
-                year: new Date().getFullYear(), // Assumindo ano atual se não explicitado na aba
                 receitaBruta: bruto,
                 receitaLiquida: liquido,
                 inssRetido: inss
@@ -105,8 +105,8 @@ function extractFevereiroLayout(workbook: xlsx.WorkBook): MonthlyFinanceData | n
         const impostosList = extractImpostosList(workbook);
 
         return {
+            id: '', // Empty ID
             monthName: 'Fevereiro', // Como a planilha inteira é de fev
-            year: 2026, // Chumbado para 2026 pois o projeto é de 2026
             receitaBruta: Number(valRow[0]) || 0,
             inssRetido: Number(valRow[1]) || 0,
             receitaLiquida: Number(valRow[2]) || 0,

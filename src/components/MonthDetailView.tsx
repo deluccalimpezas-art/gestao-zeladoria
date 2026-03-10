@@ -128,7 +128,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setTempNfData(condo.notaFiscal || {
             valor: condo.receitaBruta || 0, // Suggest the gross value by default
             dataEmissao: new Date().toISOString().split('T')[0],
-            descricao: `Serviços de portaria/limpeza - ${localMonth.monthName}/${localMonth.year}`
+            descricao: `Serviços de portaria/limpeza - ${localMonth.monthName}`
         });
     };
 
@@ -397,7 +397,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 title="Clique para renomear"
                             />
                         </div>
-                        <p className="text-slate-400">Dados de {localMonth.monthName} {localMonth.year}</p>
+                        <p className="text-slate-400">Dados da planilha {localMonth.monthName}</p>
                     </div>
                 </div>
 

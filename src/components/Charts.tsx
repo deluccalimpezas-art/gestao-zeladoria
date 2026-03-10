@@ -7,11 +7,7 @@ interface ChartsProps {
 
 export function Charts({ data }: ChartsProps) {
     const sortedData = useMemo(() => {
-        return [...data].sort((a, b) => {
-            // Simple sort by year then month (this could be improved)
-            if (a.year !== b.year) return a.year - b.year;
-            return 0; // Assuming they are already somewhat ordered or name-based
-        }).slice(-6); // Last 6 months
+        return [...data].reverse().slice(-6); // Last 6 months (data originally desc from DB, reverse for left-to-right chart)
     }, [data]);
 
     if (sortedData.length === 0) return null;

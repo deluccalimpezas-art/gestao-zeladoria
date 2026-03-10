@@ -107,23 +107,89 @@ export async function upsertFuncionario(data: any) {
 
 // Financeiro
 export async function getFinanceMonths() {
-    return await prisma.financeMonth.findMany({
+    const months = await prisma.financeMonth.findMany({
         include: {
             condominios: { include: { condominio: true } },
-            funcionarios: { include: { funcionario: true } },
+            funcionarios: { include: { funcionario: { include: { condominio: true } } } },
             impostos: true,
         },
         orderBy: [
-            { ano: 'desc' },
-            { mes: 'desc' }
+            { created_at: 'desc' }
         ]
-    })
+    });
+
+    const monthNames = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+    return months.map((m: any) => {
+        const mappedCondos = m.condominios.map((mc: any) => {
+            const bruto = mc.valorCobrado || 0;
+            const inss = bruto * 0.11;
+            return {
+                id: mc.id,
+                nome: mc.condominio.nome,
+                cnpj: mc.condominio.cnpj || '',
+                receitaBruta: bruto,
+                inssRetido: inss,
+                receitaLiquida: bruto - inss,
+                nfFeita: false,
+                nfEnviada: false,
+                pagamentoFeito: mc.pago,
+                valorContrato: mc.condominio.valorContrato || 0
+            };
+        });
+
+        const mappedFuncs = m.funcionarios.map((mf: any) => ({
+            id: mf.id,
+            nome: mf.funcionario.nome,
+            condominio: mf.funcionario.condominio?.nome || '',
+            salario: mf.valorPago,
+            horasExtras: mf.horasExtras,
+            vales: 0,
+            faltas: 0,
+            totalReceber: mf.valorPago + mf.horasExtras,
+            statusClt: mf.funcionario.statusClt as any,
+        }));
+
+        const totalBruto = mappedCondos.reduce((acc: number, c: any) => acc + c.receitaBruta, 0);
+        const totalInss = mappedCondos.reduce((acc: number, c: any) => acc + c.inssRetido, 0);
+        const totalLiquida = totalBruto - totalInss;
+        const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
+        const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
+        const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos);
+
+        return {
+            id: m.id,
+            monthName: m.nome,
+            receitaBruta: totalBruto,
+            inssRetido: totalInss,
+            receitaLiquida: totalLiquida,
+            totalSalarios,
+            totalImpostos,
+            lucroEstimado,
+            condominios: mappedCondos,
+            funcionarios: mappedFuncs,
+            impostos: m.impostos.map((mi: any) => ({
+                id: mi.id,
+                nome: mi.nome,
+                valor: mi.valor,
+                pago: mi.pago
+            }))
+        };
+    });
 }
 
-export async function createFinanceMonth(mes: number, ano: number) {
+export async function createFinanceMonth(nome: string) {
     try {
+        const existingMonth = await prisma.financeMonth.findFirst({
+            where: { nome }
+        });
+
+        if (existingMonth) {
+            return { success: false, error: "Este mês já foi criado na base de dados." };
+        }
+
         const newMonth = await prisma.financeMonth.create({
-            data: { mes, ano }
+            data: { nome }
         });
 
         const condominios = await prisma.condominio.findMany();
@@ -159,9 +225,9 @@ export async function createFinanceMonth(mes: number, ano: number) {
     }
 }
 
-export async function duplicateFinanceMonth(sourceMonthId: string, novoMes: number, novoAno: number) {
+export async function duplicateFinanceMonth(sourceMonthId: string, novoNome: string) {
     try {
-        const existing = await prisma.financeMonth.findUnique({ where: { mes_ano: { mes: novoMes, ano: novoAno } } });
+        const existing = await prisma.financeMonth.findUnique({ where: { nome: novoNome } });
         if (existing) return { success: false, error: "Mês destino já existe." };
 
         const sourceMonth = await prisma.financeMonth.findUnique({
@@ -171,7 +237,7 @@ export async function duplicateFinanceMonth(sourceMonthId: string, novoMes: numb
         if (!sourceMonth) return { success: false, error: "Mês origem não encontrado." };
 
         const newMonth = await prisma.financeMonth.create({
-            data: { mes: novoMes, ano: novoAno }
+            data: { nome: novoNome }
         });
 
         if (sourceMonth.condominios.length > 0) {

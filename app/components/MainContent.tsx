@@ -7,7 +7,8 @@ import {
     Menu,
     Search,
     PieChart,
-    PenTool
+    PenTool,
+    Receipt
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -16,6 +17,7 @@ import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { RHManagerView } from '@/components/RHManagerView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
 import { ContractGeneratorView } from './ContractGeneratorView';
+import NFDraftGenerator from './NFDraftGenerator';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -32,7 +34,7 @@ interface MainContentProps {
 
 export default function MainContent({ initialCondos, initialFinanceMonths }: MainContentProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos' | 'nf_draft'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -41,14 +43,11 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     });
 
     const [financeMonths] = useState<MonthlyFinanceData[]>(initialFinanceMonths || []);
-    const [isUploadingExcel] = useState(false);
     const [isNewMonthModalOpen, setIsNewMonthModalOpen] = useState(false);
-    const [newMesInput, setNewMesInput] = useState(new Date().getMonth() + 1);
-    const [newAnoInput, setNewAnoInput] = useState(new Date().getFullYear());
+    const [newMonthName, setNewMonthName] = useState("");
 
-    const [duplicateContext, setDuplicateContext] = useState<any>(null); // To store { sourceMonthId, mes, ano }
-    const [dupMesInput, setDupMesInput] = useState(new Date().getMonth() + 2 > 12 ? 1 : new Date().getMonth() + 2);
-    const [dupAnoInput, setDupAnoInput] = useState(new Date().getMonth() + 2 > 12 ? new Date().getFullYear() + 1 : new Date().getFullYear());
+    const [duplicateContext, setDuplicateContext] = useState<any>(null); // To store { sourceMonthId }
+    const [dupMonthName, setDupMonthName] = useState("");
 
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
 
@@ -63,10 +62,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         return gerarAlertasCondominios(masterRH.condominios || []);
     }, [masterRH.condominios]);
 
-    const handleExcelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("Upload logic to be connected");
-    };
-
     const onUpdateCondo = async (data: any) => {
         await upsertCondominio(data);
     };
@@ -77,14 +72,20 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         }
     };
 
-    const handleDeleteMonth = async (monthName: string, year: number) => {
-        if (window.confirm(`Excluir ${monthName}/${year}?`)) {
+    const onUpdateMonth = async (updatedMonth: MonthlyFinanceData) => {
+        // Here we just log for now, waiting for Prisma Save Logic later on
+        console.log("Salvar modificado:", updatedMonth);
+    };
+
+    const handleDeleteMonth = async (monthName: string) => {
+        if (window.confirm(`Excluir ${monthName}?`)) {
             console.log("Delete month action to be implemented");
         }
     };
 
     const onCreateMonth = async () => {
-        const res = await createFinanceMonth(newMesInput, newAnoInput);
+        if (!newMonthName.trim()) return alert("Digite um nome para o mês");
+        const res = await createFinanceMonth(newMonthName);
         if (res && !res.success) {
             alert('Falha ao criar mês: ' + res.error);
         } else {
@@ -94,7 +95,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
 
     const handleDuplicateMonth = async () => {
         if (!duplicateContext) return;
-        const res = await duplicateFinanceMonth(duplicateContext.sourceMonthId, dupMesInput, dupAnoInput);
+        if (!dupMonthName.trim()) return alert("Digite um nome para o novo mês duplicado");
+        const res = await duplicateFinanceMonth(duplicateContext.sourceMonthId, dupMonthName);
         if (res && !res.success) {
             alert('Falha ao duplicar: ' + res.error);
         } else {
@@ -149,6 +151,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 {sidebarOpen && <span className="font-medium">Gerar Contratos</span>}
                             </button>
                         </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('nf_draft')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'nf_draft' ? 'bg-amber-600/10 text-amber-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Receipt className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Rascunho Nota Fiscal</span>}
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -190,11 +201,9 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                         <FinanceDashboard
                             monthsData={financeMonths}
                             employeesCount={employeesCount}
-                            onUpload={handleExcelUpload}
-                            isUploading={isUploadingExcel}
                             onDeleteMonth={handleDeleteMonth}
                             onUpdateMonth={onUpdateCondo}
-                            onDuplicateMonth={(month: any) => setDuplicateContext({ sourceMonthId: month.id, mes: dupMesInput, ano: dupAnoInput })}
+                            onDuplicateMonth={(month: any) => setDuplicateContext({ sourceMonthId: month.id })}
                             onCreateFromRHBase={() => setIsNewMonthModalOpen(true)}
                             hasRHBase={masterRH.condominios.length > 0}
                         />
@@ -214,6 +223,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                         />
                     ) : activeTab === 'contratos' ? (
                         <ContractGeneratorView />
+                    ) : activeTab === 'nf_draft' ? (
+                        <NFDraftGenerator condominios={masterRH.condominios} />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
@@ -221,15 +232,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
 
                 <Modal isOpen={isNewMonthModalOpen} onClose={() => setIsNewMonthModalOpen(false)} title="Criar Novo Mês da Base">
                     <div className="space-y-4 p-4 text-slate-800">
-                        <div className="flex gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1">Mês (Numérico)</label>
-                                <input type="number" min="1" max="12" value={newMesInput} onChange={e => setNewMesInput(Number(e.target.value))} className="w-full border rounded p-2" />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1">Ano</label>
-                                <input type="number" value={newAnoInput} onChange={e => setNewAnoInput(Number(e.target.value))} className="w-full border rounded p-2" />
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Nome da Planilha</label>
+                            <input 
+                                type="text" 
+                                placeholder="Ex: Planilha de Novembro, Fechamento 2026..." 
+                                value={newMonthName} 
+                                onChange={e => setNewMonthName(e.target.value)} 
+                                className="w-full border rounded p-2" 
+                            />
                         </div>
                         <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Confirmar Criação</button>
                     </div>
@@ -237,15 +248,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
 
                 <Modal isOpen={!!duplicateContext} onClose={() => setDuplicateContext(null)} title="Duplicar Mês Anterior">
                     <div className="space-y-4 p-4 text-slate-800">
-                        <div className="flex gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1">Novo Mês (Destino)</label>
-                                <input type="number" min="1" max="12" value={dupMesInput} onChange={e => setDupMesInput(Number(e.target.value))} className="w-full border rounded p-2" />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium mb-1">Ano (Destino)</label>
-                                <input type="number" value={dupAnoInput} onChange={e => setDupAnoInput(Number(e.target.value))} className="w-full border rounded p-2" />
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Nome para o Mês Duplicado (Destino)</label>
+                            <input 
+                                type="text" 
+                                placeholder="Ex: Nova Planilha Copiada" 
+                                value={dupMonthName} 
+                                onChange={e => setDupMonthName(e.target.value)} 
+                                className="w-full border rounded p-2" 
+                            />
                         </div>
                         <button onClick={handleDuplicateMonth} className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700">Confirmar Duplicação</button>
                     </div>

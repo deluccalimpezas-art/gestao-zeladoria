@@ -52,7 +52,7 @@ export function DocumentGenerator({ months }: DocumentGeneratorProps) {
                             <button
                                 key={idx}
                                 onClick={() => setSelectedMonth(m)}
-                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${selectedMonth?.monthName === m.monthName && selectedMonth?.year === m.year
+                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${selectedMonth?.monthName === m.monthName
                                         ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-lg shadow-indigo-500/10'
                                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-slate-800/80'
                                     }`}
@@ -63,7 +63,6 @@ export function DocumentGenerator({ months }: DocumentGeneratorProps) {
                                     </div>
                                     <div className="text-left">
                                         <p className="font-bold text-sm">{m.monthName}</p>
-                                        <p className="text-[10px] text-slate-500">{m.year}</p>
                                     </div>
                                 </div>
                                 <ChevronRight className={`w-4 h-4 transition-transform ${selectedMonth?.monthName === m.monthName ? 'scale-110' : 'opacity-0'}`} />
@@ -97,7 +96,7 @@ export function DocumentGenerator({ months }: DocumentGeneratorProps) {
                                         <p className="text-xs font-bold text-slate-500 tracking-widest">RELATÓRIO MENSAL DE GESTÃO</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xs font-bold uppercase">{selectedMonth.monthName} / {selectedMonth.year}</p>
+                                        <p className="text-xs font-bold uppercase">{selectedMonth.monthName}</p>
                                         <p className="text-[10px] text-slate-400">Gerado em: {new Date().toLocaleDateString('pt-BR')}</p>
                                     </div>
                                 </div>

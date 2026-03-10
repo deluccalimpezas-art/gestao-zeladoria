@@ -9,64 +9,70 @@ datasource db {
 }
 
 model Condominio {
-  id                String               @id @default(uuid())
-  nome              String
-  cnpj              String?              @unique
-  endereco          String?
-  created_at        DateTime             @default(now())
-  updated_at        DateTime             @updatedAt
-  funcionarios      Funcionario[]
-  financasMensais   MonthlyCondominio[]
+  id              String              @id @default(uuid())
+  nome            String
+  cnpj            String?             @unique
+  endereco        String?
+  created_at      DateTime            @default(now())
+  updated_at      DateTime            @updatedAt
+  inicio          String?
+  termino         String?
+  valorContrato   Float?
+  funcionarios    Funcionario[]
+  financasMensais MonthlyCondominio[]
 }
 
 model Funcionario {
-  id            String      @id @default(uuid())
-  nome          String
-  cargo         String?
-  salarioBase   Float       @default(0)
-  condominioId  String
-  condominio    Condominio  @relation(fields: [condominioId], references: [id], onDelete: Cascade)
-  created_at    DateTime    @default(now())
-  updated_at    DateTime    @updatedAt
-  pagamentos    MonthlyFuncionario[]
+  id                     String               @id @default(uuid())
+  nome                   String
+  cargo                  String?
+  salarioBase            Float                @default(0)
+  condominioId           String
+  created_at             DateTime             @default(now())
+  updated_at             DateTime             @updatedAt
+  dataAdmissao           String?
+  fimContratoExperiencia String?
+  statusClt              String?
+  vencimentoFerias       String?
+  condominio             Condominio           @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  pagamentos             MonthlyFuncionario[]
 }
 
 model FinanceMonth {
-  id          String   @id @default(uuid())
-  mes         Int
-  ano         Int
-  fechado     Boolean  @default(false)
+  id           String               @id @default(uuid())
+  nome         String               @unique
+  fechado      Boolean              @default(false)
+  created_at   DateTime             @default(now())
   condominios  MonthlyCondominio[]
-  impostos     MonthlyImposto[]
   funcionarios MonthlyFuncionario[]
-  @@unique([mes, ano])
+  impostos     MonthlyImposto[]
 }
 
 model MonthlyCondominio {
-  id             String       @id @default(uuid())
-  valorCobrado   Float
-  pago           Boolean      @default(false)
-  monthId        String
-  month          FinanceMonth @relation(fields: [monthId], references: [id])
-  condominioId   String
-  condominio     Condominio   @relation(fields: [condominioId], references: [id])
+  id           String       @id @default(uuid())
+  valorCobrado Float
+  pago         Boolean      @default(false)
+  monthId      String
+  condominioId String
+  condominio   Condominio   @relation(fields: [condominioId], references: [id])
+  month        FinanceMonth @relation(fields: [monthId], references: [id])
 }
 
 model MonthlyFuncionario {
-  id              String       @id @default(uuid())
-  valorPago       Float
-  horasExtras     Float        @default(0)
-  monthId         String
-  month           FinanceMonth @relation(fields: [monthId], references: [id])
-  funcionarioId   String
-  funcionario     Funcionario  @relation(fields: [funcionarioId], references: [id])
+  id            String       @id @default(uuid())
+  valorPago     Float
+  horasExtras   Float        @default(0)
+  monthId       String
+  funcionarioId String
+  funcionario   Funcionario  @relation(fields: [funcionarioId], references: [id])
+  month         FinanceMonth @relation(fields: [monthId], references: [id])
 }
 
 model MonthlyImposto {
-  id          String       @id @default(uuid())
-  nome        String
-  valor       Float
-  pago        Boolean      @default(false)
-  monthId     String
-  month       FinanceMonth @relation(fields: [monthId], references: [id])
+  id      String       @id @default(uuid())
+  nome    String
+  valor   Float
+  pago    Boolean      @default(false)
+  monthId String
+  month   FinanceMonth @relation(fields: [monthId], references: [id])
 }
