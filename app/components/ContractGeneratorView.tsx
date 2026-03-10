@@ -169,17 +169,21 @@ export function ContractGeneratorView() {
                             <p>2.24 – A Contratada prestará o serviço de forma regular com o seguinte quadro de pessoal qualificado:</p>
                             {serviceType === '22h' ? (
                                 <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Uma zeladora - 22h semanais</p>
-                                    <p>   -Segunda à sexta-feira.</p>
-                                    <p>   Período matutino (08:00 às 12:00)</p>
-                                    <p>   -Sábado.</p>
-                                    <p>   Período matutino (08:00 às 10:00)</p>
+                                    <p>A) Uma Aux. Limpeza: 22 horas semanais. </p>
+                                    <p>   -Segunda á sexta-feira:</p>
+                                    <p>        Período Matutino(08:00 às 12:00)</p>
+                                    <br />
+                                    <p>   -Sábado:</p>
+                                    <p>        Período Matutino(08:00 às 10:00)</p>
                                 </div>
                             ) : (
                                 <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Um Zelador: 44 horas semanais.</p>
-                                    <p>   -Segunda á sexta-feira: Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
-                                    <p>   -Sábado: Período Matutino (08:00 às 12:00)</p>
+                                    <p>A) Um Zelador: 44 horas semanais. </p>
+                                    <p>   -Segunda á sexta-feira:</p>
+                                    <p>        Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
+                                    <br />
+                                    <p>   -Sábado:</p>
+                                    <p>        Período Matutino (08:00 às 12:00)</p>
                                 </div>
                             )}
 
