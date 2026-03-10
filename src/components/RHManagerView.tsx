@@ -144,9 +144,10 @@ interface EmployeeCardProps {
     employee: FuncionarioData;
     onUpdate: (field: keyof FuncionarioData, val: any) => void;
     onRemove: () => void;
+    condominiosList: string[];
 }
 
-function EmployeeCard({ employee, onUpdate, onRemove }: EmployeeCardProps) {
+function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: EmployeeCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getStatusColor = (status?: string) => {
@@ -193,14 +194,26 @@ function EmployeeCard({ employee, onUpdate, onRemove }: EmployeeCardProps) {
                             />
                         </div>
                         <div className="flex items-center">
-                            <input
-                                value={employee.condominio}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('condominio', e.target.value)}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-slate-400 text-xs font-medium ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="Condomínio"
-                            />
+                            {isExpanded ? (
+                                <select
+                                    value={employee.condominio || ''}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => onUpdate('condominio', e.target.value)}
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-full text-slate-300 text-xs font-medium cursor-pointer"
+                                >
+                                    <option value="" disabled>Selecione um Condomínio...</option>
+                                    {condominiosList.filter(Boolean).map(cName => (
+                                        <option key={cName} value={cName}>{cName}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <input
+                                    value={employee.condominio || ''}
+                                    readOnly={true}
+                                    className="bg-transparent border-none outline-none rounded px-2 py-0.5 w-full text-slate-400 text-xs font-medium cursor-pointer"
+                                    placeholder="Sem Condomínio"
+                                />
+                            )}
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="text-slate-600 text-xs font-bold">R$</span>
@@ -316,8 +329,9 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     };
 
     const addFunc = () => {
+        const defaultCondo = localData.condominios.length > 0 ? localData.condominios[0].nome : '';
         const newFunc: FuncionarioData = {
-            condominio: '',
+            condominio: defaultCondo,
             nome: 'Nova Funcionária',
             salario: 0,
             totalReceber: 0
@@ -471,6 +485,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                         <EmployeeCard
                                             key={originalIdx}
                                             employee={func}
+                                            condominiosList={localData.condominios.map(c => c.nome)}
                                             onUpdate={(field, val) => updateFunc(originalIdx, field, val)}
                                             onRemove={() => removeFunc(originalIdx)}
                                         />
