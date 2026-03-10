@@ -76,3 +76,21 @@ model MonthlyImposto {
   monthId String
   month   FinanceMonth @relation(fields: [monthId], references: [id])
 }
+
+// ---- CRONOGRAMA & CALENDÁRIO ----
+
+model WeeklyTask {
+  id        String   @id @default(uuid())
+  dayOfWeek Int      // 1 = Segunda, 2 = Terça ... 6 = Sábado
+  title     String
+  time      String?
+  createdAt DateTime @default(now())
+}
+
+model CalendarEvent {
+  id          String   @id @default(uuid())
+  title       String
+  date        DateTime
+  isPermanent Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

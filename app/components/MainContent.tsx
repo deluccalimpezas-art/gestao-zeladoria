@@ -8,7 +8,8 @@ import {
     Search,
     PieChart,
     PenTool,
-    Receipt
+    Receipt,
+    CalendarDays // Added CalendarDays icon
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -18,6 +19,7 @@ import { RHManagerView } from '@/components/RHManagerView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
 import { ContractGeneratorView } from './ContractGeneratorView';
 import NFDraftGenerator from './NFDraftGenerator';
+import { ScheduleView } from '@/components/ScheduleView'; // Added ScheduleView import
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -34,7 +36,7 @@ interface MainContentProps {
 
 export default function MainContent({ initialCondos, initialFinanceMonths }: MainContentProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos' | 'nf_draft'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma'>('visao_geral'); // Added 'cronograma' to activeTab type
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -131,6 +133,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             >
                                 <Users className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Base de Dados RH</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('cronograma')} // Added cronograma tab
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'cronograma' ? 'bg-purple-600/10 text-purple-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <CalendarDays className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cronograma</span>}
                             </button>
                         </li>
                         <li>

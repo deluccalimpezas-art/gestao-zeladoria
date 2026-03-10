@@ -306,4 +306,91 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
     }
 }
 
+// ==========================================
+// MÓDULO CRONOGRAMA & CALENDÁRIO
+// ==========================================
+
+export async function getWeeklyTasks() {
+    try {
+        return await prisma.weeklyTask.findMany({
+            orderBy: [{ dayOfWeek: 'asc' }, { createdAt: 'asc' }]
+        });
+    } catch (e) {
+        console.error("Erro getWeeklyTasks:", e);
+        return [];
+    }
+}
+
+export async function addWeeklyTask(data: { dayOfWeek: number, title: string, time?: string }) {
+    try {
+        const result = await prisma.weeklyTask.create({ data });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteWeeklyTask(id: string) {
+    try {
+        await prisma.weeklyTask.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getCalendarEvents(monthStart: Date, monthEnd: Date) {
+    try {
+        // Busca eventos que caem nesse mes, OU eventos que sao marcados como "permanentes" (se repetem sempre)
+        const events = await prisma.calendarEvent.findMany({
+            where: {
+                OR: [
+                    { isPermanent: true },
+                    { date: { gte: monthStart, lte: monthEnd } }
+                ]
+            },
+            orderBy: { date: 'asc' }
+        });
+        return events;
+    } catch (e) {
+        console.error("Erro getCalendarEvents:", e);
+        return [];
+    }
+}
+
+export async function addCalendarEvent(data: { title: string, date: Date, isPermanent: boolean }) {
+    try {
+        const result = await prisma.calendarEvent.create({ data });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteCalendarEvent(id: string) {
+    try {
+        await prisma.calendarEvent.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function toggleEventPermanent(id: string, currentStatus: boolean) {
+    try {
+        const result = await prisma.calendarEvent.update({
+            where: { id },
+            data: { isPermanent: !currentStatus }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 
