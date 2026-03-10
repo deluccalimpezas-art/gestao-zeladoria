@@ -128,16 +128,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                         </li>
                         <li>
                             <button
-                                onClick={() => setActiveTab('rh')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'rh' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Users className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Base de Dados RH</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('cronograma')} // Added cronograma tab
+                                onClick={() => setActiveTab('cronograma')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'cronograma' ? 'bg-purple-600/10 text-purple-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
                                 <CalendarDays className="w-5 h-5 flex-shrink-0" />
@@ -169,6 +160,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             >
                                 <Receipt className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Rascunho Nota Fiscal</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('rh')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'rh' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Users className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Base de Dados RH</span>}
                             </button>
                         </li>
                     </ul>
