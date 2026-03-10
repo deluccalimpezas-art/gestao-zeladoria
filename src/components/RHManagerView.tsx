@@ -61,7 +61,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                                     value={condo.valorContrato || ''}
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-text"
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="Valor"
                                 />
                             ) : (
@@ -230,7 +230,7 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: Employe
                                     value={employee.salario || ''}
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => onUpdate('salario', parseFloat(e.target.value) || 0)}
-                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-blue-400 font-bold text-sm cursor-text"
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-blue-400 font-bold text-sm cursor-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="Salário base"
                                 />
                             ) : (
