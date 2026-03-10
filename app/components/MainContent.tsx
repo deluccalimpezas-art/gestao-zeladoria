@@ -244,40 +244,45 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                 </div>
 
                 <Modal isOpen={isNewMonthModalOpen} onClose={() => setIsNewMonthModalOpen(false)} title="Criar Novo Mês da Base">
-                    <div className="space-y-4 p-4 text-slate-800">
+                    <div className="space-y-4 p-2 text-slate-300">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Nome da Planilha</label>
+                            <label className="block text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Nome da Planilha</label>
                             <input 
                                 type="text" 
                                 placeholder="Ex: Planilha de Novembro, Fechamento 2026..." 
                                 value={newMonthName} 
                                 onChange={e => setNewMonthName(e.target.value)} 
-                                className="w-full border rounded p-2" 
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" 
                             />
                         </div>
-                        <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">Confirmar Criação</button>
+                        <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 hover:bg-indigo-500">
+                            Confirmar Criação
+                        </button>
                     </div>
                 </Modal>
 
                 <Modal isOpen={!!duplicateContext} onClose={() => setDuplicateContext(null)} title="Duplicar Mês Anterior">
-                    <div className="space-y-4 p-4 text-slate-800">
+                    <div className="space-y-4 p-2 text-slate-300">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Nome para o Mês Duplicado (Destino)</label>
-                            <input 
-                                type="text" 
-                                placeholder="Ex: Nova Planilha Copiada" 
-                                value={dupMonthName} 
-                                onChange={e => setDupMonthName(e.target.value)} 
-                                className="w-full border rounded p-2" 
+                            <label className="block text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Nome para o Mês Duplicado (Destino)</label>
+                            <input
+                                type="text"
+                                placeholder="Ex: Planilha de Dezembro..."
+                                value={dupMonthName}
+                                autoFocus
+                                onChange={e => setDupMonthName(e.target.value)}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                             />
                         </div>
-                        <button onClick={handleDuplicateMonth} className="w-full bg-emerald-600 text-white p-2 rounded hover:bg-emerald-700">Confirmar Duplicação</button>
+                        <button onClick={handleDuplicateMonth} className="w-full bg-emerald-600 text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 hover:bg-emerald-500">
+                            Confirmar Duplicação
+                        </button>
                     </div>
                 </Modal>
 
                 {importConfirm && (
                     <Modal isOpen={true} onClose={() => setImportConfirm(null)} title="Confirmar Importação">
-                        <div className="p-4 text-slate-800">Deseja importar de {importConfirm.monthName}?</div>
+                        <div className="p-4 text-slate-300">Deseja importar de {importConfirm.monthName}?</div>
                     </Modal>
                 )}
             </main>
