@@ -15,11 +15,13 @@ export function ContractGeneratorView() {
     // Dates
     const today = new Date().toISOString().substring(0, 10);
     const [startDateRaw, setStartDateRaw] = useState(today);
+    const [signatureDateRaw, setSignatureDateRaw] = useState(today);
 
     // Helpers
     const formatCurrency = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
     const startDateObj = new Date(startDateRaw + "T12:00:00");
+    const signatureDateObj = new Date(signatureDateRaw + "T12:00:00");
     const endDateObj = new Date(startDateObj.getFullYear() + 1, startDateObj.getMonth(), startDateObj.getDate(), 12, 0, 0);
 
     const startFormatted = !isNaN(startDateObj.getTime()) ? startDateObj.toLocaleDateString('pt-BR') : '__/__/____';
@@ -109,12 +111,22 @@ export function ContractGeneratorView() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Data de Início</label>
+                            <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Data de Início do Serviço</label>
                             <input
                                 type="date"
                                 value={startDateRaw}
                                 onChange={e => setStartDateRaw(e.target.value)}
                                 className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Data da Assinatura no Papel</label>
+                            <input
+                                type="date"
+                                value={signatureDateRaw}
+                                onChange={e => setSignatureDateRaw(e.target.value)}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                             />
                         </div>
                     </div>
@@ -243,7 +255,7 @@ export function ContractGeneratorView() {
                             <p className="mt-4">E, por estarem assim, justas e contratadas, CONTRATANTE E CONTRATADO assinam o presente instrumento em 2 (duas) vias de igual teor e forma para a produção de todos os efeitos de direito.</p>
 
                             <div className="text-right mt-12 mb-16">
-                                <span className="font-bold italic">{contractorCity}, {getDateExtenso(startDateObj)}.</span>
+                                <span className="font-bold italic">{contractorCity}, {getDateExtenso(signatureDateObj)}.</span>
                             </div>
 
                             {/* Signatures */}
