@@ -34,6 +34,7 @@ const DAYS_OF_WEEK = [
 
 export function ScheduleView() {
     const [activeTab, setActiveTab] = useState<'weekly' | 'calendar'>('weekly');
+    const [isEditingWeekly, setIsEditingWeekly] = useState(false);
     
     // Weekly State
     const [weeklyTasks, setWeeklyTasks] = useState<any[]>([]);
@@ -228,84 +229,159 @@ export function ScheduleView() {
 
             {/* TAB: WEEKLY SCHEDULE */}
             {activeTab === 'weekly' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                    {DAYS_OF_WEEK.map(day => {
-                        const dayTasks = weeklyTasks.filter(t => t.dayOfWeek === day.id);
-                        
-                        return (
-                            <div key={day.id} className={`bg-slate-800/80 rounded-2xl border ${day.color} flex flex-col h-full overflow-hidden shadow-lg backdrop-blur-sm transition-all hover:border-indigo-500/50`}>
-                                <div className="p-4 bg-slate-900/50 border-b border-slate-700/50 flex items-center justify-between">
-                                    <h3 className="font-bold text-slate-200">{day.name}</h3>
-                                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
-                                        {dayTasks.length} rotinas
-                                    </span>
-                                </div>
-                                
-                                <div className="p-3 flex-1 flex flex-col gap-2 min-h-[250px] overflow-y-auto">
-                                    {dayTasks.map(task => (
-                                        <div key={task.id} className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-3 group relative hover:bg-slate-700/50 transition-colors">
-                                            <p className="text-sm text-slate-200 font-medium pr-6">{task.title}</p>
-                                            {task.time && (
-                                                <p className="text-xs text-indigo-300 mt-2 flex items-center gap-1.5 font-mono">
-                                                    <Clock className="w-3 h-3" /> {task.time}
-                                                </p>
-                                            )}
-                                            <button 
-                                                onClick={() => handleDeleteWeeklyTask(task.id)}
-                                                className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all"
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
-                                    ))}
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-sm">
+                        <div>
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                <Clock className="w-5 h-5 text-indigo-400" />
+                                {isEditingWeekly ? 'Editando Rotina Semanal' : 'Rotina de Hoje'}
+                            </h2>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                                {isEditingWeekly ? 'Gerencie as tarefas fixas de todos os dias da semana.' : 'Aqui estão as suas tarefas fixas programadas para o dia atual.'}
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => setIsEditingWeekly(!isEditingWeekly)}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${isEditingWeekly ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20'}`}
+                        >
+                            {isEditingWeekly ? 'Concluir Edição' : 'Editar Semana Completa'}
+                        </button>
+                    </div>
 
-                                    {addingToDay === day.id ? (
-                                        <div className="bg-slate-900/80 rounded-xl p-3 border border-indigo-500/50 shadow-lg shadow-indigo-500/10 mt-auto animate-in fade-in slide-in-from-bottom-2">
-                                            <input 
-                                                autoFocus
-                                                type="text" 
-                                                placeholder="Descreva a tarefa..."
-                                                value={newWeeklyTitle}
-                                                onChange={e => setNewWeeklyTitle(e.target.value)}
-                                                className="w-full bg-transparent border-b border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 pb-1 mb-3"
-                                                onKeyDown={e => e.key === 'Enter' && handleAddWeeklyTask(day.id)}
-                                            />
-                                            <div className="flex items-center gap-2">
-                                                <div className="relative flex-1">
-                                                    <Clock className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-                                                    <input 
-                                                        type="time" 
-                                                        value={newWeeklyTime}
-                                                        onChange={e => setNewWeeklyTime(e.target.value)}
-                                                        className="w-full bg-slate-800 rounded-lg py-1.5 pl-7 pr-2 text-xs text-slate-300 outline-none border border-slate-700 focus:border-indigo-500"
-                                                    />
-                                                </div>
-                                                <button 
-                                                    onClick={() => handleAddWeeklyTask(day.id)}
-                                                    className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg p-1.5 transition-colors"
-                                                >
-                                                    <Plus className="w-4 h-4" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => { setAddingToDay(null); setNewWeeklyTitle(''); setNewWeeklyTime(''); }}
-                                                    className="bg-slate-700 hover:bg-slate-600 text-white rounded-lg p-1.5 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                    {!isEditingWeekly ? (
+                        <div className="max-w-3xl mx-auto">
+                            {(() => {
+                                const todayId = new Date().getDay();
+                                const todayObj = DAYS_OF_WEEK.find(d => d.id === todayId);
+                                
+                                if (!todayObj) {
+                                    return (
+                                        <div className="bg-slate-800/80 rounded-2xl border border-slate-700 p-8 text-center shadow-lg">
+                                            <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Star className="w-8 h-8 text-amber-400" />
                                             </div>
+                                            <h3 className="text-xl font-bold text-white mb-2">Hoje é Domingo!</h3>
+                                            <p className="text-slate-400">Aproveite o seu dia de descanso. Nenhuma rotina programada.</p>
                                         </div>
-                                    ) : (
-                                        <button 
-                                            onClick={() => setAddingToDay(day.id)}
-                                            className="w-full flex items-center justify-center gap-2 py-3 mt-auto rounded-xl border border-dashed border-slate-600 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all text-sm font-medium"
-                                        >
-                                            <Plus className="w-4 h-4" /> Adicionar Rotina
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        )
-                    })}
+                                    );
+                                }
+
+                                const dayTasks = weeklyTasks.filter(t => t.dayOfWeek === todayObj.id);
+                                return (
+                                    <div className="bg-slate-800 rounded-2xl border-2 border-indigo-500/50 shadow-2xl shadow-indigo-500/10 overflow-hidden">
+                                        <div className="p-6 bg-indigo-900/30 border-b border-indigo-500/30 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="font-bold text-indigo-200 text-2xl">{todayObj.name}</h3>
+                                                <span className="text-[10px] px-3 py-1 rounded-full bg-indigo-500 font-bold text-white uppercase tracking-widest shadow-lg shadow-indigo-500/40">Hoje</span>
+                                            </div>
+                                            <span className="text-sm font-medium px-3 py-1 rounded-full bg-slate-900 border border-indigo-500/30 text-indigo-300">
+                                                {dayTasks.length} rotinas
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="p-6 flex flex-col gap-3 min-h-[300px]">
+                                            {dayTasks.length === 0 ? (
+                                                <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
+                                                    <p>Nenhuma tarefa listada para hoje.</p>
+                                                </div>
+                                            ) : (
+                                                dayTasks.map(task => (
+                                                    <div key={task.id} className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 flex justify-between items-center group hover:bg-indigo-500/20 transition-colors">
+                                                        <p className="text-lg font-medium text-indigo-100">{task.title}</p>
+                                                        {task.time && (
+                                                            <p className="text-sm text-indigo-300 flex items-center gap-2 font-mono bg-indigo-900/50 px-3 py-1.5 rounded-lg">
+                                                                <Clock className="w-4 h-4" /> {task.time}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pt-2 pb-4">
+                            {DAYS_OF_WEEK.map(day => {
+                                const dayTasks = weeklyTasks.filter(t => t.dayOfWeek === day.id);
+                                
+                                return (
+                                    <div key={day.id} className={`bg-slate-800/80 rounded-2xl border ${day.color} flex flex-col h-full overflow-hidden shadow-lg backdrop-blur-sm transition-all hover:border-indigo-500/50`}>
+                                        <div className="p-4 bg-slate-900/50 border-b border-slate-700/50 flex items-center justify-between">
+                                            <h3 className="font-bold text-slate-200">{day.name}</h3>
+                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                                                {dayTasks.length} rotinas
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="p-3 flex-1 flex flex-col gap-2 min-h-[250px] overflow-y-auto">
+                                            {dayTasks.map(task => (
+                                                <div key={task.id} className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-3 group relative hover:bg-slate-700/50 transition-colors">
+                                                    <p className="text-sm text-slate-200 font-medium pr-6">{task.title}</p>
+                                                    {task.time && (
+                                                        <p className="text-xs text-indigo-300 mt-2 flex items-center gap-1.5 font-mono">
+                                                            <Clock className="w-3 h-3" /> {task.time}
+                                                        </p>
+                                                    )}
+                                                    <button 
+                                                        onClick={() => handleDeleteWeeklyTask(task.id)}
+                                                        className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {addingToDay === day.id ? (
+                                                <div className="bg-slate-900/80 rounded-xl p-3 border border-indigo-500/50 shadow-lg shadow-indigo-500/10 mt-auto animate-in fade-in slide-in-from-bottom-2">
+                                                    <input 
+                                                        autoFocus
+                                                        type="text" 
+                                                        placeholder="Descreva a tarefa..."
+                                                        value={newWeeklyTitle}
+                                                        onChange={e => setNewWeeklyTitle(e.target.value)}
+                                                        className="w-full bg-transparent border-b border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 pb-1 mb-3"
+                                                        onKeyDown={e => e.key === 'Enter' && handleAddWeeklyTask(day.id)}
+                                                    />
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="relative flex-1">
+                                                            <Clock className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                                                            <input 
+                                                                type="time" 
+                                                                value={newWeeklyTime}
+                                                                onChange={e => setNewWeeklyTime(e.target.value)}
+                                                                className="w-full bg-slate-800 rounded-lg py-1.5 pl-7 pr-2 text-xs text-slate-300 outline-none border border-slate-700 focus:border-indigo-500"
+                                                            />
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => handleAddWeeklyTask(day.id)}
+                                                            className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg p-1.5 transition-colors"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => { setAddingToDay(null); setNewWeeklyTitle(''); setNewWeeklyTime(''); }}
+                                                            className="bg-slate-700 hover:bg-slate-600 text-white rounded-lg p-1.5 transition-colors"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <button 
+                                                    onClick={() => setAddingToDay(day.id)}
+                                                    className="w-full flex items-center justify-center gap-2 py-3 mt-auto rounded-xl border border-dashed border-slate-600 text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all text-sm font-medium"
+                                                >
+                                                    <Plus className="w-4 h-4" /> Adicionar Rotina
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
                 </div>
             )}
 
