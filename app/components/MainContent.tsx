@@ -232,6 +232,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
                             availableMonths={financeMonths.map(m => m.monthName)}
                         />
+                    ) : activeTab === 'cronograma' ? (
+                        <ScheduleView />
                     ) : activeTab === 'contratos' ? (
                         <ContractGeneratorView />
                     ) : activeTab === 'nf_draft' ? (
