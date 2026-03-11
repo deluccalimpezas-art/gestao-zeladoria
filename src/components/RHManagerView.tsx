@@ -376,7 +376,33 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     const updateFunc = (index: number, field: keyof FuncionarioData, value: any) => {
         const newList = [...localData.funcionarios];
-        newList[index] = { ...newList[index], [field]: value };
+        const updatedFunc = { ...newList[index], [field]: value };
+
+        // Auto-calculate Vacation Due Date (vencimentoFerias) based on Admission Date (dataAdmissao) + 1 year
+        if (field === 'dataAdmissao' && typeof value === 'string' && value.length >= 8) {
+            let day = 0, month = 0, year = 0;
+            const partsBar = value.split('/');
+            const partsDash = value.split('-');
+            
+            if (partsBar.length === 3) {
+                day = parseInt(partsBar[0]);
+                month = parseInt(partsBar[1]);
+                year = parseInt(partsBar[2]);
+            } else if (partsDash.length === 3) {
+                year = parseInt(partsDash[0]);
+                month = parseInt(partsDash[1]);
+                day = parseInt(partsDash[2]);
+            }
+            
+            if (day > 0 && month > 0 && year > 0) {
+                const nextYear = year + 1;
+                const formattedDay = String(day).padStart(2, '0');
+                const formattedMonth = String(month).padStart(2, '0');
+                updatedFunc.vencimentoFerias = `${formattedDay}/${formattedMonth}/${nextYear}`;
+            }
+        }
+
+        newList[index] = updatedFunc;
         setLocalData({ ...localData, funcionarios: newList });
     };
 
