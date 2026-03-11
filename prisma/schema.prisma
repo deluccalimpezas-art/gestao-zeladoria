@@ -84,6 +84,7 @@ model WeeklyTask {
   dayOfWeek Int      // 1 = Segunda, 2 = Terça ... 6 = Sábado
   title     String
   time      String?
+  userId    String   @default("Usuário 1")
   createdAt DateTime @default(now())
 }
 
@@ -92,5 +93,6 @@ model CalendarEvent {
   title       String
   date        DateTime
   isPermanent Boolean  @default(false)
+  userId      String   @default("Usuário 1")
   createdAt   DateTime @default(now())
 }

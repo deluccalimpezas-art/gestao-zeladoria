@@ -49,23 +49,25 @@ export function ScheduleView() {
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [newEventTitle, setNewEventTitle] = useState('');
     const [newEventIsPermanent, setNewEventIsPermanent] = useState(false);
-    
+    const [selectedUser, setSelectedUser] = useState('Usuário 1');
+    const users = ['Usuário 1', 'Usuário 2', 'Usuário 3', 'Usuário 4'];
+
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         loadData();
-    }, [currentDate, activeTab]);
+    }, [currentDate, activeTab, selectedUser]);
 
     const loadData = async () => {
         setIsLoading(true);
         if (activeTab === 'weekly') {
-            const tasks = await getWeeklyTasks();
+            const tasks = await getWeeklyTasks(selectedUser);
             setWeeklyTasks(tasks);
         } else {
             // Get first and last day of current month view
             const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-            const events = await getCalendarEvents(start, end);
+            const events = await getCalendarEvents(start, end, selectedUser);
             setCalendarEvents(events);
         }
         setIsLoading(false);
@@ -75,7 +77,7 @@ export function ScheduleView() {
     const handleAddWeeklyTask = async (dayId: number) => {
         if (!newWeeklyTitle.trim()) return;
         setIsLoading(true);
-        const res = await addWeeklyTask({ dayOfWeek: dayId, title: newWeeklyTitle, time: newWeeklyTime });
+        const res = await addWeeklyTask({ dayOfWeek: dayId, title: newWeeklyTitle, time: newWeeklyTime, userId: selectedUser });
         if (res.success) {
             setNewWeeklyTitle('');
             setNewWeeklyTime('');
@@ -164,7 +166,8 @@ export function ScheduleView() {
         const res = await addCalendarEvent({ 
             title: newEventTitle, 
             date: selectedDate, 
-            isPermanent: newEventIsPermanent 
+            isPermanent: newEventIsPermanent,
+            userId: selectedUser
         });
         if (res.success) {
             setNewEventTitle('');
@@ -205,19 +208,32 @@ export function ScheduleView() {
                     </p>
                 </div>
                 
-                <div className="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700 relative z-10 w-full md:w-auto">
-                    <button
-                        onClick={() => setActiveTab('weekly')}
-                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === 'weekly' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-100' : 'text-slate-400 hover:text-slate-200'}`}
-                    >
-                        <LayoutGrid className="w-4 h-4" /> Rotina Semanal
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('calendar')}
-                        className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === 'calendar' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-100' : 'text-slate-400 hover:text-slate-200'}`}
-                    >
-                        <CalendarIcon className="w-4 h-4" /> Calendário Mensal
-                    </button>
+                <div className="flex flex-col gap-3 relative z-10 w-full md:w-auto">
+                    <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700">
+                        {users.map(u => (
+                            <button
+                                key={u}
+                                onClick={() => setSelectedUser(u)}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${selectedUser === u ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+                            >
+                                {u}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700">
+                        <button
+                            onClick={() => setActiveTab('weekly')}
+                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === 'weekly' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-100' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            <LayoutGrid className="w-4 h-4" /> Rotina Semanal
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('calendar')}
+                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === 'calendar' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 scale-100' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            <CalendarIcon className="w-4 h-4" /> Calendário Mensal
+                        </button>
+                    </div>
                 </div>
             </div>
 

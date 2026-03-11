@@ -225,6 +225,32 @@ export async function createFinanceMonth(nome: string) {
     }
 }
 
+export async function deleteFinanceMonth(monthName: string) {
+    try {
+        const month = await prisma.financeMonth.findUnique({
+            where: { nome: monthName }
+        });
+
+        if (!month) {
+            return { success: false, error: "Mês não encontrado." };
+        }
+
+        // Deletar registros vinculados manualmente (sem cascata no schema)
+        await prisma.monthlyCondominio.deleteMany({ where: { monthId: month.id } });
+        await prisma.monthlyFuncionario.deleteMany({ where: { monthId: month.id } });
+        await prisma.monthlyImposto.deleteMany({ where: { monthId: month.id } });
+
+        // Deletar o mês
+        await prisma.financeMonth.delete({ where: { id: month.id } });
+
+        revalidatePath('/');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao deletar mês:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 export async function duplicateFinanceMonth(sourceMonthId: string, novoNome: string) {
     try {
         const existing = await prisma.financeMonth.findUnique({ where: { nome: novoNome } });
@@ -310,9 +336,10 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
 // MÓDULO CRONOGRAMA & CALENDÁRIO
 // ==========================================
 
-export async function getWeeklyTasks() {
+export async function getWeeklyTasks(userId: string = "Usuário 1") {
     try {
         return await prisma.weeklyTask.findMany({
+            where: { userId },
             orderBy: [{ dayOfWeek: 'asc' }, { createdAt: 'asc' }]
         });
     } catch (e) {
@@ -321,7 +348,7 @@ export async function getWeeklyTasks() {
     }
 }
 
-export async function addWeeklyTask(data: { dayOfWeek: number, title: string, time?: string }) {
+export async function addWeeklyTask(data: { dayOfWeek: number, title: string, time?: string, userId: string }) {
     try {
         const result = await prisma.weeklyTask.create({ data });
         revalidatePath('/');
@@ -341,11 +368,12 @@ export async function deleteWeeklyTask(id: string) {
     }
 }
 
-export async function getCalendarEvents(monthStart: Date, monthEnd: Date) {
+export async function getCalendarEvents(monthStart: Date, monthEnd: Date, userId: string = "Usuário 1") {
     try {
         // Busca eventos que caem nesse mes, OU eventos que sao marcados como "permanentes" (se repetem sempre)
         const events = await prisma.calendarEvent.findMany({
             where: {
+                userId,
                 OR: [
                     { isPermanent: true },
                     { date: { gte: monthStart, lte: monthEnd } }
@@ -360,7 +388,7 @@ export async function getCalendarEvents(monthStart: Date, monthEnd: Date) {
     }
 }
 
-export async function addCalendarEvent(data: { title: string, date: Date, isPermanent: boolean }) {
+export async function addCalendarEvent(data: { title: string, date: Date, isPermanent: boolean, userId: string }) {
     try {
         const result = await prisma.calendarEvent.create({ data });
         revalidatePath('/');

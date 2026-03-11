@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Briefcase,
     Users,
@@ -26,6 +27,7 @@ import {
     deleteCondominio,
     createFinanceMonth,
     duplicateFinanceMonth,
+    deleteFinanceMonth, // Adicionado
     saveMasterRH
 } from '../actions';
 
@@ -35,6 +37,8 @@ interface MainContentProps {
 }
 
 export default function MainContent({ initialCondos, initialFinanceMonths }: MainContentProps) {
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma'>('visao_geral'); // Added 'cronograma' to activeTab type
 
@@ -44,7 +48,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         ultimaAtualizacao: new Date().toISOString()
     });
 
-    const [financeMonths] = useState<MonthlyFinanceData[]>(initialFinanceMonths || []);
+    const financeMonths = initialFinanceMonths || [];
     const [isNewMonthModalOpen, setIsNewMonthModalOpen] = useState(false);
     const [newMonthName, setNewMonthName] = useState("");
 
@@ -80,30 +84,47 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     };
 
     const handleDeleteMonth = async (monthName: string) => {
-        if (window.confirm(`Excluir ${monthName}?`)) {
-            console.log("Delete month action to be implemented");
+        if (window.confirm(`Tem certeza que deseja excluir permanentemente o mês "${monthName}"? Esta ação não pode ser desfeita.`)) {
+            startTransition(async () => {
+                const res = await deleteFinanceMonth(monthName);
+                if (res && !res.success) {
+                    alert('Falha ao excluir mês: ' + res.error);
+                } else {
+                    router.refresh();
+                }
+            });
         }
     };
 
     const onCreateMonth = async () => {
         if (!newMonthName.trim()) return alert("Digite um nome para o mês");
-        const res = await createFinanceMonth(newMonthName);
-        if (res && !res.success) {
-            alert('Falha ao criar mês: ' + res.error);
-        } else {
-            setIsNewMonthModalOpen(false);
-        }
+        
+        startTransition(async () => {
+            const res = await createFinanceMonth(newMonthName);
+            if (res && !res.success) {
+                alert('Falha ao criar mês: ' + res.error);
+            } else {
+                setIsNewMonthModalOpen(false);
+                setNewMonthName("");
+                router.refresh();
+            }
+        });
     };
 
     const handleDuplicateMonth = async () => {
         if (!duplicateContext) return;
         if (!dupMonthName.trim()) return alert("Digite um nome para o novo mês duplicado");
-        const res = await duplicateFinanceMonth(duplicateContext.sourceMonthId, dupMonthName);
-        if (res && !res.success) {
-            alert('Falha ao duplicar: ' + res.error);
-        } else {
-            setDuplicateContext(null);
-        }
+        
+        startTransition(async () => {
+            const res = await duplicateFinanceMonth(duplicateContext.sourceMonthId, dupMonthName);
+            if (res && !res.success) {
+                alert('Falha ao duplicar: ' + res.error);
+            } else {
+                setDuplicateContext(null);
+                setDupMonthName("");
+                router.refresh();
+            }
+        });
     };
 
     return (
@@ -255,8 +276,12 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" 
                             />
                         </div>
-                        <button onClick={onCreateMonth} className="w-full bg-indigo-600 text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 hover:bg-indigo-500">
-                            Confirmar Criação
+                        <button 
+                            onClick={onCreateMonth} 
+                            disabled={isPending}
+                            className={`w-full text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${isPending ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20'}`}
+                        >
+                            {isPending ? 'Criando...' : 'Confirmar Criação'}
                         </button>
                     </div>
                 </Modal>
@@ -274,8 +299,12 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                             />
                         </div>
-                        <button onClick={handleDuplicateMonth} className="w-full bg-emerald-600 text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 hover:bg-emerald-500">
-                            Confirmar Duplicação
+                        <button 
+                            onClick={handleDuplicateMonth} 
+                            disabled={isPending}
+                            className={`w-full text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${isPending ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20'}`}
+                        >
+                            {isPending ? 'Duplicando...' : 'Confirmar Duplicação'}
                         </button>
                     </div>
                 </Modal>
