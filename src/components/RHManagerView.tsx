@@ -408,6 +408,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     const addCondo = () => {
         const newCondo: CondominioData = {
+            id: crypto.randomUUID(),
             nome: 'Novo Condomínio',
             cnpj: '',
             receitaBruta: 0,
@@ -420,6 +421,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const addFunc = () => {
         const defaultCondo = localData.condominios.length > 0 ? localData.condominios[0].nome : '';
         const newFunc: FuncionarioData = {
+            id: crypto.randomUUID(),
             condominio: defaultCondo,
             nome: 'Nova Funcionária',
             salario: 0,

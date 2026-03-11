@@ -30,6 +30,7 @@ export async function upsertCondominio(data: any) {
                 termino
             },
             create: {
+                id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
                 nome,
                 cnpj: cleanCnpj,
                 endereco,
@@ -87,6 +88,7 @@ export async function upsertFuncionario(data: any) {
                 condominioId: cId
             },
             create: {
+                id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
                 nome,
                 cargo,
                 salarioBase: salario || 0,
@@ -319,6 +321,34 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
         for (const func of data.funcionarios) {
             const res = await upsertFuncionario(func);
             if (!res.success) errors.push(`Erro Funcionário: ${res.error}`);
+        }
+
+        // Identificar e deletar Funcionários que não estão mais na lista
+        const existingFuncs = await prisma.funcionario.findMany({ select: { id: true } });
+        const incomingFuncIds = data.funcionarios.map(f => f.id).filter(id => id && id.length > 10);
+        const funcsToDelete = existingFuncs.filter(f => !incomingFuncIds.includes(f.id));
+        
+        for (const f of funcsToDelete) {
+            try {
+                await prisma.funcionario.delete({ where: { id: f.id } });
+            } catch (e: any) {
+                errors.push(`Erro ao excluir funcionário (pode ter histórico atrelado): ${e.message}`);
+            }
+        }
+
+        // Identificar e deletar Condomínios que não estão mais na lista
+        const existingCondos = await prisma.condominio.findMany({ select: { id: true } });
+        const incomingCondoIds = data.condominios.map(c => c.id).filter(id => id && id.length > 10);
+        const condosToDelete = existingCondos.filter(c => !incomingCondoIds.includes(c.id));
+        
+        for (const c of condosToDelete) {
+            try {
+                // Ao deletar o condomínio, os funcionários dele já terão sido deletados no laço acima se também removidos,
+                // ou se não, o Cascade no schema apagaria. Porém vamos usar só a exclusão direta do condomínio.
+                await deleteCondominio(c.id);
+            } catch (e: any) {
+                errors.push(`Erro ao excluir condomínio (pode ter histórico atrelado): ${e.message}`);
+            }
         }
 
         revalidatePath('/');

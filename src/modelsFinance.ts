@@ -7,6 +7,7 @@ export interface NotaFiscalData {
 }
 
 export interface CondominioData {
+    id?: string;
     nome: string;
     cnpj: string;
     receitaBruta: number;
@@ -23,6 +24,7 @@ export interface CondominioData {
 }
 
 export interface FuncionarioData {
+    id?: string;
     condominio: string;
     nome: string;
     cargo?: string;
