@@ -49,8 +49,8 @@ export function ScheduleView() {
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [newEventTitle, setNewEventTitle] = useState('');
     const [newEventIsPermanent, setNewEventIsPermanent] = useState(false);
-    const [selectedUser, setSelectedUser] = useState('Usuário 1');
-    const users = ['Usuário 1', 'Usuário 2', 'Usuário 3', 'Usuário 4'];
+    const [selectedUser, setSelectedUser] = useState('Eduardo');
+    const users = ['Eduardo', 'Eliane', 'Regina', 'Usuário 4'];
 
     const [isLoading, setIsLoading] = useState(false);
 
