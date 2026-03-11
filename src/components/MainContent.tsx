@@ -27,9 +27,9 @@ import {
     deleteCondominio,
     createFinanceMonth,
     duplicateFinanceMonth,
-    deleteFinanceMonth, // Adicionado
+    deleteFinanceMonth,
     saveMasterRH
-} from '../actions';
+} from '../../app/actions';
 
 interface MainContentProps {
     initialCondos: any[];

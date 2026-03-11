@@ -1,5 +1,5 @@
 import { getCondominios, getFinanceMonths } from './actions'
-import MainContent from './components/MainContent'
+import MainContent from '@/components/MainContent'
 
 export const dynamic = 'force-dynamic';
 
