@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Building2, Users, Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Building2, Users, Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Calendar, CheckCircle2, Loader2 } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
 
 interface CondoCardProps {
@@ -308,15 +308,37 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const [localData, setLocalData] = useState<MasterRHData>(data);
     const [activeSubTab, setActiveSubTab] = useState<'condos' | 'funcs'>('condos');
     const [searchTerm, setSearchTerm] = useState('');
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
-    // Sincronizar se o data de fora mudar (importação)
+    const onSaveRef = useRef(onSave);
     useEffect(() => {
-        setLocalData(data);
+        onSaveRef.current = onSave;
+    }, [onSave]);
+
+    // Ignora att automática se o usuário está manipulando dados agora para evitar perda de foco
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            setLocalData(data);
+            isFirstRender.current = false;
+        }
     }, [data]);
 
-    const handleSave = () => {
-        onSave({ ...localData, ultimaAtualizacao: new Date().toISOString() });
-    };
+    useEffect(() => {
+        if (isFirstRender.current) return;
+        
+        // Evita salvar se localData for idêntico ao data atual (ignorando o que não importa)
+        // Isso previne que re-renderizações acionem saves desnecessários
+        setSaveStatus('saving');
+        const timer = setTimeout(() => {
+            onSaveRef.current({ ...localData, ultimaAtualizacao: new Date().toISOString() });
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus('idle'), 2000);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [localData]);
 
     const updateCondo = (index: number, field: keyof CondominioData, value: any) => {
         const newList = [...localData.condominios];
@@ -408,12 +430,18 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </select>
                         </div>
                     )}
-                    <button
-                        onClick={handleSave}
-                        className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-600/20"
-                    >
-                        <Save className="w-4 h-4" /> Salvar Alterações
-                    </button>
+                    <div className="flex items-center">
+                        {saveStatus === 'saving' && (
+                            <span className="flex items-center gap-2 text-indigo-400 text-sm font-medium px-4 py-2 bg-indigo-500/10 rounded-xl">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Salvando...
+                            </span>
+                        )}
+                        {saveStatus === 'saved' && (
+                            <span className="flex items-center gap-2 text-emerald-400 text-sm font-medium px-4 py-2 bg-emerald-500/10 rounded-xl">
+                                <CheckCircle2 className="w-4 h-4" /> Salvo
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 

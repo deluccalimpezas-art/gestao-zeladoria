@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2 } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData } from '../modelsFinance';
 import { Modal } from './Modal';
@@ -18,7 +18,52 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [history, setHistory] = useState<MonthlyFinanceData[]>([month]);
     const [historyIndex, setHistoryIndex] = useState(0);
     const [hasChanges, setHasChanges] = useState(false);
-    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+
+    const onSaveRef = useRef(onSave);
+    useEffect(() => {
+        onSaveRef.current = onSave;
+    }, [onSave]);
+
+    // Ignora a primeira renderização para não disparar save à toa
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        if (!hasChanges) return;
+
+        setSaveStatus('saving');
+        const timer = setTimeout(() => {
+            // Calcula lucro atualizado do estado local mais recente (evita hooks obsoletos)
+            let currBruto = 0, currInss = 0, currSalarios = 0, currImpostos = 0;
+            
+            const validCondos = (localMonth.condominios || []).filter(c => c.nome?.toUpperCase() !== 'TOTAL' && c.nome?.toUpperCase() !== 'TOTAL GERAL');
+            const validFuncs = (localMonth.funcionarios || []).filter(f => f.nome?.toUpperCase() !== 'TOTAL');
+            const validImpostos = (localMonth.impostos || []).filter(i => i.nome?.toUpperCase() !== 'TOTAL' && !i.nome?.toUpperCase().includes('TOTAL IMPOSTOS'));
+
+            currBruto = (validCondos.length === 0 || (validCondos.length === 1 && !validCondos[0].nome)) && (localMonth.receitaBruta || 0) > 0 ? (localMonth.receitaBruta || 0) : validCondos.reduce((acc, c) => acc + (Number(c.receitaBruta) || 0), 0);
+            currInss = (validCondos.length === 0 || (validCondos.length === 1 && !validCondos[0].nome)) && (localMonth.inssRetido || 0) > 0 ? (localMonth.inssRetido || 0) : validCondos.reduce((acc, c) => acc + (Number(c.inssRetido) || 0), 0);
+            currSalarios = validFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+            currImpostos = validImpostos.reduce((acc, i) => acc + (Number(i.valor) || 0), 0);
+
+            const lucroEstimado = (currBruto - currInss) - (currSalarios + currImpostos);
+
+            onSaveRef.current({
+                ...localMonth,
+                lucroEstimado
+            });
+
+            setHasChanges(false);
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus('idle'), 2000);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [localMonth, hasChanges]);
 
     const updateHistory = (newState: MonthlyFinanceData) => {
         const newHistory = history.slice(0, historyIndex + 1);
@@ -76,15 +121,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }).format(value).replace(/\s/g, '');
     };
 
-    const handleSave = () => {
-        onSave({
-            ...localMonth,
-            lucroEstimado: lucroCalculado
-        });
-        setHasChanges(false);
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 2000);
-    };
+    // Função handleSave antiga removida pois agora usamos o useEffect para autosave
 
     const updateCondo = (index: number, field: keyof CondominioData, value: string | number | boolean) => {
         const list = [...(localMonth.condominios || [])];
@@ -424,19 +461,18 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     {hasChanges && (
                         <span className="text-xs text-amber-500 font-medium animate-pulse">Alterações pendentes</span>
                     )}
-                    <button
-                        disabled={!hasChanges && !saveSuccess}
-                        onClick={handleSave}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${saveSuccess
-                            ? 'bg-emerald-500 text-white'
-                            : hasChanges
-                                ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
-                                : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                            }`}
-                    >
-                        {saveSuccess ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-                        {saveSuccess ? 'Salvo!' : 'Salvar Alterações'}
-                    </button>
+                    <div className="flex items-center">
+                        {saveStatus === 'saving' && (
+                            <span className="flex items-center gap-2 text-indigo-400 text-sm font-medium px-4 py-2 bg-indigo-500/10 rounded-xl">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Salvando...
+                            </span>
+                        )}
+                        {saveStatus === 'saved' && (
+                            <span className="flex items-center gap-2 text-emerald-400 text-sm font-medium px-4 py-2 bg-emerald-500/10 rounded-xl">
+                                <Check className="w-4 h-4" /> Salvo!
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 
