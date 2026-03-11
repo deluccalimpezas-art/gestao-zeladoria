@@ -342,7 +342,35 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     const updateCondo = (index: number, field: keyof CondominioData, value: any) => {
         const newList = [...localData.condominios];
-        newList[index] = { ...newList[index], [field]: value };
+        const updatedCondo = { ...newList[index], [field]: value };
+        
+        // Auto-calculate End Date (termino) based on Start Date (inicio) + 1 year
+        if (field === 'inicio' && typeof value === 'string' && value.length >= 8) {
+            // Regex to match common date formats DD/MM/YYYY or YYYY-MM-DD
+            let day = 0, month = 0, year = 0;
+            const partsBar = value.split('/');
+            const partsDash = value.split('-');
+            
+            if (partsBar.length === 3) {
+                day = parseInt(partsBar[0]);
+                month = parseInt(partsBar[1]);
+                year = parseInt(partsBar[2]);
+            } else if (partsDash.length === 3) {
+                year = parseInt(partsDash[0]);
+                month = parseInt(partsDash[1]);
+                day = parseInt(partsDash[2]);
+            }
+            
+            if (day > 0 && month > 0 && year > 0) {
+                const nextYear = year + 1;
+                // Formata DD/MM/YYYY
+                const formattedDay = String(day).padStart(2, '0');
+                const formattedMonth = String(month).padStart(2, '0');
+                updatedCondo.termino = `${formattedDay}/${formattedMonth}/${nextYear}`;
+            }
+        }
+        
+        newList[index] = updatedCondo;
         setLocalData({ ...localData, condominios: newList });
     };
 
