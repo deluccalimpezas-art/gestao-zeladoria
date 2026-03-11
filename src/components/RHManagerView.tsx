@@ -429,12 +429,13 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     };
 
     const removeCondo = (index: number) => {
-        const newList = localData.condominios.filter((_, i) => i !== index);
+        // Usa o spread operator no filter para forçar uma nova referência na memória
+        const newList = [...localData.condominios].filter((_, i) => i !== index);
         setLocalData({ ...localData, condominios: newList });
     };
 
     const removeFunc = (index: number) => {
-        const newList = localData.funcionarios.filter((_, i) => i !== index);
+        const newList = [...localData.funcionarios].filter((_, i) => i !== index);
         setLocalData({ ...localData, funcionarios: newList });
     };
 
