@@ -150,10 +150,10 @@ interface EmployeeCardProps {
     employee: FuncionarioData;
     onUpdate: (field: keyof FuncionarioData, val: any) => void;
     onRemove: () => void;
-    condominiosList: string[];
+    condominios: CondominioData[];
 }
 
-function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: EmployeeCardProps) {
+function EmployeeCard({ employee, onUpdate, onRemove, condominios }: EmployeeCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getStatusColor = (status?: string) => {
@@ -202,14 +202,18 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: Employe
                         <div className="flex items-center">
                             {isExpanded ? (
                                 <select
-                                    value={employee.condominio || ''}
+                                    value={employee.condominioId || ''}
                                     onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => onUpdate('condominio', e.target.value)}
+                                    onChange={(e) => {
+                                        const selected = condominios.find(c => c.id === e.target.value);
+                                        onUpdate('condominioId', e.target.value);
+                                        if (selected) onUpdate('condominio', selected.nome);
+                                    }}
                                     className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-full text-slate-300 text-xs font-medium cursor-pointer"
                                 >
                                     <option value="" disabled>Selecione um Condomínio...</option>
-                                    {condominiosList.filter(Boolean).map(cName => (
-                                        <option key={cName} value={cName}>{cName}</option>
+                                    {condominios.map(c => (
+                                        <option key={c.id} value={c.id}>{c.nome}</option>
                                     ))}
                                 </select>
                             ) : (
@@ -320,7 +324,20 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     useEffect(() => {
         if (isFirstRender.current) {
-            setLocalData(data);
+            // Sanitização inicial: tenta vincular por ID se só tiver o nome
+            const sanitizedFuncs = data.funcionarios.map(f => {
+                if (!f.condominioId && f.condominio) {
+                    const condo = data.condominios.find(c => c.nome === f.condominio);
+                    if (condo) return { ...f, condominioId: condo.id };
+                }
+                return f;
+            });
+
+            setLocalData({
+                condominios: [...data.condominios],
+                funcionarios: [...sanitizedFuncs],
+                ultimaAtualizacao: data.ultimaAtualizacao
+            });
             isFirstRender.current = false;
         }
     }, [data]);
@@ -376,7 +393,19 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         }
         
         newList[index] = updatedCondo;
-        setLocalData({ ...localData, condominios: newList });
+
+        // Propagate name change to linked employees for UI consistency
+        if (field === 'nome') {
+            const updatedFuncs = localData.funcionarios.map(f => {
+                if (f.condominioId === updatedCondo.id) {
+                    return { ...f, condominio: value };
+                }
+                return f;
+            });
+            setLocalData({ ...localData, condominios: newList, funcionarios: updatedFuncs });
+        } else {
+            setLocalData({ ...localData, condominios: newList });
+        }
     };
 
     const updateFunc = (index: number, field: keyof FuncionarioData, value: any) => {
@@ -424,10 +453,11 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     };
 
     const addFunc = () => {
-        const defaultCondo = localData.condominios.length > 0 ? localData.condominios[0].nome : '';
+        const firstCondo = localData.condominios.length > 0 ? localData.condominios[0] : null;
         const newFunc: FuncionarioData = {
             id: crypto.randomUUID(),
-            condominio: defaultCondo,
+            condominio: firstCondo ? firstCondo.nome : '',
+            condominioId: firstCondo ? firstCondo.id : '',
             nome: 'Nova Funcionária',
             salario: 0,
             totalReceber: 0
@@ -551,7 +581,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                         condo.cnpj.includes(searchTerm);
                                     if (!isMatch) return null;
 
-                                    const condoEmployees = localData.funcionarios.filter(f => f.condominio === condo.nome);
+                                    const condoEmployees = localData.funcionarios.filter(f => f.condominioId === condo.id || (!f.condominioId && f.condominio === condo.nome));
                                     return (
                                         <CondoCard
                                             key={condo.id}
@@ -594,7 +624,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                         <EmployeeCard
                                             key={func.id}
                                             employee={func}
-                                            condominiosList={localData.condominios.map(c => c.nome)}
+                                            condominios={localData.condominios}
                                             onUpdate={(field, val) => {
                                                 const idx = localData.funcionarios.findIndex(f => f.id === func.id);
                                                 if (idx !== -1) updateFunc(idx, field, val);

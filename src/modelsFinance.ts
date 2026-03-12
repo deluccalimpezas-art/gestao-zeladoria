@@ -39,6 +39,7 @@ export interface FuncionarioData {
     fimContratoExperiencia?: string;
     dataAdmissao?: string;
     funcionarioId?: string; // Link to Master RH
+    condominioId?: string; // Link to Condominio model in Master RH
 }
 
 export interface ImpostoData {
