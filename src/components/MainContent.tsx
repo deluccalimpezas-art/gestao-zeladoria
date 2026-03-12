@@ -249,6 +249,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 } else {
                                     setMasterRH(updated);
                                 }
+                                return res;
                             }}
                             onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
                             availableMonths={financeMonths.map(m => m.monthName)}

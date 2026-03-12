@@ -299,7 +299,7 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominiosList }: Employe
 
 interface RHManagerViewProps {
     data: MasterRHData;
-    onSave: (updated: MasterRHData) => void;
+    onSave: (updated: MasterRHData) => Promise<{ success: boolean; error?: string } | void>;
     onImportFromMonth: (monthName: string) => void;
     availableMonths: string[];
 }
@@ -328,13 +328,18 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     useEffect(() => {
         if (isFirstRender.current) return;
         
-        // Evita salvar se localData for idêntico ao data atual (ignorando o que não importa)
-        // Isso previne que re-renderizações acionem saves desnecessários
         setSaveStatus('saving');
-        const timer = setTimeout(() => {
-            onSaveRef.current({ ...localData, ultimaAtualizacao: new Date().toISOString() });
-            setSaveStatus('saved');
-            setTimeout(() => setSaveStatus('idle'), 2000);
+        const timer = setTimeout(async () => {
+            const result = await onSaveRef.current({ ...localData, ultimaAtualizacao: new Date().toISOString() });
+            
+            // O MainContent agora retorna o resultado do saveMasterRH
+            if (result && !result.success) {
+                setSaveStatus('idle');
+                // Não limpamos o status se houver erro crítico (o MainContent já deu alert)
+            } else {
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            }
         }, 1500);
 
         return () => clearTimeout(timer);
@@ -541,7 +546,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {localData.condominios.map((condo, originalIdx) => {
+                                {localData.condominios.map((condo) => {
                                     const isMatch = condo.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                         condo.cnpj.includes(searchTerm);
                                     if (!isMatch) return null;
@@ -549,11 +554,17 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                     const condoEmployees = localData.funcionarios.filter(f => f.condominio === condo.nome);
                                     return (
                                         <CondoCard
-                                            key={originalIdx}
+                                            key={condo.id}
                                             condo={condo}
                                             employees={condoEmployees}
-                                            onUpdate={(field, val) => updateCondo(originalIdx, field, val)}
-                                            onRemove={() => removeCondo(originalIdx)}
+                                            onUpdate={(field, val) => {
+                                                const idx = localData.condominios.findIndex(c => c.id === condo.id);
+                                                if (idx !== -1) updateCondo(idx, field, val);
+                                            }}
+                                            onRemove={() => {
+                                                const idx = localData.condominios.findIndex(c => c.id === condo.id);
+                                                if (idx !== -1) removeCondo(idx);
+                                            }}
                                         />
                                     );
                                 })}
@@ -574,18 +585,24 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {localData.funcionarios.map((func, originalIdx) => {
+                                {localData.funcionarios.map((func) => {
                                     const isMatch = func.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                         func.condominio.toLowerCase().includes(searchTerm.toLowerCase());
                                     if (!isMatch) return null;
 
                                     return (
                                         <EmployeeCard
-                                            key={originalIdx}
+                                            key={func.id}
                                             employee={func}
                                             condominiosList={localData.condominios.map(c => c.nome)}
-                                            onUpdate={(field, val) => updateFunc(originalIdx, field, val)}
-                                            onRemove={() => removeFunc(originalIdx)}
+                                            onUpdate={(field, val) => {
+                                                const idx = localData.funcionarios.findIndex(f => f.id === func.id);
+                                                if (idx !== -1) updateFunc(idx, field, val);
+                                            }}
+                                            onRemove={() => {
+                                                const idx = localData.funcionarios.findIndex(f => f.id === func.id);
+                                                if (idx !== -1) removeFunc(idx);
+                                            }}
                                         />
                                     );
                                 })}

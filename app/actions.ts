@@ -311,54 +311,77 @@ export async function duplicateFinanceMonth(sourceMonthId: string, novoNome: str
 
 export async function saveMasterRH(data: { condominios: any[], funcionarios: any[] }) {
     try {
-        let errors = [];
+        console.log("Iniciando saveMasterRH...");
+        let errors: string[] = [];
 
+        // 1. Processar Condomínios (Upsert)
         for (const condo of data.condominios) {
             const res = await upsertCondominio(condo);
-            if (!res.success) errors.push(`Erro Condomínio: ${res.error}`);
+            if (!res.success) {
+                errors.push(`Condomínio "${condo.nome}": ${res.error}`);
+            }
         }
 
+        // 2. Processar Funcionários (Upsert)
         for (const func of data.funcionarios) {
             const res = await upsertFuncionario(func);
-            if (!res.success) errors.push(`Erro Funcionário: ${res.error}`);
+            if (!res.success) {
+                errors.push(`Funcionária "${func.nome}": ${res.error}`);
+            }
         }
 
-        // Identificar e deletar Funcionários que não estão mais na lista
-        const existingFuncs = await prisma.funcionario.findMany({ select: { id: true } });
+        // 3. Processar Deleções de Funcionários
         const incomingFuncIds = data.funcionarios.map(f => f.id).filter(id => id && id.length > 10);
+        const existingFuncs = await prisma.funcionario.findMany({ select: { id: true, nome: true } });
         const funcsToDelete = existingFuncs.filter(f => !incomingFuncIds.includes(f.id));
         
         for (const f of funcsToDelete) {
             try {
+                // Checar se tem histórico em algum mês antes de tentar deletar
+                const hasMonthlyRecord = await prisma.monthlyFuncionario.findFirst({ where: { funcionarioId: f.id } });
+                if (hasMonthlyRecord) {
+                    errors.push(`Não é possível excluir "${f.nome}": Existem registros financeiros vinculados em meses passados.`);
+                    continue;
+                }
                 await prisma.funcionario.delete({ where: { id: f.id } });
+                console.log(`Deletado funcionário: ${f.nome}`);
             } catch (e: any) {
-                errors.push(`Erro ao excluir funcionário (pode ter histórico atrelado): ${e.message}`);
+                errors.push(`Erro ao excluir funcionária "${f.nome}": ${e.message}`);
             }
         }
 
-        // Identificar e deletar Condomínios que não estão mais na lista
-        const existingCondos = await prisma.condominio.findMany({ select: { id: true } });
+        // 4. Processar Deleções de Condomínios
         const incomingCondoIds = data.condominios.map(c => c.id).filter(id => id && id.length > 10);
+        const existingCondos = await prisma.condominio.findMany({ select: { id: true, nome: true } });
         const condosToDelete = existingCondos.filter(c => !incomingCondoIds.includes(c.id));
         
         for (const c of condosToDelete) {
             try {
-                // Ao deletar o condomínio, os funcionários dele já terão sido deletados no laço acima se também removidos,
-                // ou se não, o Cascade no schema apagaria. Porém vamos usar só a exclusão direta do condomínio.
-                await deleteCondominio(c.id);
+                // Checar se tem histórico
+                const hasMonthlyRecord = await prisma.monthlyCondominio.findFirst({ where: { condominioId: c.id } });
+                if (hasMonthlyRecord) {
+                    errors.push(`Não é possível excluir o condomínio "${c.nome}": Existem registros financeiros vinculados a este prédio.`);
+                    continue;
+                }
+                await prisma.condominio.delete({ where: { id: c.id } });
+                console.log(`Deletado condomínio: ${c.nome}`);
             } catch (e: any) {
-                errors.push(`Erro ao excluir condomínio (pode ter histórico atrelado): ${e.message}`);
+                errors.push(`Erro ao excluir condomínio "${c.nome}": ${e.message}`);
             }
         }
 
         revalidatePath('/');
+        
         if (errors.length > 0) {
-            return { success: false, error: errors.join(" | ") };
+            console.error("Erros durante salvamento:", errors);
+            return { success: false, error: errors.join("\n") };
         }
+
+        console.log("saveMasterRH concluído com sucesso.");
         return { success: true };
     } catch (error: any) {
         console.error("Erro crítico no saveMasterRH:", error);
-        return { success: false, error: String(error) };
+        return { success: false, error: "Erro interno no servidor: " + String(error) };
     }
 }
 
