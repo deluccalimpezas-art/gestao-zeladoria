@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useTransition } from 'react';
+import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Briefcase,
@@ -26,9 +26,11 @@ import {
     upsertCondominio,
     deleteCondominio,
     createFinanceMonth,
+    createEmptyFinanceMonth,
     duplicateFinanceMonth,
     deleteFinanceMonth,
-    saveMasterRH
+    saveMasterRH,
+    saveFinanceMonth
 } from '../../app/actions';
 
 interface MainContentProps {
@@ -48,7 +50,12 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         ultimaAtualizacao: new Date().toISOString()
     });
 
-    const financeMonths = initialFinanceMonths || [];
+    const [financeMonths, setFinanceMonths] = useState<MonthlyFinanceData[]>(initialFinanceMonths);
+
+    useEffect(() => {
+        setFinanceMonths(initialFinanceMonths);
+    }, [initialFinanceMonths]);
+
     const [isNewMonthModalOpen, setIsNewMonthModalOpen] = useState(false);
     const [newMonthName, setNewMonthName] = useState("");
 
@@ -56,6 +63,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     const [dupMonthName, setDupMonthName] = useState("");
 
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
+    const [startEmpty, setStartEmpty] = useState(false);
 
     const employeesCount = useMemo(() => masterRH.funcionarios.length, [masterRH.funcionarios]);
 
@@ -79,8 +87,13 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
     };
 
     const onUpdateMonth = async (updatedMonth: MonthlyFinanceData) => {
-        // Here we just log for now, waiting for Prisma Save Logic later on
-        console.log("Salvar modificado:", updatedMonth);
+        const res = await saveFinanceMonth(updatedMonth);
+        if (res && !res.success) {
+            alert("Erro ao salvar mês: " + res.error);
+        } else {
+            setFinanceMonths(prev => prev.map(m => m.id === updatedMonth.id ? updatedMonth : m));
+        }
+        return res;
     };
 
     const handleDeleteMonth = async (monthName: string) => {
@@ -100,15 +113,24 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         if (!newMonthName.trim()) return alert("Digite um nome para o mês");
         
         startTransition(async () => {
-            const res = await createFinanceMonth(newMonthName);
+            const res = startEmpty 
+                ? await createEmptyFinanceMonth(newMonthName)
+                : await createFinanceMonth(newMonthName);
+                
             if (res && !res.success) {
                 alert('Falha ao criar mês: ' + res.error);
             } else {
                 setIsNewMonthModalOpen(false);
                 setNewMonthName("");
+                setStartEmpty(false);
                 router.refresh();
             }
         });
+    };
+
+    const handleRenameMonth = async (oldName: string, newName: string) => {
+        // Implementação simples: poderíamos ter um action rename, 
+        // mas por enquanto vamos focar no que o usuário pediu: duplicar e mudar nome da cópia.
     };
 
     const handleDuplicateMonth = async () => {
@@ -234,7 +256,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                             monthsData={financeMonths}
                             employeesCount={employeesCount}
                             onDeleteMonth={handleDeleteMonth}
-                            onUpdateMonth={onUpdateCondo}
+                            onUpdateMonth={onUpdateMonth}
                             onDuplicateMonth={(month: any) => setDuplicateContext({ sourceMonthId: month.id })}
                             onCreateFromRHBase={() => setIsNewMonthModalOpen(true)}
                             hasRHBase={masterRH.condominios.length > 0}
@@ -276,6 +298,16 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 onChange={e => setNewMonthName(e.target.value)} 
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" 
                             />
+                        </div>
+                        <div className="flex items-center gap-2 px-1">
+                            <input 
+                                type="checkbox" 
+                                id="startEmpty"
+                                checked={startEmpty}
+                                onChange={e => setStartEmpty(e.target.checked)}
+                                className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500/50"
+                            />
+                            <label htmlFor="startEmpty" className="text-sm text-slate-400">Começar com planilha em branco (sem copiar base RH)</label>
                         </div>
                         <button 
                             onClick={onCreateMonth} 

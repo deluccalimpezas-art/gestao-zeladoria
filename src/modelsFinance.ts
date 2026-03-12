@@ -21,6 +21,7 @@ export interface CondominioData {
     nfEnviada?: boolean;
     pagamentoFeito?: boolean;
     notaFiscal?: NotaFiscalData;
+    condominioId?: string; // Link to Master RH
 }
 
 export interface FuncionarioData {
@@ -37,6 +38,7 @@ export interface FuncionarioData {
     vencimentoFerias?: string;
     fimContratoExperiencia?: string;
     dataAdmissao?: string;
+    funcionarioId?: string; // Link to Master RH
 }
 
 export interface ImpostoData {

@@ -53,9 +53,11 @@ model MonthlyCondominio {
   valorCobrado Float
   pago         Boolean      @default(false)
   monthId      String
-  condominioId String
-  condominio   Condominio   @relation(fields: [condominioId], references: [id])
-  month        FinanceMonth @relation(fields: [monthId], references: [id])
+  condominioId String?
+  cnpj         String?
+  nome         String
+  condominio   Condominio?  @relation(fields: [condominioId], references: [id])
+  month        FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
 
 model MonthlyFuncionario {
@@ -63,9 +65,13 @@ model MonthlyFuncionario {
   valorPago     Float
   horasExtras   Float        @default(0)
   monthId       String
-  funcionarioId String
-  funcionario   Funcionario  @relation(fields: [funcionarioId], references: [id])
-  month         FinanceMonth @relation(fields: [monthId], references: [id])
+  funcionarioId String?
+  condominio    String?
+  nome          String
+  salarioBase   Float        @default(0)
+  statusClt     String?
+  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
+  month         FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
 
 model MonthlyImposto {
@@ -74,18 +80,16 @@ model MonthlyImposto {
   valor   Float
   pago    Boolean      @default(false)
   monthId String
-  month   FinanceMonth @relation(fields: [monthId], references: [id])
+  month   FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
-
-// ---- CRONOGRAMA & CALENDÁRIO ----
 
 model WeeklyTask {
   id        String   @id @default(uuid())
-  dayOfWeek Int      // 1 = Segunda, 2 = Terça ... 6 = Sábado
+  dayOfWeek Int
   title     String
   time      String?
-  userId    String   @default("Usuário 1")
   createdAt DateTime @default(now())
+  userId    String   @default("Usuário 1")
 }
 
 model CalendarEvent {
@@ -93,6 +97,6 @@ model CalendarEvent {
   title       String
   date        DateTime
   isPermanent Boolean  @default(false)
-  userId      String   @default("Usuário 1")
   createdAt   DateTime @default(now())
+  userId      String   @default("Usuário 1")
 }

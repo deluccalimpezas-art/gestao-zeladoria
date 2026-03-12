@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2 } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2 } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -269,6 +269,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     const addCondo = () => {
         const newList = [...(localMonth.condominios || []), {
+            id: crypto.randomUUID(),
             nome: 'Novo Condomínio',
             cnpj: '',
             receitaBruta: 0,
@@ -282,8 +283,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setHasChanges(true);
     };
 
+    const removeCondo = (index: number) => {
+        const newList = (localMonth.condominios || []).filter((_, i) => i !== index);
+        updateHistory({ ...localMonth, condominios: newList });
+        setHasChanges(true);
+    };
+
     const addFuncionario = () => {
         const newList = [...(localMonth.funcionarios || []), {
+            id: crypto.randomUUID(),
             nome: 'Novo Funcionário',
             condominio: '',
             salario: 0,
@@ -295,12 +303,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setHasChanges(true);
     };
 
+    const removeFuncionario = (index: number) => {
+        const newList = (localMonth.funcionarios || []).filter((_, i) => i !== index);
+        updateHistory({ ...localMonth, funcionarios: newList });
+        setHasChanges(true);
+    };
+
     const addImposto = () => {
         const newList = [...(localMonth.impostos || []), {
+            id: crypto.randomUUID(),
             nome: 'Novo Imposto',
             vencimento: '',
             valor: 0
         }];
+        updateHistory({ ...localMonth, impostos: newList });
+        setHasChanges(true);
+    };
+
+    const removeImposto = (index: number) => {
+        const newList = (localMonth.impostos || []).filter((_, i) => i !== index);
         updateHistory({ ...localMonth, impostos: newList });
         setHasChanges(true);
     };
@@ -558,6 +579,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-4 py-4 text-right text-slate-400 w-32">Valor Bruto</th>
                                             <th className="px-4 py-4 text-right text-slate-400 w-32">Retido NF (INSS)</th>
                                             <th className="px-4 py-4 text-right font-bold text-slate-400 w-32">Líquido</th>
+                                            <th className="px-4 py-4 w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
@@ -627,6 +649,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         {formatCurrency(condo.receitaLiquida)}
                                                     </div>
                                                 </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        onClick={() => removeCondo(condo.originalIndex)}
+                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        title="Remover"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -678,6 +709,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-3 py-4 text-right text-red-400">Vales</th>
                                             <th className="px-3 py-4 text-center">Faltas</th>
                                             <th className="px-4 py-4 text-right">Total a Receber</th>
+                                            <th className="px-4 py-4 w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
@@ -737,6 +769,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         width="w-32"
                                                     />
                                                 </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        onClick={() => removeFuncionario(func.originalIndex)}
+                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        title="Remover"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -772,6 +813,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-6 py-4">Imposto / Obrigação</th>
                                             <th className="px-6 py-4">Vencimento</th>
                                             <th className="px-6 py-4 text-right">Valor Pago</th>
+                                            <th className="px-6 py-4 w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
@@ -798,6 +840,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         textColor="text-red-400"
                                                         width="w-32"
                                                     />
+                                                </td>
+                                                <td className="px-6 py-3 text-center">
+                                                    <button
+                                                        onClick={() => removeImposto(idx)}
+                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        title="Remover"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}

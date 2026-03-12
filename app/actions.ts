@@ -107,123 +107,271 @@ export async function upsertFuncionario(data: any) {
     }
 }
 
-// Financeiro
+// Financeiro Standalone
 export async function getFinanceMonths() {
-    const months = await prisma.financeMonth.findMany({
-        include: {
-            condominios: { include: { condominio: true } },
-            funcionarios: { include: { funcionario: { include: { condominio: true } } } },
-            impostos: true,
-        },
-        orderBy: [
-            { created_at: 'desc' }
-        ]
-    });
-
-    const monthNames = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-
-    return months.map((m: any) => {
-        const mappedCondos = m.condominios.map((mc: any) => {
-            const bruto = mc.valorCobrado || 0;
-            const inss = bruto * 0.11;
-            return {
-                id: mc.id,
-                nome: mc.condominio.nome,
-                cnpj: mc.condominio.cnpj || '',
-                receitaBruta: bruto,
-                inssRetido: inss,
-                receitaLiquida: bruto - inss,
-                nfFeita: false,
-                nfEnviada: false,
-                pagamentoFeito: mc.pago,
-                valorContrato: mc.condominio.valorContrato || 0
-            };
+    try {
+        const months = await prisma.financeMonth.findMany({
+            include: {
+                condominios: true,
+                funcionarios: true,
+                impostos: true,
+            },
+            orderBy: [
+                { created_at: 'desc' }
+            ]
         });
 
-        const mappedFuncs = m.funcionarios.map((mf: any) => ({
-            id: mf.id,
-            nome: mf.funcionario.nome,
-            condominio: mf.funcionario.condominio?.nome || '',
-            salario: mf.valorPago,
-            horasExtras: mf.horasExtras,
-            vales: 0,
-            faltas: 0,
-            totalReceber: mf.valorPago + mf.horasExtras,
-            statusClt: mf.funcionario.statusClt as any,
-        }));
+        return months.map((m: any) => {
+            const mappedCondos = m.condominios.map((mc: any) => ({
+                id: mc.id,
+                nome: mc.nome,
+                cnpj: mc.cnpj || '',
+                receitaBruta: mc.valorCobrado || 0,
+                inssRetido: (mc.valorCobrado || 0) * 0.11,
+                receitaLiquida: (mc.valorCobrado || 0) * 0.89,
+                pagamentoFeito: mc.pago,
+                valorContrato: mc.valorCobrado || 0,
+                condominioId: mc.condominioId || undefined
+            }));
 
-        const totalBruto = mappedCondos.reduce((acc: number, c: any) => acc + c.receitaBruta, 0);
-        const totalInss = mappedCondos.reduce((acc: number, c: any) => acc + c.inssRetido, 0);
-        const totalLiquida = totalBruto - totalInss;
-        const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
-        const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
-        const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos);
+            const mappedFuncs = m.funcionarios.map((mf: any) => ({
+                id: mf.id,
+                nome: mf.nome,
+                condominio: mf.condominio || '',
+                salario: mf.valorPago,
+                horasExtras: mf.horasExtras || 0,
+                totalReceber: (mf.valorPago || 0) + (mf.horasExtras || 0),
+                statusClt: mf.statusClt,
+                salarioBase: mf.salarioBase || 0,
+                funcionarioId: mf.funcionarioId || undefined
+            }));
 
-        return {
-            id: m.id,
-            monthName: m.nome,
-            receitaBruta: totalBruto,
-            inssRetido: totalInss,
-            receitaLiquida: totalLiquida,
-            totalSalarios,
-            totalImpostos,
-            lucroEstimado,
-            condominios: mappedCondos,
-            funcionarios: mappedFuncs,
-            impostos: m.impostos.map((mi: any) => ({
-                id: mi.id,
-                nome: mi.nome,
-                valor: mi.valor,
-                pago: mi.pago
-            }))
-        };
-    });
+            const totalBruto = mappedCondos.reduce((acc: number, c: any) => acc + c.receitaBruta, 0);
+            const totalInss = totalBruto * 0.11;
+            const totalLiquida = totalBruto - totalInss;
+            const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
+            const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
+            const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos);
+
+            return {
+                id: m.id,
+                monthName: m.nome,
+                receitaBruta: totalBruto,
+                inssRetido: totalInss,
+                receitaLiquida: totalLiquida,
+                totalSalarios,
+                totalImpostos,
+                lucroEstimado,
+                condominios: mappedCondos,
+                funcionarios: mappedFuncs,
+                impostos: m.impostos.map((mi: any) => ({
+                    id: mi.id,
+                    nome: mi.nome,
+                    valor: mi.valor,
+                    pago: mi.pago
+                }))
+            };
+        });
+    } catch (e) {
+        console.error("Erro getFinanceMonths:", e);
+        return [];
+    }
+}
+
+export async function createEmptyFinanceMonth(nome: string) {
+    try {
+        const existing = await prisma.financeMonth.findFirst({ where: { nome } });
+        if (existing) return { success: false, error: "Este mês já existe." };
+
+        const newMonth = await prisma.financeMonth.create({ data: { nome } });
+        revalidatePath('/');
+        return { success: true, data: newMonth };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
 }
 
 export async function createFinanceMonth(nome: string) {
     try {
-        const existingMonth = await prisma.financeMonth.findFirst({
-            where: { nome }
+        console.log("Iniciando createFinanceMonth para:", nome);
+        const existingMonth = await prisma.financeMonth.findFirst({ where: { nome } });
+        if (existingMonth) return { success: false, error: "Este mês já existe." };
+
+        const result = await prisma.$transaction(async (tx) => {
+            const newMonth = await tx.financeMonth.create({ data: { nome } });
+            console.log("Mês criado:", newMonth.id);
+
+            const condos = await tx.condominio.findMany();
+            console.log("Condomínios encontrados na base:", condos.length);
+            if (condos.length > 0) {
+                await tx.monthlyCondominio.createMany({
+                    data: condos.map(c => ({
+                        monthId: newMonth.id,
+                        nome: c.nome,
+                        cnpj: c.cnpj,
+                        valorCobrado: c.valorContrato || 0,
+                        condominioId: c.id
+                    }))
+                });
+            }
+
+            const funcs = await tx.funcionario.findMany({ include: { condominio: true } });
+            console.log("Funcionários encontrados na base:", funcs.length);
+            if (funcs.length > 0) {
+                await tx.monthlyFuncionario.createMany({
+                    data: funcs.map(f => ({
+                        monthId: newMonth.id,
+                        nome: f.nome,
+                        condominio: f.condominio?.nome || '',
+                        salarioBase: f.salarioBase || 0,
+                        valorPago: f.salarioBase || 0,
+                        statusClt: f.statusClt,
+                        funcionarioId: f.id
+                    }))
+                });
+            }
+
+            return newMonth;
         });
 
-        if (existingMonth) {
-            return { success: false, error: "Este mês já foi criado na base de dados." };
-        }
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        console.error("ERRO detalhado createFinanceMonth:", e);
+        return { success: false, error: e.message };
+    }
+}
 
-        const newMonth = await prisma.financeMonth.create({
-            data: { nome }
+export async function duplicateFinanceMonth(sourceId: string, novoNome: string) {
+    try {
+        const existing = await prisma.financeMonth.findUnique({ where: { nome: novoNome } });
+        if (existing) return { success: false, error: "Nome de mês já existe." };
+
+        const source = await prisma.financeMonth.findUnique({
+            where: { id: sourceId },
+            include: { condominios: true, funcionarios: true, impostos: true }
+        });
+        if (!source) return { success: false, error: "Mês de origem não encontrado." };
+
+        const newMonth = await prisma.financeMonth.create({ data: { nome: novoNome } });
+
+        // Deep copy of all records
+        await prisma.monthlyCondominio.createMany({
+            data: source.condominios.map(c => ({
+                monthId: newMonth.id,
+                nome: c.nome,
+                cnpj: c.cnpj,
+                valorCobrado: c.valorCobrado,
+                pago: false,
+                condominioId: c.condominioId
+            }))
         });
 
-        const condominios = await prisma.condominio.findMany();
-        const funcionarios = await prisma.funcionario.findMany();
+        await prisma.monthlyFuncionario.createMany({
+            data: source.funcionarios.map(f => ({
+                monthId: newMonth.id,
+                nome: f.nome,
+                condominio: f.condominio,
+                salarioBase: f.salarioBase,
+                valorPago: f.valorPago,
+                horasExtras: f.horasExtras,
+                statusClt: f.statusClt,
+                funcionarioId: f.funcionarioId
+            }))
+        });
 
-        if (condominios.length > 0) {
-            await prisma.monthlyCondominio.createMany({
-                data: condominios.map(c => ({
-                    monthId: newMonth.id,
-                    condominioId: c.id,
-                    valorCobrado: c.valorContrato || 0,
-                    pago: false
-                }))
+        await prisma.monthlyImposto.createMany({
+            data: source.impostos.map(i => ({
+                monthId: newMonth.id,
+                nome: i.nome,
+                valor: i.valor,
+                pago: false
+            }))
+        });
+
+        revalidatePath('/');
+        return { success: true, data: newMonth };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function saveFinanceMonth(data: any) {
+    try {
+        const { id, condominios, funcionarios, impostos } = data;
+
+        // Upsert Condos
+        for (const c of condominios) {
+            await prisma.monthlyCondominio.upsert({
+                where: { id: c.id.length > 20 ? c.id : '00000000-0000-0000-0000-000000000000' },
+                update: {
+                    nome: c.nome,
+                    cnpj: c.cnpj,
+                    valorCobrado: c.receitaBruta || 0,
+                    pago: c.pagamentoFeito || false,
+                    condominioId: c.condominioId
+                },
+                create: {
+                    id: c.id.length > 20 ? c.id : undefined,
+                    monthId: id,
+                    nome: c.nome,
+                    cnpj: c.cnpj,
+                    valorCobrado: c.receitaBruta || 0,
+                    pago: c.pagamentoFeito || false,
+                    condominioId: c.condominioId
+                }
             });
         }
 
-        if (funcionarios.length > 0) {
-            await prisma.monthlyFuncionario.createMany({
-                data: funcionarios.map(f => ({
-                    monthId: newMonth.id,
-                    funcionarioId: f.id,
-                    valorPago: f.salarioBase || 0,
-                    horasExtras: 0
-                }))
+        // Upsert Funcs
+        for (const f of funcionarios) {
+            await prisma.monthlyFuncionario.upsert({
+                where: { id: f.id.length > 20 ? f.id : '00000000-0000-0000-0000-000000000000' },
+                update: {
+                    nome: f.nome,
+                    condominio: f.condominio,
+                    valorPago: f.salario || 0,
+                    horasExtras: f.horasExtras || 0,
+                    statusClt: f.statusClt,
+                    funcionarioId: f.funcionarioId
+                },
+                create: {
+                    id: f.id.length > 20 ? f.id : undefined,
+                    monthId: id,
+                    nome: f.nome,
+                    condominio: f.condominio,
+                    valorPago: f.salario || 0,
+                    horasExtras: f.horasExtras || 0,
+                    statusClt: f.statusClt,
+                    funcionarioId: f.funcionarioId
+                }
+            });
+        }
+
+        // Upsert Impostos
+        for (const i of impostos) {
+            await prisma.monthlyImposto.upsert({
+                where: { id: i.id.length > 20 ? i.id : '00000000-0000-0000-0000-000000000000' },
+                update: {
+                    nome: i.nome,
+                    valor: i.valor || 0,
+                    pago: i.pago || false
+                },
+                create: {
+                    id: i.id.length > 20 ? i.id : undefined,
+                    monthId: id,
+                    nome: i.nome,
+                    valor: i.valor || 0,
+                    pago: i.pago || false
+                }
             });
         }
 
         revalidatePath('/');
-        return { success: true, data: newMonth };
-    } catch (error: any) {
-        console.error("Erro ao criar mês:", error);
-        return { success: false, error: error.message };
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro saveFinanceMonth:", e);
+        return { success: false, error: e.message };
     }
 }
 
@@ -232,79 +380,15 @@ export async function deleteFinanceMonth(monthName: string) {
         const month = await prisma.financeMonth.findUnique({
             where: { nome: monthName }
         });
+        if (!month) return { success: false, error: "Mês não encontrado." };
 
-        if (!month) {
-            return { success: false, error: "Mês não encontrado." };
-        }
-
-        // Deletar registros vinculados manualmente (sem cascata no schema)
-        await prisma.monthlyCondominio.deleteMany({ where: { monthId: month.id } });
-        await prisma.monthlyFuncionario.deleteMany({ where: { monthId: month.id } });
-        await prisma.monthlyImposto.deleteMany({ where: { monthId: month.id } });
-
-        // Deletar o mês
         await prisma.financeMonth.delete({ where: { id: month.id } });
-
+        // Os registros vinculados serão deletados pelo Cascade no schema se configurado,
+        // mas como são independentes e o monthId é FK, o Cascade Delete no FinanceMonth apagará MonthlyCondominio etc.
+        
         revalidatePath('/');
         return { success: true };
     } catch (error: any) {
-        console.error("Erro ao deletar mês:", error);
-        return { success: false, error: error.message };
-    }
-}
-
-export async function duplicateFinanceMonth(sourceMonthId: string, novoNome: string) {
-    try {
-        const existing = await prisma.financeMonth.findUnique({ where: { nome: novoNome } });
-        if (existing) return { success: false, error: "Mês destino já existe." };
-
-        const sourceMonth = await prisma.financeMonth.findUnique({
-            where: { id: sourceMonthId },
-            include: { condominios: true, funcionarios: true, impostos: true }
-        });
-        if (!sourceMonth) return { success: false, error: "Mês origem não encontrado." };
-
-        const newMonth = await prisma.financeMonth.create({
-            data: { nome: novoNome }
-        });
-
-        if (sourceMonth.condominios.length > 0) {
-            await prisma.monthlyCondominio.createMany({
-                data: sourceMonth.condominios.map(c => ({
-                    monthId: newMonth.id,
-                    condominioId: c.condominioId,
-                    valorCobrado: c.valorCobrado,
-                    pago: false
-                }))
-            });
-        }
-
-        if (sourceMonth.funcionarios.length > 0) {
-            await prisma.monthlyFuncionario.createMany({
-                data: sourceMonth.funcionarios.map(f => ({
-                    monthId: newMonth.id,
-                    funcionarioId: f.funcionarioId,
-                    valorPago: f.valorPago,
-                    horasExtras: f.horasExtras
-                }))
-            });
-        }
-
-        if (sourceMonth.impostos.length > 0) {
-            await prisma.monthlyImposto.createMany({
-                data: sourceMonth.impostos.map(i => ({
-                    monthId: newMonth.id,
-                    nome: i.nome,
-                    valor: i.valor,
-                    pago: false
-                }))
-            });
-        }
-
-        revalidatePath('/');
-        return { success: true, data: newMonth };
-    } catch (error: any) {
-        console.error("Erro ao duplicar mês:", error);
         return { success: false, error: error.message };
     }
 }
