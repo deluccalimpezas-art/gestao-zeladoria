@@ -16,8 +16,14 @@ export async function upsertCondominio(data: any) {
     try {
         const { id, nome, cnpj, endereco, valorContrato, inicio, termino } = data;
 
-        // Fix empty string unique constraint issue:
-        const cleanCnpj = (cnpj && typeof cnpj === 'string' && cnpj.trim() !== '') ? cnpj.trim() : null;
+        // Normalize CNPJ: remove non-digits and handle empty strings/nulls
+        let cleanCnpj = null;
+        if (cnpj && typeof cnpj === 'string') {
+            const digitsOnly = cnpj.replace(/\D/g, '');
+            if (digitsOnly !== '') {
+                cleanCnpj = digitsOnly;
+            }
+        }
 
         const result = await prisma.condominio.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
