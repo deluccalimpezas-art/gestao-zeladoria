@@ -17,7 +17,7 @@ export async function upsertCondominio(data: any) {
         const { id, nome, cnpj, endereco, valorContrato, inicio, termino } = data;
 
         // Fix empty string unique constraint issue:
-        const cleanCnpj = cnpj && cnpj.trim() !== '' ? cnpj : null;
+        const cleanCnpj = (cnpj && typeof cnpj === 'string' && cnpj.trim() !== '') ? cnpj.trim() : null;
 
         const result = await prisma.condominio.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
@@ -39,7 +39,6 @@ export async function upsertCondominio(data: any) {
                 termino
             },
         });
-        revalidatePath('/');
         return { success: true, data: result };
     } catch (error: any) {
         console.error("Erro ao salvar condomínio:", error);
@@ -99,7 +98,6 @@ export async function upsertFuncionario(data: any) {
                 condominioId: cId
             },
         });
-        revalidatePath('/');
         return { success: true, data: result };
     } catch (error: any) {
         console.error("Erro ao salvar funcionário:", error);
@@ -455,6 +453,8 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
         }
 
         revalidatePath('/');
+        revalidatePath('/financeiro');
+        revalidatePath('/rh');
         
         if (errors.length > 0) {
             console.error("Erros durante salvamento:", errors);
