@@ -14,6 +14,9 @@ export interface CondominioData {
     inssRetido: number;
     receitaLiquida: number;
     valorContrato?: number;
+    valorVerao?: number;
+    cargaHoraria?: string;
+    valorAtivo?: 'base' | 'verao';
     inicio?: string;
     termino?: string;
     statusNf?: string;

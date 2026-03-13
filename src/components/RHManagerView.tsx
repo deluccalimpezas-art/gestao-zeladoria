@@ -55,21 +55,50 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                         <div className="flex items-center gap-1">
                             <span className="text-slate-600 text-xs font-bold">R$</span>
                             {isExpanded ? (
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    value={condo.valorContrato || ''}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    placeholder="Valor"
-                                />
+                                <div className="flex items-center gap-2 w-full">
+                                    <div className="flex-1">
+                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5">Base</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={condo.valorContrato || ''}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
+                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1.5 py-0.5 w-full text-indigo-400 font-bold text-[11px] cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                            placeholder="Base"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5">Verão</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={condo.valorVerao || ''}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
+                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1.5 py-0.5 w-full text-orange-400 font-bold text-[11px] cursor-text ${condo.valorAtivo === 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                            placeholder="Verão"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onUpdate('valorAtivo', condo.valorAtivo === 'verao' ? 'base' : 'verao');
+                                        }}
+                                        className={`mt-3 px-2 py-1 rounded text-[9px] font-bold transition-all ${condo.valorAtivo === 'verao' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/50'}`}
+                                    >
+                                        {condo.valorAtivo === 'verao' ? 'USAR BASE' : 'USAR VERÃO'}
+                                    </button>
+                                </div>
                             ) : (
-                                <input
-                                    value={new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(condo.valorContrato || 0)}
-                                    readOnly={true}
-                                    className="bg-transparent border-none outline-none rounded px-2 py-0.5 w-full text-indigo-400 font-bold text-sm cursor-pointer"
-                                />
+                                <div className="flex flex-col items-end">
+                                    <span className={`font-bold text-sm ${condo.valorAtivo === 'verao' ? 'text-orange-400' : 'text-indigo-400'}`}>
+                                        {formatCurrency(condo.valorAtivo === 'verao' ? (condo.valorVerao || 0) : (condo.valorContrato || 0))}
+                                    </span>
+                                    <span className="text-[8px] text-slate-600 uppercase font-bold">
+                                        {condo.valorAtivo === 'verao' ? 'Valor Verão' : 'Valor Base'}
+                                    </span>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -109,6 +138,15 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                                         onChange={(e) => onUpdate('termino', e.target.value)}
                                         className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-emerald-400 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
                                         placeholder="DD/MM/YYYY"
+                                    />
+                                </div>
+                                <div className="space-y-1.5 col-span-2">
+                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Carga Horária</label>
+                                    <input
+                                        value={condo.cargaHoraria || ''}
+                                        onChange={(e) => onUpdate('cargaHoraria', e.target.value)}
+                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
+                                        placeholder="Ex: Seg a Sex [08:00 - 17:00]"
                                     />
                                 </div>
                             </div>

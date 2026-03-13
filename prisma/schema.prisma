@@ -18,6 +18,9 @@ model Condominio {
   inicio          String?
   termino         String?
   valorContrato   Float?
+  valorVerao      Float?
+  cargaHoraria    String?
+  valorAtivo      String              @default("base")
   funcionarios    Funcionario[]
   financasMensais MonthlyCondominio[]
 }

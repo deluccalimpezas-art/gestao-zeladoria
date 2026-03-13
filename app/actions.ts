@@ -14,7 +14,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, cnpj, endereco, valorContrato, inicio, termino } = data;
+        const { id, nome, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -32,6 +32,9 @@ export async function upsertCondominio(data: any) {
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,
+                valorVerao,
+                cargaHoraria,
+                valorAtivo,
                 inicio,
                 termino
             },
@@ -41,6 +44,9 @@ export async function upsertCondominio(data: any) {
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,
+                valorVerao,
+                cargaHoraria,
+                valorAtivo,
                 inicio,
                 termino
             },
@@ -213,7 +219,7 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: c.nome,
                         cnpj: c.cnpj,
-                        valorCobrado: c.valorContrato || 0,
+                        valorCobrado: c.valorAtivo === 'verao' ? (c.valorVerao || c.valorContrato || 0) : (c.valorContrato || 0),
                         condominioId: c.id
                     }))
                 });
