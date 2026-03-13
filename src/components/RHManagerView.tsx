@@ -7,9 +7,10 @@ interface CondoCardProps {
     employees: FuncionarioData[];
     onUpdate: (field: keyof CondominioData, val: any) => void;
     onRemove: () => void;
+    index: number;
 }
 
-function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
+function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const formatCurrency = (value: number) => {
@@ -41,6 +42,9 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                                 className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-white font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
                                 placeholder="Nome do Condomínio"
                             />
+                            <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
+                                {String(index + 1).padStart(2, '0')}.
+                            </span>
                         </div>
                         <div className="flex items-center">
                             <input
@@ -194,9 +198,10 @@ interface EmployeeCardProps {
     onUpdate: (field: keyof FuncionarioData, val: any) => void;
     onRemove: () => void;
     condominios: CondominioData[];
+    index: number;
 }
 
-function EmployeeCard({ employee, onUpdate, onRemove, condominios }: EmployeeCardProps) {
+function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: EmployeeCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getStatusColor = (status?: string) => {
@@ -241,6 +246,9 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominios }: EmployeeCar
                                 className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 w-full text-white font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
                                 placeholder="Nome da Funcionária"
                             />
+                            <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
+                                {String(index + 1).padStart(2, '0')}.
+                            </span>
                         </div>
                         <div className="flex items-center">
                             {isExpanded ? (
@@ -623,12 +631,13 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {filteredCondos.map((condo) => {
+                                {filteredCondos.map((condo, idx) => {
                                     const condoEmployees = localData.funcionarios.filter(f => f.condominioId === condo.id || (!f.condominioId && f.condominio === condo.nome));
                                     return (
                                         <CondoCard
                                             key={condo.id}
                                             condo={condo}
+                                            index={idx}
                                             employees={condoEmployees}
                                             onUpdate={(field, val) => {
                                                 const idx = localData.condominios.findIndex(c => c.id === condo.id);
@@ -658,11 +667,12 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {filteredFuncs.map((emp) => {
+                                {filteredFuncs.map((emp, idx) => {
                                     return (
                                         <EmployeeCard
                                             key={emp.id}
                                             employee={emp}
+                                            index={idx}
                                             condominios={localData.condominios}
                                             onUpdate={(field, val) => {
                                                 const idx = localData.funcionarios.findIndex(f => f.id === emp.id);
