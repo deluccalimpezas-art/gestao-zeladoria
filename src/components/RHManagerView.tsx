@@ -22,6 +22,19 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
         }).format(value);
     };
 
+    const maskCNPJ = (value: string | null) => {
+        if (!value) return '';
+        const digits = value.replace(/\D/g, '');
+        return digits
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+            .replace(/(\d{4})(\d)/, '$1-$2')
+            .substring(0, 18);
+    };
+
+    const unmaskCNPJ = (value: string) => value.replace(/\D/g, '');
+
     return (
         <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'}`}>
             <div
@@ -48,12 +61,12 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                         </div>
                         <div className="flex items-center">
                             <input
-                                value={condo.cnpj}
+                                value={maskCNPJ(condo.cnpj)}
                                 readOnly={!isExpanded}
                                 onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('cnpj', e.target.value)}
+                                onChange={(e) => onUpdate('cnpj', unmaskCNPJ(e.target.value))}
                                 className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-300 text-xs font-mono font-medium ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="CNPJ"
+                                placeholder="00.000.000/0000-00"
                             />
                         </div>
                         <div className="flex items-center justify-end">
