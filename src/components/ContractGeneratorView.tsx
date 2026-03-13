@@ -57,9 +57,9 @@ export function ContractGeneratorView() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Form Col */}
-                <div className="lg:col-span-4 space-y-6 no-print">
+                <div className="lg:col-span-4 space-y-6 no-print lg:sticky lg:top-8 lg:self-start">
                     <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-5">
                         <h3 className="text-sm font-bold text-white uppercase tracking-widest border-b border-slate-700 pb-3">Dados da Contratante</h3>
 
