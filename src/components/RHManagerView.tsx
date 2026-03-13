@@ -102,32 +102,32 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                         <div className="flex items-center justify-end">
                             {isExpanded ? (
                                 <div className="flex items-center gap-3 w-full justify-end">
-                                    <div className="w-24">
-                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Base</label>
+                                    <div className="w-32">
+                                        <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Base</label>
                                         <div className="relative flex items-center">
-                                            <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
+                                            <span className="absolute left-2 text-xs text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorContrato || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-0.5 w-full text-indigo-400 font-bold text-[11px] cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-8 pr-2 py-1.5 w-full text-indigo-400 font-bold text-lg cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
                                                 placeholder="Base"
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-24">
-                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Verão</label>
+                                    <div className="w-32">
+                                        <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Verão</label>
                                         <div className="relative flex items-center">
-                                            <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
+                                            <span className="absolute left-2 text-xs text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorVerao || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-0.5 w-full text-orange-400 font-bold text-[11px] cursor-text ${condo.valorAtivo === 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-8 pr-2 py-1.5 w-full text-orange-400 font-bold text-lg cursor-text ${condo.valorAtivo === 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
                                                 placeholder="Verão"
                                             />
                                         </div>
