@@ -384,7 +384,7 @@ interface RHManagerViewProps {
 
 export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths }: RHManagerViewProps) {
     const [localData, setLocalData] = useState<MasterRHData>(data);
-    const [activeSubTab, setActiveSubTab] = useState<'condos' | 'funcs'>('condos');
+    const [activeSubTab, setActiveSubTab] = useState<'condos' | 'funcs' | 'trash'>('condos');
     const [searchTerm, setSearchTerm] = useState('');
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
@@ -540,8 +540,27 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     };
 
     const removeCondo = (index: number) => {
-        // Usa o spread operator no filter para forçar uma nova referência na memória
-        const newList = [...localData.condominios].filter((_, i) => i !== index);
+        const condoId = localData.condominios[index].id;
+        const newList = localData.condominios.map(c => 
+            c.id === condoId ? { ...c, deleted: true } : c
+        );
+        setLocalData({ ...localData, condominios: newList });
+    };
+
+    const restoreCondo = (condoId: string) => {
+        const newList = localData.condominios.map(c => 
+            c.id === condoId ? { ...c, deleted: false } : c
+        );
+        setLocalData({ ...localData, condominios: newList });
+    };
+
+    const permanentRemoveCondo = async (condoId: string) => {
+        if (!confirm("Tem certeza que deseja excluir esse condomínio permanentemente? Esta ação não pode ser desfeita.")) return;
+        
+        // Import dynamicamente ou assume-se que está disponível via onSave ou props se necessário
+        // Mas o RHManagerView gerencia via localData e depois o MainContent salva tudo.
+        // No entanto, para persistência imediata ou se for parte do save completo:
+        const newList = localData.condominios.filter(c => c.id !== condoId);
         setLocalData({ ...localData, condominios: newList });
     };
 
@@ -552,8 +571,19 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     const filteredCondos = [...localData.condominios]
         .filter(c =>
-            c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (c.cnpj && c.cnpj.includes(searchTerm))
+            !c.deleted && (
+                c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (c.cnpj && c.cnpj.includes(searchTerm))
+            )
+        )
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+
+    const trashCondos = [...localData.condominios]
+        .filter(c =>
+            c.deleted && (
+                c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (c.cnpj && c.cnpj.includes(searchTerm))
+            )
         )
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -630,6 +660,12 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                     >
                         <Users className="w-4 h-4" /> Funcionários ({localData.funcionarios.length})
                     </button>
+                    <button
+                        onClick={() => setActiveSubTab('trash')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeSubTab === 'trash' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-400 hover:text-red-400/70'}`}
+                    >
+                        <Trash2 className="w-4 h-4" /> Lixeira ({localData.condominios.filter(c => c.deleted).length})
+                    </button>
                 </div>
 
                 <div className="relative w-full md:w-80">
@@ -681,6 +717,52 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                         >
                             <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" /> Adicionar Novo Condomínio
                         </button>
+                    </div>
+                ) : activeSubTab === 'trash' ? (
+                    <div className="p-6 space-y-4">
+                        <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/20 mb-6">
+                            <p className="text-xs text-red-400 flex items-center gap-2">
+                                <Trash2 className="w-4 h-4" /> Os condomínios excluídos aparecem aqui. Você pode restaurá-los ou excluí-los permanentemente.
+                            </p>
+                        </div>
+                        {trashCondos.length === 0 ? (
+                            <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-dashed border-slate-700">
+                                <p className="text-slate-500">Lixeira vazia.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-4">
+                                {trashCondos.map((condo) => {
+                                    return (
+                                        <div key={condo.id} className="bg-slate-900/40 border border-slate-700/50 rounded-xl p-4 flex items-center justify-between group hover:border-red-500/30 transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2 bg-slate-800 rounded-lg text-slate-500">
+                                                    <Building2 className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-white font-bold text-sm">{condo.nome}</h3>
+                                                    <p className="text-xs text-slate-500">{condo.cnpj}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => restoreCondo(condo.id!)}
+                                                    className="px-3 py-1.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-bold rounded-lg hover:bg-indigo-500/30 transition-all"
+                                                >
+                                                    RESTAURAR
+                                                </button>
+                                                <button
+                                                    onClick={() => permanentRemoveCondo(condo.id!)}
+                                                    className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all"
+                                                    title="Excluir Permanentemente"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="p-6 space-y-4">

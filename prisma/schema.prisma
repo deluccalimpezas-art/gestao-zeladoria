@@ -22,6 +22,7 @@ model Condominio {
   valorVerao      Float?
   cargaHoraria    String?
   valorAtivo      String              @default("base")
+  deleted         Boolean             @default(false)
   funcionarios    Funcionario[]
   financasMensais MonthlyCondominio[]
 }

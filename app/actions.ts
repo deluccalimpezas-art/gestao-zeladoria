@@ -14,7 +14,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino } = data;
+        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -37,7 +37,8 @@ export async function upsertCondominio(data: any) {
                 cargaHoraria,
                 valorAtivo,
                 inicio,
-                termino
+                termino,
+                deleted: deleted ?? false
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -50,7 +51,8 @@ export async function upsertCondominio(data: any) {
                 cargaHoraria,
                 valorAtivo,
                 inicio,
-                termino
+                termino,
+                deleted: deleted ?? false
             },
         });
         return { success: true, data: result };
@@ -62,14 +64,29 @@ export async function upsertCondominio(data: any) {
 
 export async function deleteCondominio(id: string) {
     try {
+        await prisma.condominio.update({
+            where: { id },
+            data: { deleted: true }
+        });
+        revalidatePath('/');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao mover condomínio para lixeira:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteCondominioPermanent(id: string) {
+    try {
         await prisma.condominio.delete({ where: { id } });
         revalidatePath('/');
         return { success: true };
     } catch (error: any) {
-        console.error("Erro ao deletar condomínio:", error);
+        console.error("Erro ao deletar condomínio permanentemente:", error);
         return { success: false, error: error.message };
     }
 }
+
 
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {

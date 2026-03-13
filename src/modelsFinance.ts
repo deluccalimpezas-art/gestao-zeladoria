@@ -20,6 +20,7 @@ export interface CondominioData {
     valorAtivo?: 'base' | 'verao';
     inicio?: string;
     termino?: string;
+    deleted?: boolean;
     statusNf?: string;
     nfFeita?: boolean;
     nfEnviada?: boolean;
