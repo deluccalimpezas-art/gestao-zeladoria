@@ -21,6 +21,7 @@ export interface CondominioData {
     inicio?: string;
     termino?: string;
     deleted?: boolean;
+    contrato?: string;
     statusNf?: string;
     nfFeita?: boolean;
     nfEnviada?: boolean;
@@ -46,6 +47,7 @@ export interface FuncionarioData {
     funcionarioId?: string; // Link to Master RH
     condominioId?: string; // Link to Condominio model in Master RH
     deleted?: boolean;
+    contrato?: string;
 }
 
 export interface ImpostoData {

@@ -14,7 +14,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted } = data;
+        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted, contrato } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -38,7 +38,8 @@ export async function upsertCondominio(data: any) {
                 valorAtivo,
                 inicio,
                 termino,
-                deleted: deleted ?? false
+                deleted: deleted ?? false,
+                contrato
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -52,7 +53,8 @@ export async function upsertCondominio(data: any) {
                 valorAtivo,
                 inicio,
                 termino,
-                deleted: deleted ?? false
+                deleted: deleted ?? false,
+                contrato
             },
         });
         return { success: true, data: result };
@@ -91,7 +93,7 @@ export async function deleteCondominioPermanent(id: string) {
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {
     try {
-        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted } = data;
+        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted, contrato } = data;
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
@@ -116,7 +118,8 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
-                deleted: deleted ?? false
+                deleted: deleted ?? false,
+                contrato
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -128,7 +131,8 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
-                deleted: deleted ?? false
+                deleted: deleted ?? false,
+                contrato
             },
         });
         return { success: true, data: result };

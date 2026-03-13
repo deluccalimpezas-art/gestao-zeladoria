@@ -181,6 +181,15 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                         placeholder="Ex: Seg a Sex [08:00 - 17:00]"
                                     />
                                 </div>
+                                <div className="space-y-1.5 col-span-2">
+                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Contrato</label>
+                                    <input
+                                        value={condo.contrato || ''}
+                                        onChange={(e) => onUpdate('contrato', e.target.value)}
+                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-indigo-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-mono"
+                                        placeholder="Link ou ID do Contrato"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -366,6 +375,17 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: Empl
                                 onChange={(e) => onUpdate('vencimentoFerias', e.target.value)}
                                 className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-amber-300 text-xs focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                                 placeholder="DD/MM/YYYY"
+                            />
+                        </div>
+                        <div className="space-y-1.5 md:col-span-3">
+                            <label className="text-[10px] text-slate-500 uppercase font-bold ml-1 flex items-center gap-1.5">
+                                <Building2 className="w-3 h-3 text-indigo-400" /> Contrato
+                            </label>
+                            <input
+                                value={employee.contrato || ''}
+                                onChange={(e) => onUpdate('contrato', e.target.value)}
+                                className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-mono"
+                                placeholder="Link ou ID do Contrato"
                             />
                         </div>
                     </div>
