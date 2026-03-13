@@ -758,7 +758,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         type="number"
                                                         value={func.faltas || 0}
                                                         onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
-                                                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-2 py-1.5 w-20 text-center text-amber-500 font-bold text-lg"
+                                                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-2 py-2 w-28 text-center text-amber-500 font-bold text-sm"
                                                     />
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
@@ -1041,7 +1041,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
         return (
             <div
                 onClick={() => setIsEditing(true)}
-                className={`flex items-center justify-end px-4 py-2 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-bold group min-w-[110px] inline-flex text-lg`}
+                className={`flex items-center justify-end px-6 py-2.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-bold group min-w-[150px] inline-flex text-sm`}
             >
                 {formatBR(value)}
             </div>
@@ -1049,7 +1049,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
     }
 
     return (
-        <div className={`flex items-center bg-slate-900 border border-indigo-500 rounded-lg px-2 py-2 ${width} ml-auto shadow-inner ring-2 ring-indigo-500/20`}>
+        <div className={`flex items-center bg-slate-900 border border-indigo-500 rounded-lg px-2 py-2.5 ${width} ml-auto shadow-inner ring-2 ring-indigo-500/20 min-w-[150px]`}>
             <span className="text-slate-500 text-sm font-bold mr-1">R$</span>
             <input
                 autoFocus
@@ -1067,7 +1067,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
                         onChange(parseFloat(tempValue) || 0);
                     }
                 }}
-                className="bg-transparent border-none outline-none w-full text-right text-white font-bold text-lg"
+                className="bg-transparent border-none outline-none w-full text-right text-white font-bold text-sm"
             />
         </div>
     );

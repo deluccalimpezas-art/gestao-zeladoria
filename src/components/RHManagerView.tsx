@@ -102,32 +102,32 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                         <div className="flex items-center justify-end">
                             {isExpanded ? (
                                 <div className="flex items-center gap-3 w-full justify-end">
-                                    <div className="w-32">
+                                    <div className="w-40">
                                         <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Base</label>
                                         <div className="relative flex items-center">
-                                            <span className="absolute left-2 text-xs text-slate-500 font-bold">R$</span>
+                                            <span className="absolute left-3 text-sm text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorContrato || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-8 pr-2 py-1.5 w-full text-indigo-400 font-bold text-lg cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-10 pr-4 py-2 w-full text-indigo-400 font-bold text-sm cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
                                                 placeholder="Base"
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-32">
+                                    <div className="w-40">
                                         <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Verão</label>
                                         <div className="relative flex items-center">
-                                            <span className="absolute left-2 text-xs text-slate-500 font-bold">R$</span>
+                                            <span className="absolute left-3 text-sm text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorVerao || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-8 pr-2 py-1.5 w-full text-orange-400 font-bold text-lg cursor-text ${condo.valorAtivo === 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg pl-10 pr-4 py-2 w-full text-orange-400 font-bold text-sm cursor-text ${condo.valorAtivo === 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
                                                 placeholder="Verão"
                                             />
                                         </div>
