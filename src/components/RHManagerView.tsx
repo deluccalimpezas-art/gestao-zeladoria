@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Building2, Users, Save, Plus, Trash2, Search, ChevronDown, ChevronUp, Calendar, CheckCircle2, Loader2 } from 'lucide-react';
+import { Building2, Users, Search, Plus, Trash2, Edit2, Save, X, ChevronDown, ChevronUp, MapPin, Phone, Mail, Calendar, CreditCard, Clock, FileText, UploadCloud, Download, AlertCircle, CheckCircle2, RotateCcw, Trash, FileDown, ArrowRight, Loader2 } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
 
 interface CondoCardProps {
@@ -12,6 +12,26 @@ interface CondoCardProps {
 
 function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, updateFn: (field: any, val: any) => void) => {
+        const file = e.target.files?.[0];
+        if (file && file.type === 'application/pdf') {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64 = event.target?.result as string;
+                updateFn('contratoPdf', base64);
+                updateFn('contratoNome', file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDownload = (base64: string, filename: string) => {
+        const link = document.createElement('a');
+        link.href = base64.startsWith('data:') ? base64 : `data:application/pdf;base64,${base64}`;
+        link.download = filename || 'contrato.pdf';
+        link.click();
+    };
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -182,13 +202,34 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                     />
                                 </div>
                                 <div className="space-y-1.5 col-span-2">
-                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Contrato</label>
-                                    <input
-                                        value={condo.contrato || ''}
-                                        onChange={(e) => onUpdate('contrato', e.target.value)}
-                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-indigo-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-mono"
-                                        placeholder="Link ou ID do Contrato"
-                                    />
+                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Contrato (PDF)</label>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 relative">
+                                            <input
+                                                type="file"
+                                                accept=".pdf"
+                                                onChange={(e) => handleFileUpload(e, onUpdate)}
+                                                className="hidden"
+                                                id={`condo-contract-${condo.id}`}
+                                            />
+                                            <label
+                                                htmlFor={`condo-contract-${condo.id}`}
+                                                className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 border-dashed rounded-lg px-3 py-2 w-full text-slate-400 text-xs cursor-pointer hover:border-indigo-500/50 hover:bg-slate-800 transition-all"
+                                            >
+                                                <UploadCloud className="w-4 h-4 text-indigo-400" />
+                                                <span>{condo.contratoNome || 'Importar PDF do Contrato'}</span>
+                                            </label>
+                                        </div>
+                                        {condo.contratoPdf && (
+                                            <button
+                                                onClick={() => handleDownload(condo.contratoPdf, condo.contratoNome || 'contrato.pdf')}
+                                                className="flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs font-bold hover:bg-indigo-500/30 transition-all"
+                                            >
+                                                <FileText className="w-4 h-4" />
+                                                Baixar
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -235,6 +276,26 @@ interface EmployeeCardProps {
 
 function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: EmployeeCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, updateFn: (field: any, val: any) => void) => {
+        const file = e.target.files?.[0];
+        if (file && file.type === 'application/pdf') {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64 = event.target?.result as string;
+                updateFn('contratoPdf', base64);
+                updateFn('contratoNome', file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDownload = (base64: string, filename: string) => {
+        const link = document.createElement('a');
+        link.href = base64.startsWith('data:') ? base64 : `data:application/pdf;base64,${base64}`;
+        link.download = filename || 'contrato.pdf';
+        link.click();
+    };
 
     const getStatusColor = (status?: string) => {
         switch (status) {
@@ -379,14 +440,35 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: Empl
                         </div>
                         <div className="space-y-1.5 md:col-span-3">
                             <label className="text-[10px] text-slate-500 uppercase font-bold ml-1 flex items-center gap-1.5">
-                                <Building2 className="w-3 h-3 text-indigo-400" /> Contrato
+                                <Building2 className="w-3 h-3 text-indigo-400" /> Contrato (PDF)
                             </label>
-                            <input
-                                value={employee.contrato || ''}
-                                onChange={(e) => onUpdate('contrato', e.target.value)}
-                                className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-blue-500/50 outline-none transition-all font-mono"
-                                placeholder="Link ou ID do Contrato"
-                            />
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="file"
+                                        accept=".pdf"
+                                        onChange={(e) => handleFileUpload(e, onUpdate)}
+                                        className="hidden"
+                                        id={`emp-contract-${employee.id}`}
+                                    />
+                                    <label
+                                        htmlFor={`emp-contract-${employee.id}`}
+                                        className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 border-dashed rounded-lg px-4 py-3 w-full text-slate-400 text-xs cursor-pointer hover:border-blue-500/50 hover:bg-slate-800 transition-all"
+                                    >
+                                        <UploadCloud className="w-5 h-5 text-blue-400" />
+                                        <span>{employee.contratoNome || 'Importar PDF do Contrato de Trabalho'}</span>
+                                    </label>
+                                </div>
+                                {employee.contratoPdf && (
+                                    <button
+                                        onClick={() => handleDownload(employee.contratoPdf, employee.contratoNome || 'contrato.pdf')}
+                                        className="flex items-center gap-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg px-4 py-3 text-xs font-bold hover:bg-blue-500/30 transition-all"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        Baixar
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

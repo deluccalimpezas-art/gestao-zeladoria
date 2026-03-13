@@ -23,7 +23,8 @@ model Condominio {
   cargaHoraria    String?
   valorAtivo      String              @default("base")
   deleted         Boolean             @default(false)
-  contrato        String?
+  contratoPdf     Bytes?
+  contratoNome    String?
   funcionarios    Funcionario[]
   financasMensais MonthlyCondominio[]
 }
@@ -42,7 +43,8 @@ model Funcionario {
   vencimentoFerias       String?
   condominio             Condominio           @relation(fields: [condominioId], references: [id], onDelete: Cascade)
   deleted                Boolean             @default(false)
-  contrato               String?
+  contratoPdf            Bytes?
+  contratoNome           String?
   pagamentos             MonthlyFuncionario[]
 }
 

@@ -5,16 +5,25 @@ import { revalidatePath } from 'next/cache'
 
 // Master RH: Condominios
 export async function getCondominios() {
-    return await prisma.condominio.findMany({
+    const raw = await (prisma.condominio as any).findMany({
         include: {
             funcionarios: true
         }
-    })
+    });
+
+    return raw.map((c: any) => ({
+        ...c,
+        contratoPdf: c.contratoPdf ? c.contratoPdf.toString('base64') : null,
+        funcionarios: (c.funcionarios || []).map((f: any) => ({
+            ...f,
+            contratoPdf: f.contratoPdf ? f.contratoPdf.toString('base64') : null
+        }))
+    }));
 }
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted, contrato } = data;
+        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted, contratoPdf, contratoNome } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -25,7 +34,7 @@ export async function upsertCondominio(data: any) {
             }
         }
 
-        const result = await prisma.condominio.upsert({
+        const result = await (prisma.condominio as any).upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
             update: {
                 nome,
@@ -39,7 +48,8 @@ export async function upsertCondominio(data: any) {
                 inicio,
                 termino,
                 deleted: deleted ?? false,
-                contrato
+                contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
+                contratoNome: contratoNome || undefined
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -54,7 +64,8 @@ export async function upsertCondominio(data: any) {
                 inicio,
                 termino,
                 deleted: deleted ?? false,
-                contrato
+                contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
+                contratoNome: contratoNome || undefined
             },
         });
         return { success: true, data: result };
@@ -66,7 +77,7 @@ export async function upsertCondominio(data: any) {
 
 export async function deleteCondominio(id: string) {
     try {
-        await prisma.condominio.update({
+        await (prisma.condominio as any).update({
             where: { id },
             data: { deleted: true }
         });
@@ -80,7 +91,7 @@ export async function deleteCondominio(id: string) {
 
 export async function deleteCondominioPermanent(id: string) {
     try {
-        await prisma.condominio.delete({ where: { id } });
+        await (prisma.condominio as any).delete({ where: { id } });
         revalidatePath('/');
         return { success: true };
     } catch (error: any) {
@@ -93,12 +104,12 @@ export async function deleteCondominioPermanent(id: string) {
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {
     try {
-        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted, contrato } = data;
+        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted, contratoPdf, contratoNome } = data;
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
         if (!cId && condominio) {
-            const c = await prisma.condominio.findFirst({ where: { nome: condominio } });
+            const c = await (prisma.condominio as any).findFirst({ where: { nome: condominio } });
             if (c) cId = c.id;
         }
 
@@ -107,7 +118,7 @@ export async function upsertFuncionario(data: any) {
             return { success: false, error: "Condomínio não encontrado." };
         }
 
-        const result = await prisma.funcionario.upsert({
+        const result = await (prisma.funcionario as any).upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
             update: {
                 nome,
@@ -119,7 +130,8 @@ export async function upsertFuncionario(data: any) {
                 dataAdmissao,
                 condominioId: cId,
                 deleted: deleted ?? false,
-                contrato
+                contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
+                contratoNome: contratoNome || undefined
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -132,7 +144,8 @@ export async function upsertFuncionario(data: any) {
                 dataAdmissao,
                 condominioId: cId,
                 deleted: deleted ?? false,
-                contrato
+                contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
+                contratoNome: contratoNome || undefined
             },
         });
         return { success: true, data: result };
@@ -270,7 +283,7 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: c.nome,
                         cnpj: c.cnpj,
-                        valorCobrado: c.valorAtivo === 'verao' ? (c.valorVerao || c.valorContrato || 0) : (c.valorContrato || 0),
+                        valorCobrado: (c as any).valorAtivo === 'verao' ? ((c as any).valorVerao || (c as any).valorContrato || 0) : ((c as any).valorContrato || 0),
                         condominioId: c.id
                     }))
                 });
@@ -284,9 +297,9 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: f.nome,
                         condominio: f.condominio?.nome || '',
-                        salarioBase: f.salarioBase || 0,
-                        valorPago: f.salarioBase || 0,
-                        statusClt: f.statusClt,
+                        salarioBase: (f as any).salarioBase || 0,
+                        valorPago: (f as any).salarioBase || 0,
+                        statusClt: (f as any).statusClt,
                         funcionarioId: f.id
                     }))
                 });
@@ -363,7 +376,7 @@ export async function saveFinanceMonth(data: any) {
 
         // Upsert Condos
         for (const c of condominios) {
-            await prisma.monthlyCondominio.upsert({
+            await (prisma.monthlyCondominio as any).upsert({
                 where: { id: c.id.length > 20 ? c.id : '00000000-0000-0000-0000-000000000000' },
                 update: {
                     nome: c.nome,
@@ -386,7 +399,7 @@ export async function saveFinanceMonth(data: any) {
 
         // Upsert Funcs
         for (const f of funcionarios) {
-            await prisma.monthlyFuncionario.upsert({
+            await (prisma.monthlyFuncionario as any).upsert({
                 where: { id: f.id.length > 20 ? f.id : '00000000-0000-0000-0000-000000000000' },
                 update: {
                     nome: f.nome,
@@ -411,7 +424,7 @@ export async function saveFinanceMonth(data: any) {
 
         // Upsert Impostos
         for (const i of impostos) {
-            await prisma.monthlyImposto.upsert({
+            await (prisma.monthlyImposto as any).upsert({
                 where: { id: i.id.length > 20 ? i.id : '00000000-0000-0000-0000-000000000000' },
                 update: {
                     nome: i.nome,

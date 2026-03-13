@@ -21,7 +21,8 @@ export interface CondominioData {
     inicio?: string;
     termino?: string;
     deleted?: boolean;
-    contrato?: string;
+    contratoPdf?: any; // Buffer on server, string/Base64 on client
+    contratoNome?: string;
     statusNf?: string;
     nfFeita?: boolean;
     nfEnviada?: boolean;
@@ -47,7 +48,8 @@ export interface FuncionarioData {
     funcionarioId?: string; // Link to Master RH
     condominioId?: string; // Link to Condominio model in Master RH
     deleted?: boolean;
-    contrato?: string;
+    contratoPdf?: any;
+    contratoNome?: string;
 }
 
 export interface ImpostoData {
