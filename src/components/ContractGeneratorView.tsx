@@ -10,7 +10,10 @@ export function ContractGeneratorView() {
     const [contractorCity, setContractorCity] = useState('Itapema');
 
     // Service options
-    const [serviceType, setServiceType] = useState<'22h' | '44h'>('22h');
+    const [serviceType, setServiceType] = useState<'22h' | '44h' | 'manual'>('22h');
+    const [manualServiceText, setManualServiceText] = useState('A) Detalhes do serviço manual...');
+    const [manualPrice, setManualPrice] = useState('0,00');
+    const [manualPriceExtenso, setManualPriceExtenso] = useState('Zero reais');
 
     // Dates
     const today = new Date().toISOString().substring(0, 10);
@@ -107,8 +110,43 @@ export function ContractGeneratorView() {
                             >
                                 <option value="22h">22 Horas Semanais</option>
                                 <option value="44h">44 Horas Semanais</option>
+                                <option value="manual">Manual / Customizado</option>
                             </select>
                         </div>
+
+                        {serviceType === 'manual' && (
+                            <>
+                                <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-300">
+                                    <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5">Texto da Carga Horária (item 2.24)</label>
+                                    <textarea
+                                        value={manualServiceText}
+                                        onChange={e => setManualServiceText(e.target.value)}
+                                        placeholder="Ex: A) Uma Aux. Limpeza: 30 horas semanais..."
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm h-32 focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-400 ml-1">Valor (R$)</label>
+                                        <input
+                                            value={manualPrice}
+                                            onChange={e => setManualPrice(e.target.value)}
+                                            placeholder="5.000,00"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-400 ml-1">Valor p/ Extenso</label>
+                                        <input
+                                            value={manualPriceExtenso}
+                                            onChange={e => setManualPriceExtenso(e.target.value)}
+                                            placeholder="Cinco mil reais"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Data de Início do Serviço</label>
@@ -188,7 +226,7 @@ export function ContractGeneratorView() {
                                     <p>   -Sábado:</p>
                                     <p>        Período Matutino(08:00 às 10:00)</p>
                                 </div>
-                            ) : (
+                            ) : serviceType === '44h' ? (
                                 <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
                                     <p>A) Um Zelador: 44 horas semanais. </p>
                                     <p>   -Segunda á sexta-feira:</p>
@@ -196,6 +234,12 @@ export function ContractGeneratorView() {
                                     <br />
                                     <p>   -Sábado:</p>
                                     <p>        Período Matutino (08:00 às 12:00)</p>
+                                </div>
+                            ) : (
+                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
+                                    {manualServiceText.split('\n').map((line, i) => (
+                                        <p key={i}>{line}</p>
+                                    ))}
                                 </div>
                             )}
 
@@ -209,8 +253,10 @@ export function ContractGeneratorView() {
                             <h4 className="font-bold text-center mt-6 uppercase">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
                             {serviceType === '22h' ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 3.600,00 (Três mil e seiscentos reais)</span> por mês.</p>
-                            ) : (
+                            ) : serviceType === '44h' ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 6.200,00 (Seis mil e duzentos reais)</span> por mês.</p>
+                            ) : (
+                                <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ {manualPrice} ({manualPriceExtenso})</span> por mês.</p>
                             )}
                             <p>3.2 – O pagamento deverá ser realizado mensalmente, com emissão da respectiva Nota Fiscal, por meio de Pix, TED ou dinheiro físico, com vencimento para todo dia 05 de cada mês.</p>
                             <p>3.3 – Caso o contrato seja extinto pela CONTRATANTE, não haverá a devolução de nenhum dos valores já pagos à empresa CONTRATADA dos serviços efetivamente realizados, se a empresa contratada não infringiu nenhum dos termos deste contrato.</p>
