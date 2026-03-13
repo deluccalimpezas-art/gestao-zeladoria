@@ -75,7 +75,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-white font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
                                 placeholder="Nome do Condomínio"
                             />
-                            <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
+                            <span className="absolute -left-14 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
                                 {String(index + 1).padStart(2, '0')}.
                             </span>
                         </div>
