@@ -519,15 +519,19 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         setLocalData({ ...localData, funcionarios: newList });
     };
 
-    const filteredCondos = localData.condominios.filter(c =>
-        c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.cnpj.includes(searchTerm)
-    );
+    const filteredCondos = [...localData.condominios]
+        .filter(c =>
+            c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (c.cnpj && c.cnpj.includes(searchTerm))
+        )
+        .sort((a, b) => a.nome.localeCompare(b.nome));
 
-    const filteredFuncs = localData.funcionarios.filter(f =>
-        f.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.condominio.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredFuncs = [...localData.funcionarios]
+        .filter(f =>
+            f.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (f.condominio && f.condominio.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+        .sort((a, b) => a.nome.localeCompare(b.nome));
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -619,11 +623,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {localData.condominios.map((condo) => {
-                                    const isMatch = condo.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        condo.cnpj.includes(searchTerm);
-                                    if (!isMatch) return null;
-
+                                {filteredCondos.map((condo) => {
                                     const condoEmployees = localData.funcionarios.filter(f => f.condominioId === condo.id || (!f.condominioId && f.condominio === condo.nome));
                                     return (
                                         <CondoCard
@@ -658,22 +658,18 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
-                                {localData.funcionarios.map((func) => {
-                                    const isMatch = func.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        func.condominio.toLowerCase().includes(searchTerm.toLowerCase());
-                                    if (!isMatch) return null;
-
+                                {filteredFuncs.map((emp) => {
                                     return (
                                         <EmployeeCard
-                                            key={func.id}
-                                            employee={func}
+                                            key={emp.id}
+                                            employee={emp}
                                             condominios={localData.condominios}
                                             onUpdate={(field, val) => {
-                                                const idx = localData.funcionarios.findIndex(f => f.id === func.id);
+                                                const idx = localData.funcionarios.findIndex(f => f.id === emp.id);
                                                 if (idx !== -1) updateFunc(idx, field, val);
                                             }}
                                             onRemove={() => {
-                                                const idx = localData.funcionarios.findIndex(f => f.id === func.id);
+                                                const idx = localData.funcionarios.findIndex(f => f.id === emp.id);
                                                 if (idx !== -1) removeFunc(idx);
                                             }}
                                         />
