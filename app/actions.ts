@@ -14,7 +14,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino } = data;
+        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -29,6 +29,7 @@ export async function upsertCondominio(data: any) {
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
             update: {
                 nome,
+                administradora,
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,
@@ -41,6 +42,7 @@ export async function upsertCondominio(data: any) {
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
                 nome,
+                administradora,
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,

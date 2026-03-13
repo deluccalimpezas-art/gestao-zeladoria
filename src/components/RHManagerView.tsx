@@ -45,8 +45,8 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                     <div className={`p-2 rounded-lg ${isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'} transition-colors`}>
                         <Building2 className="w-5 h-5" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-                        <div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                        <div className="relative">
                             <input
                                 value={condo.nome}
                                 readOnly={!isExpanded}
@@ -58,6 +58,16 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                             <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
                                 {String(index + 1).padStart(2, '0')}.
                             </span>
+                        </div>
+                        <div className="flex items-center">
+                            <input
+                                value={condo.administradora || ''}
+                                readOnly={!isExpanded}
+                                onClick={(e) => isExpanded && e.stopPropagation()}
+                                onChange={(e) => onUpdate('administradora', e.target.value)}
+                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-300 font-medium text-xs ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
+                                placeholder="Administradora"
+                            />
                         </div>
                         <div className="flex items-center">
                             <input
