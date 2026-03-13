@@ -195,12 +195,36 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 </div>
                                 <div className="space-y-1.5 col-span-2">
                                     <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Carga Horária</label>
-                                    <input
-                                        value={condo.cargaHoraria || ''}
-                                        onChange={(e) => onUpdate('cargaHoraria', e.target.value)}
-                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
-                                        placeholder="Ex: Seg a Sex [08:00 - 17:00]"
-                                    />
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
+                                            {[
+                                                { id: '22h', label: '22h' },
+                                                { id: '44h', label: '44h' }
+                                            ].map(opt => (
+                                                <button
+                                                    key={opt.id}
+                                                    type="button"
+                                                    onClick={() => onUpdate('cargaHoraria', opt.id)}
+                                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold border transition-all ${condo.cargaHoraria === opt.id ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}
+                                                >
+                                                    {opt.label}
+                                                </button>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => onUpdate('cargaHoraria', '')}
+                                                className={`px-3 py-1 rounded-lg text-[10px] font-bold border transition-all ${!['22h', '44h'].includes(condo.cargaHoraria || '') ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}
+                                            >
+                                                Manual
+                                            </button>
+                                        </div>
+                                        <input
+                                            value={condo.cargaHoraria || ''}
+                                            onChange={(e) => onUpdate('cargaHoraria', e.target.value)}
+                                            className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
+                                            placeholder="Ex: Seg a Sex [08:00 - 17:00]"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="space-y-1.5 col-span-2">
                                     <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Contrato (PDF)</label>
