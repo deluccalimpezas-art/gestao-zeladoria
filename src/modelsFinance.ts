@@ -45,6 +45,7 @@ export interface FuncionarioData {
     dataAdmissao?: string;
     funcionarioId?: string; // Link to Master RH
     condominioId?: string; // Link to Condominio model in Master RH
+    deleted?: boolean;
 }
 
 export interface ImpostoData {

@@ -384,7 +384,7 @@ interface RHManagerViewProps {
 
 export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths }: RHManagerViewProps) {
     const [localData, setLocalData] = useState<MasterRHData>(data);
-    const [activeSubTab, setActiveSubTab] = useState<'condos' | 'funcs' | 'trash'>('condos');
+    const [activeSubTab, setActiveSubTab] = useState<'condos' | 'funcs' | 'trash' | 'fired'>('condos');
     const [searchTerm, setSearchTerm] = useState('');
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
@@ -565,7 +565,23 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     };
 
     const removeFunc = (index: number) => {
-        const newList = [...localData.funcionarios].filter((_, i) => i !== index);
+        const funcId = localData.funcionarios[index].id;
+        const newList = localData.funcionarios.map(f => 
+            f.id === funcId ? { ...f, deleted: true } : f
+        );
+        setLocalData({ ...localData, funcionarios: newList });
+    };
+
+    const restoreFunc = (funcId: string) => {
+        const newList = localData.funcionarios.map(f => 
+            f.id === funcId ? { ...f, deleted: false } : f
+        );
+        setLocalData({ ...localData, funcionarios: newList });
+    };
+
+    const permanentRemoveFunc = async (funcId: string) => {
+        if (!confirm("Tem certeza que deseja excluir essa funcionária permanentemente? Esta ação não pode ser desfeita.")) return;
+        const newList = localData.funcionarios.filter(f => f.id !== funcId);
         setLocalData({ ...localData, funcionarios: newList });
     };
 
@@ -587,10 +603,21 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         )
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
+    const firedFuncs = [...localData.funcionarios]
+        .filter(f =>
+            f.deleted && (
+                f.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (f.condominio && f.condominio.toLowerCase().includes(searchTerm.toLowerCase()))
+            )
+        )
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+
     const filteredFuncs = [...localData.funcionarios]
         .filter(f =>
-            f.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (f.condominio && f.condominio.toLowerCase().includes(searchTerm.toLowerCase()))
+            !f.deleted && (
+                f.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (f.condominio && f.condominio.toLowerCase().includes(searchTerm.toLowerCase()))
+            )
         )
         .sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -661,10 +688,16 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                         <Users className="w-4 h-4" /> Funcionários ({localData.funcionarios.length})
                     </button>
                     <button
+                        onClick={() => setActiveSubTab('fired')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeSubTab === 'fired' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-orange-400/70'}`}
+                    >
+                        <Users className="w-4 h-4" /> Demitidos ({localData.funcionarios.filter(f => f.deleted).length})
+                    </button>
+                    <button
                         onClick={() => setActiveSubTab('trash')}
                         className={`flex items-center gap-2 px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeSubTab === 'trash' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-400 hover:text-red-400/70'}`}
                     >
-                        <Trash2 className="w-4 h-4" /> Lixeira ({localData.condominios.filter(c => c.deleted).length})
+                        <Trash2 className="w-4 h-4" /> Rescisões ({localData.condominios.filter(c => c.deleted).length})
                     </button>
                 </div>
 
@@ -722,12 +755,12 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                     <div className="p-6 space-y-4">
                         <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/20 mb-6">
                             <p className="text-xs text-red-400 flex items-center gap-2">
-                                <Trash2 className="w-4 h-4" /> Os condomínios excluídos aparecem aqui. Você pode restaurá-los ou excluí-los permanentemente.
+                                <Trash2 className="w-4 h-4" /> Os condomínios em rescisão aparecem aqui. Você pode restaurá-los ou excluí-los permanentemente.
                             </p>
                         </div>
                         {trashCondos.length === 0 ? (
                             <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-dashed border-slate-700">
-                                <p className="text-slate-500">Lixeira vazia.</p>
+                                <p className="text-slate-500">Nenhuma rescisão pendente.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4">
@@ -752,6 +785,52 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                                 </button>
                                                 <button
                                                     onClick={() => permanentRemoveCondo(condo.id!)}
+                                                    className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all"
+                                                    title="Excluir Permanentemente"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                ) : activeSubTab === 'fired' ? (
+                    <div className="p-6 space-y-4">
+                        <div className="bg-orange-500/5 p-4 rounded-xl border border-orange-500/20 mb-6">
+                            <p className="text-xs text-orange-400 flex items-center gap-2">
+                                <Users className="w-4 h-4" /> Lista de funcionários demitidos. Você pode restaurá-los ou excluí-los permanentemente.
+                            </p>
+                        </div>
+                        {firedFuncs.length === 0 ? (
+                            <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-dashed border-slate-700">
+                                <p className="text-slate-500">Nenhum funcionário demitido.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-4">
+                                {firedFuncs.map((f) => {
+                                    return (
+                                        <div key={f.id} className="bg-slate-900/40 border border-slate-700/50 rounded-xl p-4 flex items-center justify-between group hover:border-orange-500/30 transition-all">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2 bg-slate-800 rounded-lg text-slate-500">
+                                                    <Users className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-white font-bold text-sm">{f.nome}</h3>
+                                                    <p className="text-xs text-slate-500">{f.cargo} - {f.condominio}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => restoreFunc(f.id!)}
+                                                    className="px-3 py-1.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-bold rounded-lg hover:bg-indigo-500/30 transition-all"
+                                                >
+                                                    RESTAURAR
+                                                </button>
+                                                <button
+                                                    onClick={() => permanentRemoveFunc(f.id!)}
                                                     className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all"
                                                     title="Excluir Permanentemente"
                                                 >

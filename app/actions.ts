@@ -91,7 +91,7 @@ export async function deleteCondominioPermanent(id: string) {
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {
     try {
-        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao } = data;
+        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted } = data;
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
@@ -115,7 +115,8 @@ export async function upsertFuncionario(data: any) {
                 vencimentoFerias,
                 fimContratoExperiencia,
                 dataAdmissao,
-                condominioId: cId
+                condominioId: cId,
+                deleted: deleted ?? false
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -126,7 +127,8 @@ export async function upsertFuncionario(data: any) {
                 vencimentoFerias,
                 fimContratoExperiencia,
                 dataAdmissao,
-                condominioId: cId
+                condominioId: cId,
+                deleted: deleted ?? false
             },
         });
         return { success: true, data: result };
@@ -135,6 +137,32 @@ export async function upsertFuncionario(data: any) {
         return { success: false, error: error.message };
     }
 }
+
+export async function deleteFuncionario(id: string) {
+    try {
+        await prisma.funcionario.update({
+            where: { id },
+            data: { deleted: true }
+        });
+        revalidatePath('/');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao mover funcionário para demitidos:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteFuncionarioPermanent(id: string) {
+    try {
+        await prisma.funcionario.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (error: any) {
+        console.error("Erro ao excluir funcionário permanentemente:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 
 // Financeiro Standalone
 export async function getFinanceMonths() {
