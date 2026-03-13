@@ -98,49 +98,51 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-300 text-xs font-mono font-medium ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
                                 placeholder="00.000.000/0000-00"
                             />
-                        </div>
-                        <div className="flex items-center justify-end min-w-[220px] ml-4">
+                        </div>                        <div className="flex items-center justify-end min-w-[320px] ml-4 h-full py-2">
                             {isExpanded ? (
-                                <div className="flex items-center gap-3 w-full justify-end">
-                                    <div className="w-60">
+                                <div className="flex items-center gap-4 w-full justify-end">
+                                    <div className="flex-1 min-w-[160px]">
                                         <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Base</label>
-                                        <div className="relative flex items-center shadow-lg shadow-indigo-500/5">
-                                            <span className="absolute left-3 text-sm text-slate-500 font-bold">R$</span>
+                                        <div className="relative flex items-center shadow-2xl shadow-indigo-500/10">
+                                            <span className="absolute left-4 text-sm text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorContrato || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 w-full text-indigo-400 font-bold text-sm cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-4 focus:ring-indigo-500/50 rounded-2xl pl-12 pr-6 py-5 w-full text-indigo-400 font-bold text-base cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-2 ring-emerald-500' : ''} transition-all`}
                                                 placeholder="Base"
                                             />
                                         </div>
                                     </div>
-                                    <div className="w-60">
+                                    <div className="flex-1 min-w-[160px]">
                                         <label className="text-[10px] text-slate-500 uppercase font-bold block mb-1 text-right">Verão</label>
-                                        <div className="relative flex items-center shadow-lg shadow-orange-500/5">
-                                            <span className="absolute left-3 text-sm text-slate-500 font-bold">R$</span>
+                                        <div className="relative flex items-center shadow-2xl shadow-orange-500/10">
+                                            <span className="absolute left-4 text-sm text-slate-500 font-bold">R$</span>
                                             <input
                                                 type="number"
                                                 step="0.01"
                                                 value={condo.valorVerao || ''}
                                                 onClick={(e) => e.stopPropagation()}
                                                 onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
-                                                className={`bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 w-full text-orange-400 font-bold text-sm cursor-text ${condo.valorAtivo === 'verao' ? 'ring-2 ring-emerald-500/50' : ''}`}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-4 focus:ring-indigo-500/50 rounded-2xl pl-12 pr-6 py-5 w-full text-orange-400 font-bold text-base cursor-text ${condo.valorAtivo === 'verao' ? 'ring-2 ring-emerald-500' : ''} transition-all`}
                                                 placeholder="Verão"
                                             />
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onUpdate('valorAtivo', condo.valorAtivo === 'verao' ? 'base' : 'verao');
-                                        }}
-                                        className={`mt-5 px-3 py-2 rounded-lg text-[10px] font-bold transition-all shadow-md active:scale-95 ${condo.valorAtivo === 'verao' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50 shadow-orange-500/10' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 shadow-indigo-500/10'}`}
-                                    >
-                                        {condo.valorAtivo === 'verao' ? 'VERÃO' : 'BASE'}
-                                    </button>
+                                    <div className="flex flex-col gap-1 items-center mt-4">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onUpdate('valorAtivo', condo.valorAtivo === 'verao' ? 'base' : 'verao');
+                                            }}
+                                            className={`px-4 py-2.5 rounded-xl text-[11px] font-black transition-all shadow-lg active:scale-95 border-2 ${condo.valorAtivo === 'verao' ? 'bg-orange-500 text-white border-orange-400' : 'bg-indigo-600 text-white border-indigo-400'}`}
+                                        >
+                                            {condo.valorAtivo === 'verao' ? 'VERÃO' : 'BASE'}
+                                        </button>
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase">Ativo</span>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-3 flex flex-col items-end text-right min-w-[140px] shadow-inner">
