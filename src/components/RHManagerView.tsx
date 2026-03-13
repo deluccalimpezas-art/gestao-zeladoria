@@ -65,8 +65,8 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                     <div className={`p-2 rounded-lg ${isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'} transition-colors`}>
                         <Building2 className="w-5 h-5" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                        <div className="relative">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1">
+                        <div className="relative md:col-span-2">
                             <input
                                 value={condo.nome}
                                 readOnly={!isExpanded}
@@ -79,7 +79,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 {String(index + 1).padStart(2, '0')}.
                             </span>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center md:col-span-1">
                             <input
                                 value={condo.administradora || ''}
                                 readOnly={!isExpanded}
@@ -89,7 +89,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 placeholder="Administradora"
                             />
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center md:col-span-1">
                             <input
                                 value={maskCNPJ(condo.cnpj)}
                                 readOnly={!isExpanded}
