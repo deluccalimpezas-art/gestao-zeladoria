@@ -52,51 +52,56 @@ function CondoCard({ condo, employees, onUpdate, onRemove }: CondoCardProps) {
                                 placeholder="CNPJ"
                             />
                         </div>
-                        <div className="flex items-center gap-1">
-                            <span className="text-slate-600 text-xs font-bold">R$</span>
+                        <div className="flex items-center justify-end">
                             {isExpanded ? (
-                                <div className="flex items-center gap-2 w-full">
-                                    <div className="flex-1">
-                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5">Base</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={condo.valorContrato || ''}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1.5 py-0.5 w-full text-indigo-400 font-bold text-[11px] cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
-                                            placeholder="Base"
-                                        />
+                                <div className="flex items-center gap-3 w-full justify-end">
+                                    <div className="w-24">
+                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Base</label>
+                                        <div className="relative flex items-center">
+                                            <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                value={condo.valorContrato || ''}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-0.5 w-full text-indigo-400 font-bold text-[11px] cursor-text ${condo.valorAtivo !== 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                                placeholder="Base"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5">Verão</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={condo.valorVerao || ''}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
-                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1.5 py-0.5 w-full text-orange-400 font-bold text-[11px] cursor-text ${condo.valorAtivo === 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
-                                            placeholder="Verão"
-                                        />
+                                    <div className="w-24">
+                                        <label className="text-[8px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Verão</label>
+                                        <div className="relative flex items-center">
+                                            <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                value={condo.valorVerao || ''}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => onUpdate('valorVerao', parseFloat(e.target.value) || 0)}
+                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-0.5 w-full text-orange-400 font-bold text-[11px] cursor-text ${condo.valorAtivo === 'verao' ? 'ring-1 ring-emerald-500/50' : ''}`}
+                                                placeholder="Verão"
+                                            />
+                                        </div>
                                     </div>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onUpdate('valorAtivo', condo.valorAtivo === 'verao' ? 'base' : 'verao');
                                         }}
-                                        className={`mt-3 px-2 py-1 rounded text-[9px] font-bold transition-all ${condo.valorAtivo === 'verao' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/50'}`}
+                                        className={`mt-3 px-2 py-1 rounded text-[9px] font-bold transition-all whitespace-nowrap ${condo.valorAtivo === 'verao' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/50'}`}
                                     >
-                                        {condo.valorAtivo === 'verao' ? 'USAR BASE' : 'USAR VERÃO'}
+                                        {condo.valorAtivo === 'verao' ? 'VERÃO' : 'BASE'}
                                     </button>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-end">
-                                    <span className={`font-bold text-sm ${condo.valorAtivo === 'verao' ? 'text-orange-400' : 'text-indigo-400'}`}>
+                                <div className="flex flex-col items-end text-right">
+                                    <span className={`font-bold text-sm leading-none ${condo.valorAtivo === 'verao' ? 'text-orange-400' : 'text-indigo-400'}`}>
                                         {formatCurrency(condo.valorAtivo === 'verao' ? (condo.valorVerao || 0) : (condo.valorContrato || 0))}
                                     </span>
-                                    <span className="text-[8px] text-slate-600 uppercase font-bold">
-                                        {condo.valorAtivo === 'verao' ? 'Valor Verão' : 'Valor Base'}
+                                    <span className="text-[8px] text-slate-600 uppercase font-bold tracking-tighter mt-0.5">
+                                        {condo.valorAtivo === 'verao' ? 'Verão ATIVO' : 'Base ATIVA'}
                                     </span>
                                 </div>
                             )}
