@@ -110,12 +110,16 @@ export async function upsertFuncionario(data: any) {
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
-        if (!cId && condominio) {
+        const isSpecial = cId === 'Gerente' || cId === 'Volante';
+
+        if (isSpecial) {
+            cId = null;
+        } else if (!cId && condominio) {
             const c = await (prisma.condominio as any).findFirst({ where: { nome: condominio } });
             if (c) cId = c.id;
         }
 
-        if (!cId) {
+        if (!cId && !isSpecial) {
             console.error(`Não foi possível salvar funcionário ${nome} pois o condomínio "${condominio}" não foi encontrado no banco.`);
             return { success: false, error: "Condomínio não encontrado." };
         }
@@ -131,13 +135,13 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
-                condominioNome: condominio || undefined, // Save the name explicitly
+                condominioNome: (condominio || '').toString(),
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
                 contratoNome: contratoNome || undefined
             },
             create: {
-                id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
+                id: (data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10) ? data.id : undefined,
                 nome,
                 cargo,
                 salarioBase: salario || 0,
@@ -146,7 +150,7 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
-                condominioNome: condominio || undefined, // Save the name explicitly
+                condominioNome: (condominio || '').toString(),
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
                 contratoNome: contratoNome || undefined

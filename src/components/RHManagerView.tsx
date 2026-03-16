@@ -371,19 +371,30 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: Empl
                         <div className="flex items-center">
                             {isExpanded ? (
                                 <select
-                                    value={employee.condominioId || ''}
+                                    value={employee.condominioId || employee.condominio || ''}
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => {
-                                        const selected = condominios.find(c => c.id === e.target.value);
-                                        onUpdate('condominioId', e.target.value);
-                                        if (selected) onUpdate('condominio', selected.nome);
+                                        const val = e.target.value;
+                                        if (val === 'Gerente' || val === 'Volante') {
+                                            onUpdate('condominioId', val);
+                                            onUpdate('condominio', val);
+                                        } else {
+                                            const selected = condominios.find(c => c.id === val);
+                                            onUpdate('condominioId', val);
+                                            if (selected) onUpdate('condominio', selected.nome);
+                                        }
                                     }}
                                     className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-full text-slate-300 text-xs font-medium cursor-pointer"
                                 >
                                     <option value="" disabled>Selecione um Condomínio...</option>
-                                    {condominios.map(c => (
-                                        <option key={c.id} value={c.id}>{c.nome}</option>
-                                    ))}
+                                    {[...condominios]
+                                        .sort((a, b) => a.nome.localeCompare(b.nome))
+                                        .map(c => (
+                                            <option key={c.id} value={c.id}>{c.nome}</option>
+                                        ))
+                                    }
+                                    <option value="Gerente" className="bg-slate-700 font-bold">GERENTE (Especial)</option>
+                                    <option value="Volante" className="bg-slate-700 font-bold">VOLANTE (Especial)</option>
                                 </select>
                             ) : (
                                 <input

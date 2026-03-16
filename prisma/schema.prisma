@@ -34,7 +34,7 @@ model Funcionario {
   nome                   String
   cargo                  String?
   salarioBase            Float                @default(0)
-  condominioId           String
+  condominioId           String?
   created_at             DateTime             @default(now())
   updated_at             DateTime             @updatedAt
   dataAdmissao           String?
@@ -42,7 +42,7 @@ model Funcionario {
   statusClt              String?
   vencimentoFerias       String?
   condominioNome         String?
-  condominio             Condominio           @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  condominio             Condominio?           @relation(fields: [condominioId], references: [id], onDelete: Cascade)
   deleted                Boolean             @default(false)
   contratoPdf            Bytes?
   contratoNome           String?
