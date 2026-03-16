@@ -16,6 +16,8 @@ export async function getCondominios() {
         contratoPdf: c.contratoPdf ? c.contratoPdf.toString('base64') : null,
         funcionarios: (c.funcionarios || []).map((f: any) => ({
             ...f,
+            salario: f.salarioBase || 0,
+            condominio: f.condominioNome || c.nome, // Use the new persisted name or fall back to relation
             contratoPdf: f.contratoPdf ? f.contratoPdf.toString('base64') : null
         }))
     }));
@@ -129,6 +131,7 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
+                condominioNome: condominio || undefined, // Save the name explicitly
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
                 contratoNome: contratoNome || undefined
@@ -143,6 +146,7 @@ export async function upsertFuncionario(data: any) {
                 fimContratoExperiencia,
                 dataAdmissao,
                 condominioId: cId,
+                condominioNome: condominio || undefined, // Save the name explicitly
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
                 contratoNome: contratoNome || undefined
@@ -296,7 +300,7 @@ export async function createFinanceMonth(nome: string) {
                     data: funcs.map(f => ({
                         monthId: newMonth.id,
                         nome: f.nome,
-                        condominio: f.condominio?.nome || '',
+                        condominio: (f as any).condominioNome || f.condominio?.nome || '',
                         salarioBase: (f as any).salarioBase || 0,
                         valorPago: (f as any).salarioBase || 0,
                         statusClt: (f as any).statusClt,
