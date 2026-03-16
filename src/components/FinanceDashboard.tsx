@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, DollarSign, TrendingUp, TrendingDown, Percent, Activity, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus } from 'lucide-react';
 import type { MonthlyFinanceData } from '../modelsFinance';
 import { calculateFinanceSummary } from '../lib/financeEngine';
+import { Charts } from './Charts';
 import dynamic from 'next/dynamic';
 const MonthDetailView = dynamic(() => import('./MonthDetailView').then(mod => mod.MonthDetailView), {
     ssr: false,
@@ -102,6 +103,9 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
 
             {monthsData.length > 0 && (
                 <>
+                    {/* Gráfico de Desempenho */}
+                    <Charts data={monthsData} />
+
                     {/* Bloco 1: Acumulado Anual */}
                     <section>
                         <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4">

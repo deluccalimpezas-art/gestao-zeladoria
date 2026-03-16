@@ -228,8 +228,30 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
 
                 <div className="flex-1 overflow-auto p-6">
                     {activeTab === 'visao_geral' ? (
-                        <div className="max-w-7xl mx-auto space-y-6">
-                            <h1 className="text-3xl font-bold text-white tracking-tight">Bom dia, Chefe.</h1>
+                        <div className="max-w-7xl mx-auto space-y-8">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <h1 className="text-3xl font-bold text-white tracking-tight">Bom dia, Chefe.</h1>
+                                <div className="flex gap-4">
+                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
+                                        <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                            <Briefcase className="w-5 h-5 text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Condomínios</p>
+                                            <p className="text-xl font-black text-white">{masterRH.condominios.length}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
+                                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                                            <Users className="w-5 h-5 text-indigo-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Funcionários</p>
+                                            <p className="text-xl font-black text-white">{employeesCount}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <section className="space-y-4">
                                     <h2 className="text-lg font-semibold text-white flex items-center gap-2">
