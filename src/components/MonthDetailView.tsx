@@ -569,93 +569,93 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300 border-collapse">
-                                    <thead className="bg-slate-900/50 text-xs uppercase font-semibold border-b border-slate-700">
+                                    <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
                                         <tr>
-                                            <th className="px-4 py-4 w-auto text-slate-400 min-w-[220px]">Condomínio / CNPJ</th>
-                                            <th className="px-2 py-4 text-center w-10 text-slate-400" title="Ver Detalhes da Nota Fiscal">NF</th>
-                                            <th className={`px-2 py-4 text-center w-12 transition-colors ${allNfFeita ? 'text-amber-300' : 'text-slate-400'}`} title="NF Feita">NF Feita</th>
-                                            <th className={`px-2 py-4 text-center w-12 transition-colors ${allNfEnviada ? 'text-amber-300' : 'text-slate-400'}`} title="NF Enviada">NF Env.</th>
-                                            <th className={`px-2 py-4 text-center w-12 transition-colors ${allPagamento ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagamento Realizado">Pagt. Feito</th>
-                                            <th className="px-4 py-4 text-right text-slate-400 w-32">Valor Bruto</th>
-                                            <th className="px-4 py-4 text-right text-slate-400 w-32">Retido NF (INSS)</th>
-                                            <th className="px-4 py-4 text-right font-bold text-slate-400 w-32">Líquido</th>
-                                            <th className="px-4 py-4 w-10"></th>
+                                            <th className="px-2 py-3 w-auto text-slate-400 min-w-[180px]">Condomínio / CNPJ</th>
+                                            <th className="px-1 py-3 text-center w-8 text-slate-400" title="Ver Detalhes da Nota Fiscal">NF</th>
+                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfFeita ? 'text-amber-300' : 'text-slate-400'}`} title="NF Feita">Feita</th>
+                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfEnviada ? 'text-amber-300' : 'text-slate-400'}`} title="NF Enviada">Env.</th>
+                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allPagamento ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagamento Realizado">Pagt.</th>
+                                            <th className="px-2 py-3 text-right text-slate-400 w-28">Bruto</th>
+                                            <th className="px-2 py-3 text-right text-slate-400 w-28">INSS</th>
+                                            <th className="px-2 py-3 text-right font-bold text-slate-400 w-28">Líquido</th>
+                                            <th className="px-2 py-3 w-8"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {sortedCondos?.map((condo) => (
                                             <tr key={condo.originalIndex} className="hover:bg-slate-700/10 group h-14">
-                                                <td className="px-4 py-2">
-                                                    <div className="flex flex-col gap-1 w-full max-w-[280px]">
+                                                <td className="px-2 py-2">
+                                                    <div className="flex flex-col gap-0.5 w-full max-w-[250px]">
                                                         <input
                                                             value={condo.nome}
                                                             onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-bold text-sm truncate"
-                                                            placeholder="Nome do Condomínio"
+                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-bold text-xs truncate"
+                                                            placeholder="Nome"
                                                             title={condo.nome}
                                                         />
-                                                        <div className="flex items-center gap-1.5 px-1">
-                                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">CNPJ:</span>
+                                                        <div className="flex items-center gap-1 px-1">
+                                                            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter shrink-0">CNPJ:</span>
                                                             <input
                                                                 value={condo.cnpj || ''}
                                                                 onChange={(e) => updateCondo(condo.originalIndex, 'cnpj', e.target.value)}
-                                                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-slate-400 font-mono text-xs"
-                                                                placeholder="00.000.000/0000-00"
+                                                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-slate-500 font-mono text-[10px]"
+                                                                placeholder="00.000.../0000-00"
                                                             />
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-2 py-2 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <button
                                                         onClick={() => openNfModal(condo.originalIndex)}
                                                         className={`p-1.5 rounded-lg transition-colors flex items-center justify-center mx-auto ${condo.notaFiscal && condo.notaFiscal.valor > 0 ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
                                                         title="Detalhes da Nota Fiscal"
                                                     >
-                                                        <FileText className="w-4 h-4" />
+                                                        <FileText className="w-3.5 h-3.5" />
                                                     </button>
                                                 </td>
-                                                <td className="px-2 py-2 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <button
                                                         onClick={() => updateCondo(condo.originalIndex, 'nfFeita', !condo.nfFeita)}
-                                                        className={`w-5 h-5 rounded-full transition-all mx-auto ${condo.nfFeita ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfFeita ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
-                                                <td className="px-2 py-2 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <button
                                                         onClick={() => updateCondo(condo.originalIndex, 'nfEnviada', !condo.nfEnviada)}
-                                                        className={`w-5 h-5 rounded-full transition-all mx-auto ${condo.nfEnviada ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfEnviada ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
-                                                <td className="px-2 py-2 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <button
                                                         onClick={() => updateCondo(condo.originalIndex, 'pagamentoFeito', !condo.pagamentoFeito)}
-                                                        className={`w-5 h-5 rounded-full transition-all mx-auto ${condo.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
-                                                <td className="px-4 py-3 text-right">
+                                                <td className="px-2 py-2 text-right">
                                                     <CurrencyField
                                                         value={condo.receitaBruta || 0}
                                                         onChange={(val) => updateCondo(condo.originalIndex, 'receitaBruta', val)}
                                                         textColor="text-white"
                                                     />
                                                 </td>
-                                                <td className="px-4 py-3 text-right">
-                                                    <div className="px-3 py-1.5 font-bold text-red-400 bg-red-400/5 rounded inline-block min-w-[120px]">
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="px-2 py-1 font-bold text-red-400 bg-red-400/5 rounded inline-block min-w-[100px] text-xs">
                                                         {formatCurrency(condo.inssRetido || 0)}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-right">
-                                                    <div className="px-3 py-1.5 font-bold text-emerald-400 bg-emerald-400/5 rounded inline-block min-w-[120px]">
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="px-2 py-1 font-bold text-emerald-400 bg-emerald-400/5 rounded inline-block min-w-[100px] text-xs">
                                                         {formatCurrency(condo.receitaLiquida)}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-center">
+                                                <td className="px-2 py-2 text-center">
                                                     <button
                                                         onClick={() => removeCondo(condo.originalIndex)}
-                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        className="p-1 text-slate-600 hover:text-red-500 transition-colors"
                                                         title="Remover"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <Trash2 className="w-3.5 h-3.5" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -700,41 +700,40 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300">
-                                    <thead className="bg-slate-900/50 text-xs uppercase text-slate-400 font-semibold border-b border-slate-700">
+                                    <thead className="bg-slate-900/50 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-700">
                                         <tr>
-                                            <th className="px-4 py-4">Colaboradora</th>
-                                            <th className="px-4 py-4">Condomínio</th>
-                                            <th className="px-3 py-4 text-right">Salário</th>
-                                            <th className="px-3 py-4 text-right text-emerald-400">H. Extras</th>
-                                            <th className="px-3 py-4 text-right text-red-400">Vales</th>
-                                            <th className="px-3 py-4 text-center">Faltas</th>
-                                            <th className="px-4 py-4 text-right">Total a Receber</th>
-                                            <th className="px-4 py-4 w-10"></th>
+                                            <th className="px-2 py-3">Colaboradora</th>
+                                            <th className="px-2 py-3">Condomínio</th>
+                                            <th className="px-2 py-3 text-right">Salário</th>
+                                            <th className="px-2 py-3 text-right text-emerald-400">Extras</th>
+                                            <th className="px-2 py-3 text-right text-red-400">Vales</th>
+                                            <th className="px-1 py-3 text-center">Faltas</th>
+                                            <th className="px-2 py-3 text-right">A Receber</th>
+                                            <th className="px-1 py-3 w-8"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {sortedFuncs?.map((func) => (
                                             <tr key={func.originalIndex} className="hover:bg-slate-700/10">
-                                                <td className="px-4 py-3">
+                                                <td className="px-2 py-2">
                                                     <input
                                                         value={func.nome}
                                                         onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium"
+                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium text-xs"
                                                     />
                                                 </td>
-                                                <td className="px-4 py-3 text-slate-400">
+                                                <td className="px-2 py-2 text-slate-400">
                                                     <input
                                                         value={func.condominio}
                                                         onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
-                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full"
+                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
                                                     />
                                                 </td>
-                                                <td className="px-3 py-3 text-right">
+                                                <td className="px-2 py-2 text-right">
                                                     <CurrencyField
                                                         value={func.salario || 0}
                                                         onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
                                                         textColor="text-white"
-                                                        width="w-28"
                                                     />
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
@@ -745,37 +744,37 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         width="w-28"
                                                     />
                                                 </td>
-                                                <td className="px-3 py-3 text-right">
+                                                <td className="px-2 py-2 text-right">
                                                     <CurrencyField
                                                         value={func.vales || 0}
                                                         onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
                                                         textColor="text-red-400"
-                                                        width="w-28"
+                                                        width="w-24"
                                                     />
                                                 </td>
-                                                <td className="px-3 py-3 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <input
                                                         type="number"
                                                         value={func.faltas || 0}
                                                         onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
-                                                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-2 py-2 w-28 text-center text-amber-500 font-bold text-sm"
+                                                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
                                                     />
                                                 </td>
-                                                <td className="px-4 py-3 text-right">
+                                                <td className="px-2 py-2 text-right">
                                                     <CurrencyField
                                                         value={func.totalReceber || 0}
                                                         onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
                                                         textColor="text-blue-400"
-                                                        width="w-32"
+                                                        width="w-28"
                                                     />
                                                 </td>
-                                                <td className="px-4 py-3 text-center">
+                                                <td className="px-1 py-2 text-center">
                                                     <button
                                                         onClick={() => removeFuncionario(func.originalIndex)}
-                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        className="p-1 text-slate-600 hover:text-red-500 transition-colors"
                                                         title="Remover"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <Trash2 className="w-3.5 h-3.5" />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -1020,7 +1019,7 @@ interface CurrencyFieldProps {
     width?: string;
 }
 
-function CurrencyField({ value, onChange, textColor = "text-white", width = "w-28" }: CurrencyFieldProps) {
+function CurrencyField({ value, onChange, textColor = "text-white", width = "w-24" }: CurrencyFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [tempValue, setTempValue] = useState(value.toString());
 
@@ -1041,7 +1040,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
         return (
             <div
                 onClick={() => setIsEditing(true)}
-                className={`flex items-center justify-end px-6 py-2.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-bold group min-w-[150px] inline-flex text-sm`}
+                className={`flex items-center justify-end px-2 py-1.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-bold group min-w-[90px] inline-flex text-xs`}
             >
                 {formatBR(value)}
             </div>
@@ -1049,8 +1048,8 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
     }
 
     return (
-        <div className={`flex items-center bg-slate-900 border border-indigo-500 rounded-lg px-2 py-2.5 ${width} ml-auto shadow-inner ring-2 ring-indigo-500/20 min-w-[150px]`}>
-            <span className="text-slate-500 text-sm font-bold mr-1">R$</span>
+        <div className={`flex items-center bg-slate-900 border border-indigo-500 rounded-lg px-1.5 py-1.5 ${width} ml-auto shadow-inner ring-2 ring-indigo-500/20 min-w-[90px]`}>
+            <span className="text-slate-500 text-[10px] font-bold mr-0.5">R$</span>
             <input
                 autoFocus
                 type="number"
@@ -1067,7 +1066,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
                         onChange(parseFloat(tempValue) || 0);
                     }
                 }}
-                className="bg-transparent border-none outline-none w-full text-right text-white font-bold text-sm"
+                className="bg-transparent border-none outline-none w-full text-right text-white font-bold text-xs"
             />
         </div>
     );
