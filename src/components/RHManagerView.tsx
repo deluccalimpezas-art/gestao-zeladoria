@@ -746,7 +746,19 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                 (f.condominio && f.condominio.toLowerCase().includes(searchTerm.toLowerCase()))
             )
         )
-        .sort((a, b) => a.nome.localeCompare(b.nome));
+        .sort((a, b) => {
+            const priority: Record<string, number> = {
+                'registrada': 1,
+                'precisa_registrar': 2,
+                'em_processo': 3,
+                'nao_vai_registrar': 4
+            };
+            const pA = priority[a.statusClt || 'registrada'] || 99;
+            const pB = priority[b.statusClt || 'registrada'] || 99;
+            
+            if (pA !== pB) return pA - pB;
+            return a.nome.localeCompare(b.nome);
+        });
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
