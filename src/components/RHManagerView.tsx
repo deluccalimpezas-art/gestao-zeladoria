@@ -575,81 +575,85 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     }, [localData]);
 
     const updateCondo = (index: number, field: keyof CondominioData, value: any) => {
-        const newList = [...localData.condominios];
-        const updatedCondo = { ...newList[index], [field]: value };
-        
-        // Auto-calculate End Date (termino) based on Start Date (inicio) + 1 year
-        if (field === 'inicio' && typeof value === 'string' && value.length >= 8) {
-            // Regex to match common date formats DD/MM/YYYY or YYYY-MM-DD
-            let day = 0, month = 0, year = 0;
-            const partsBar = value.split('/');
-            const partsDash = value.split('-');
-            
-            if (partsBar.length === 3) {
-                day = parseInt(partsBar[0]);
-                month = parseInt(partsBar[1]);
-                year = parseInt(partsBar[2]);
-            } else if (partsDash.length === 3) {
-                year = parseInt(partsDash[0]);
-                month = parseInt(partsDash[1]);
-                day = parseInt(partsDash[2]);
-            }
-            
-            if (day > 0 && month > 0 && year > 0) {
-                const nextYear = year + 1;
-                // Formata DD/MM/YYYY
-                const formattedDay = String(day).padStart(2, '0');
-                const formattedMonth = String(month).padStart(2, '0');
-                updatedCondo.termino = `${formattedDay}/${formattedMonth}/${nextYear}`;
-            }
-        }
-        
-        newList[index] = updatedCondo;
+        setLocalData(prev => {
+            const newList = [...prev.condominios];
+            const updatedCondo = { ...newList[index], [field]: value };
 
-        // Propagate name change to linked employees for UI consistency
-        if (field === 'nome') {
-            const updatedFuncs = localData.funcionarios.map(f => {
-                if (f.condominioId === updatedCondo.id) {
-                    return { ...f, condominio: value };
+            // Auto-calculate End Date (termino) based on Start Date (inicio) + 1 year
+            if (field === 'inicio' && typeof value === 'string' && value.length >= 8) {
+                // Regex to match common date formats DD/MM/YYYY or YYYY-MM-DD
+                let day = 0, month = 0, year = 0;
+                const partsBar = value.split('/');
+                const partsDash = value.split('-');
+                
+                if (partsBar.length === 3) {
+                    day = parseInt(partsBar[0]);
+                    month = parseInt(partsBar[1]);
+                    year = parseInt(partsBar[2]);
+                } else if (partsDash.length === 3) {
+                    year = parseInt(partsDash[0]);
+                    month = parseInt(partsDash[1]);
+                    day = parseInt(partsDash[2]);
                 }
-                return f;
-            });
-            setLocalData({ ...localData, condominios: newList, funcionarios: updatedFuncs });
-        } else {
-            setLocalData({ ...localData, condominios: newList });
-        }
+                
+                if (day > 0 && month > 0 && year > 0) {
+                    const nextYear = year + 1;
+                    // Formata DD/MM/YYYY
+                    const formattedDay = String(day).padStart(2, '0');
+                    const formattedMonth = String(month).padStart(2, '0');
+                    updatedCondo.termino = `${formattedDay}/${formattedMonth}/${nextYear}`;
+                }
+            }
+            
+            newList[index] = updatedCondo;
+
+            // Propagate name change to linked employees for UI consistency
+            let updatedFuncs = prev.funcionarios;
+            if (field === 'nome') {
+                updatedFuncs = prev.funcionarios.map(f => {
+                    if (f.condominioId === updatedCondo.id) {
+                        return { ...f, condominio: value };
+                    }
+                    return f;
+                });
+            }
+
+            return { ...prev, condominios: newList, funcionarios: updatedFuncs };
+        });
     };
 
     const updateFunc = (index: number, field: keyof FuncionarioData, value: any) => {
-        const newList = [...localData.funcionarios];
-        const updatedFunc = { ...newList[index], [field]: value };
+        setLocalData(prev => {
+            const newList = [...prev.funcionarios];
+            const updatedFunc = { ...newList[index], [field]: value };
 
-        // Auto-calculate Vacation Due Date (vencimentoFerias) based on Admission Date (dataAdmissao) + 1 year
-        if (field === 'dataAdmissao' && typeof value === 'string' && value.length >= 8) {
-            let day = 0, month = 0, year = 0;
-            const partsBar = value.split('/');
-            const partsDash = value.split('-');
-            
-            if (partsBar.length === 3) {
-                day = parseInt(partsBar[0]);
-                month = parseInt(partsBar[1]);
-                year = parseInt(partsBar[2]);
-            } else if (partsDash.length === 3) {
-                year = parseInt(partsDash[0]);
-                month = parseInt(partsDash[1]);
-                day = parseInt(partsDash[2]);
+            // Auto-calculate Vacation Due Date (vencimentoFerias) based on Admission Date (dataAdmissao) + 1 year
+            if (field === 'dataAdmissao' && typeof value === 'string' && value.length >= 8) {
+                let day = 0, month = 0, year = 0;
+                const partsBar = value.split('/');
+                const partsDash = value.split('-');
+                
+                if (partsBar.length === 3) {
+                    day = parseInt(partsBar[0]);
+                    month = parseInt(partsBar[1]);
+                    year = parseInt(partsBar[2]);
+                } else if (partsDash.length === 3) {
+                    year = parseInt(partsDash[0]);
+                    month = parseInt(partsDash[1]);
+                    day = parseInt(partsDash[2]);
+                }
+                
+                if (day > 0 && month > 0 && year > 0) {
+                    const nextYear = year + 1;
+                    const formattedDay = String(day).padStart(2, '0');
+                    const formattedMonth = String(month).padStart(2, '0');
+                    updatedFunc.vencimentoFerias = `${formattedDay}/${formattedMonth}/${nextYear}`;
+                }
             }
-            
-            if (day > 0 && month > 0 && year > 0) {
-                const nextYear = year + 1;
-                const formattedDay = String(day).padStart(2, '0');
-                const formattedMonth = String(month).padStart(2, '0');
-                updatedFunc.vencimentoFerias = `${formattedDay}/${formattedMonth}/${nextYear}`;
-            }
-        }
 
-        newList[index] = updatedFunc;
-        setLocalData({ ...localData, funcionarios: newList });
+            newList[index] = updatedFunc;
+            return { ...prev, funcionarios: newList };
+        });
     };
 
     const addCondo = () => {
