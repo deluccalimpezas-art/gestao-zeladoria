@@ -342,21 +342,28 @@ export function ContractGeneratorView() {
             <style dangerouslySetInnerHTML={{
                 __html: `
                 .printable-area {
-                    width: 21cm;
+                    width: 100%;
+                    max-width: 21cm;
                     min-height: 29.7cm;
-                    padding: 2.5cm 2.5cm 2.5cm 2.5cm;
+                    padding: 1cm;
                     margin: 0 auto;
                     background: white;
                     font-family: "Arial", sans-serif;
-                    font-size: 11pt;
-                    line-height: 1.5;
+                    font-size: 10pt;
+                    line-height: 1.4;
                     text-align: justify;
+                }
+                @media (min-width: 1280px) {
+                    .printable-area {
+                        padding: 2cm;
+                        font-size: 11pt;
+                    }
                 }
                 .contract-header {
                     text-align: center;
                     font-size: 14pt;
                     font-weight: bold;
-                    margin-bottom: 2cm;
+                    margin-bottom: 1.5cm;
                 }
                 @media print {
                     body * {
@@ -378,8 +385,8 @@ export function ContractGeneratorView() {
                         left: 0;
                         top: 0;
                         margin: 0;
-                        padding: 0;
-                        width: 100%;
+                        padding: 2.5cm;
+                        width: 21cm;
                         box-shadow: none;
                         max-width: 100%;
                     }
