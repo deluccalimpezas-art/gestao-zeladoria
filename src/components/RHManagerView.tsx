@@ -10,6 +10,16 @@ interface CondoCardProps {
     index: number;
 }
 
+const getStatusColor = (status?: string) => {
+    switch (status) {
+        case 'registrada': return 'bg-green-500';
+        case 'precisa_registrar': return 'bg-yellow-500';
+        case 'em_processo': return 'bg-blue-500';
+        case 'nao_vai_registrar': return 'bg-red-500';
+        default: return 'bg-slate-600';
+    }
+};
+
 function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -268,7 +278,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                     employees.map((emp, i) => (
                                         <div key={i} className="px-4 py-2.5 flex items-center justify-between hover:bg-slate-800 transition-colors">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(emp.statusClt)}`}></div>
                                                 <div>
                                                     <p className="text-xs font-bold text-white">{emp.nome}</p>
                                                     <p className="text-[9px] text-slate-500 uppercase tracking-tighter">{emp.cargo || 'Funcionária'}</p>
@@ -322,15 +332,6 @@ function EmployeeCard({ employee, onUpdate, onRemove, condominios, index }: Empl
         link.click();
     };
 
-    const getStatusColor = (status?: string) => {
-        switch (status) {
-            case 'registrada': return 'bg-green-500';
-            case 'precisa_registrar': return 'bg-yellow-500';
-            case 'em_processo': return 'bg-blue-500';
-            case 'nao_vai_registrar': return 'bg-red-500';
-            default: return 'bg-slate-600';
-        }
-    };
 
     return (
         <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-blue-500/50 shadow-lg shadow-blue-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'}`}>
