@@ -327,7 +327,7 @@ export function ContractGeneratorView() {
                                     <div className="border-t border-black pt-2 mb-1">
                                         <p className="font-bold">CONTRATADA</p>
                                     </div>
-                                    <p className="font-bold uppercase leading-tight min-h-[1.2em]">DELUCCA SERVICOS PREDIAIS LTDA</p>
+                                    <p className="font-bold uppercase leading-tight min-h-[1.2em]">DELUCCA SERVIÇOS PREDIAIS LTDA</p>
                                     <p className="text-xs">CNPJ Nº 49.909.068/0001-87</p>
                                 </div>
                                 <div className="space-y-1 mt-6">
