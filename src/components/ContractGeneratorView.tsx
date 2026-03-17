@@ -228,8 +228,8 @@ export function ContractGeneratorView() {
 
                             <p>2.24 – A Contratada prestará o serviço de forma regular com o seguinte quadro de pessoal qualificado:</p>
                             {serviceType === '22h' ? (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Uma Aux. Limpeza: 22 horas semanais. </p>
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
+                                    <p className="font-bold">A) Uma Aux. Limpeza: 22 horas semanais. </p>
                                     <p>   -Segunda á sexta-feira:</p>
                                     <p>        Período Matutino(08:00 às 12:00)</p>
                                     <br />
@@ -237,8 +237,8 @@ export function ContractGeneratorView() {
                                     <p>        Período Matutino(08:00 às 10:00)</p>
                                 </div>
                             ) : serviceType === '44h' ? (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Um Zelador: 44 horas semanais. </p>
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
+                                    <p className="font-bold">A) Um Zelador: 44 horas semanais. </p>
                                     <p>   -Segunda á sexta-feira:</p>
                                     <p>        Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
                                     <br />
@@ -246,9 +246,9 @@ export function ContractGeneratorView() {
                                     <p>        Período Matutino (08:00 às 12:00)</p>
                                 </div>
                             ) : (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
                                     {manualServiceText.split('\n').map((line, i) => (
-                                        <p key={i}>{line}</p>
+                                        <p key={i} className={i === 0 ? "font-bold" : ""}>{line}</p>
                                     ))}
                                 </div>
                             )}
