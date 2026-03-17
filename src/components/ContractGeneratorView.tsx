@@ -277,7 +277,7 @@ export function ContractGeneratorView() {
                             <p>3.8 – A CONTRATANTE não autoriza que a empresa CONTRATADA, seus sócios ou diretores, negociem ou descontem em empresa de factoring ou transações congêneres, total ou parcialmente os valores objeto deste contrato.</p>
                             <p>3.9 – O CONTRATANTE poderá reter o pagamento da fatura a ser paga, nas hipóteses de ausência na prestação de serviços; falta de recolhimento de encargos, tributos e contribuições; atraso no pagamento de salários dos funcionários alocados nas suas dependências, cujos comprovantes / folhas de pagamento de funcionários / holerites deverão ser encaminhados mensalmente à CONTRATANTE antes do envio da(s) fatura(s) de pagamento; sem aplicação de multa e juros, até efetiva regularização da questão, que deverá ocorrer no prazo de 5 (CINCO) dias úteis, sob pena de rescisão imediata do contrato.</p>
 
-                            <div className="page-break" />
+                            <div className="page-break">&nbsp;</div>
 
                             <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 4ª – DA RESCISÃO</h4>
                             <p>4.1 – O presente contrato poderá ser rescindido imotivadamente a qualquer tempo pelas partes, mediante comunicação escrita à outra parte, com antecedência mínima de 30 (trinta) dias, sem acarretar ônus para ambas as partes.</p>
@@ -407,8 +407,9 @@ export function ContractGeneratorView() {
                     }
                     .page-break {
                         page-break-before: always;
-                        height: 2.5cm;
+                        height: 5cm;
                         display: block;
+                        visibility: visible;
                     }
                 }
             ` }} />
