@@ -174,7 +174,7 @@ export function ContractGeneratorView() {
                 <div className="lg:col-span-8 overflow-auto pb-10">
                     <div id="printable-contract" className="bg-white text-black mx-auto shadow-2xl printable-area">
                         {/* A4 Page Content */}
-                        <div className="flex flex-col items-center pt-8 mb-12">
+                        <div className="flex flex-col items-center pt-0 mb-8">
                             <div className="flex items-baseline gap-0">
                                 <span className="text-6xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
                                 <span className="text-6xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
@@ -378,6 +378,8 @@ export function ContractGeneratorView() {
                     margin-bottom: 1.5cm;
                 }
                 @media print {
+                    @page { margin: 0; }
+                    body { margin: 0; }
                     body * {
                         visibility: hidden;
                     }
@@ -395,9 +397,10 @@ export function ContractGeneratorView() {
                     #printable-contract {
                         position: absolute;
                         left: 0;
+                        right: 0;
                         top: 0;
                         margin: 0;
-                        padding: 2.5cm;
+                        padding: 1.5cm 2.5cm 2.5cm 2.5cm;
                         width: 21cm;
                         box-shadow: none;
                         max-width: 100%;
