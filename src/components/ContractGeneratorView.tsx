@@ -36,7 +36,12 @@ export function ContractGeneratorView() {
     };
 
     const handlePrint = () => {
+        const originalTitle = document.title;
+        document.title = ""; // Remove title from print header
         window.print();
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 100);
     };
 
     return (
@@ -376,7 +381,7 @@ export function ContractGeneratorView() {
                 @media print {
                     @page { 
                         size: A4;
-                        margin: 3cm 2cm 2cm 3cm; 
+                        margin: 0; 
                     }
                     body { margin: 0; }
                     body * {
