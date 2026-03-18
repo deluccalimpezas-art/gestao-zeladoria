@@ -37,7 +37,7 @@ export function ContractGeneratorView() {
 
     const handlePrint = () => {
         const originalTitle = document.title;
-        document.title = ""; // Remove title from print header
+        document.title = ""; // Hide title from browser print header
         window.print();
         setTimeout(() => {
             document.title = originalTitle;
@@ -179,22 +179,32 @@ export function ContractGeneratorView() {
                 <div className="lg:col-span-8 overflow-auto pb-10">
                     <div id="printable-contract" className="bg-white text-black mx-auto shadow-2xl printable-area">
                         {/* A4 Page Content */}
-                        <div className="contract-header">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</div>
+                        <div className="flex flex-col items-center pt-0 mb-8">
+                            <div className="flex items-baseline gap-0">
+                                <span className="text-6xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                <span className="text-6xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                            </div>
+                            <div className="text-[28px] text-[#00CEE4] -mt-3 italic" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.1)' }}>
+                                Gestão em Limpeza
+                            </div>
+                        </div>
 
-                        <div className="contract-body space-y-4">
-                            <p><strong>CONTRATANTE:</strong> {contractorName || '___________'}, Sob CNPJ nº {contractorCNPJ || '___________'}, situado na {contractorAddress || '___________'}.</p>
+                        <div className="contract-header uppercase mb-8">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</div>
 
-                            <p><strong>CONTRATADA:</strong> DELUCCA SERVIÇOS PREDIAIS LTDA, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº 49.909.068/0001-87, localizada na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC, 88.220-000, neste ato representada por seu sócio administrador Eduardo Gabriel Lucca, portador do CPF sob o nº 143.364.479-77.</p>
+                        <div className="contract-body space-y-4 px-2">
+                            <p><strong>CONTRATANTE:</strong> <span className="font-bold uppercase underline-offset-2">{contractorName || '___________'}</span>, Sob CNPJ nº <span className="font-bold">{contractorCNPJ || '___________'}</span>, situado na {contractorAddress || '___________'}.</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 1ª – DO OBJETO</h4>
+                            <p><strong>CONTRATADA:</strong> <span className="font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº <span className="font-bold">49.909.068/0001-87</span>, localizada na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC, 88.220-000, neste ato representada por seu sócio administrador Eduardo Gabriel Lucca, portador do CPF sob o nº 143.364.479-77.</p>
+
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 1ª – DO OBJETO</h4>
                             <p>1.1 – O objeto do presente contrato é a prestação de serviços de Faxina (limpeza e conservação) nas instalações da CONTRATANTE, incluindo, mas não se limitando a:</p>
                             <p className="ml-4">a) Manutenção de Ambientes: Organização e conservação de áreas comuns, incluindo salas, corredores, banheiros, áreas externas, academias, salões de festa, elevadores, escadarias, garagens, halls internos, hall de entrada, sauna, salão de jogos, espaço gourmet, área de funcionários, depósitos, calçadas, cozinhas e a reposição de suprimentos (como papel toalha, sabonete, etc.).</p>
                             <p className="ml-4">b) Limpeza de Equipamentos: Higienização e limpeza dos móveis das áreas de lazer, do hall de entrada e dos equipamentos instalados nas áreas comuns.</p>
                             <p className="ml-4">c) Limpeza de Eletrodomésticos: Limpeza interna e externa de eletrodomésticos, incluindo geladeiras, micro-ondas, fogões, e demais equipamentos, garantindo a manutenção da higiene e funcionamento adequado.</p>
                             <p className="ml-4">d) Coleta de Lixo: Recolhimento, separação e destinação adequada de resíduos.</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
-                            <p className="font-bold text-center">ITEM I – OBRIGAÇÕES DA CONTRATANTE</p>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
+                            <p className="font-bold text-center mt-4">ITEM I – OBRIGAÇÕES DA CONTRATANTE</p>
                             <p>2.1 – Fornecer à CONTRATADA as condições necessárias à execução dos serviços, inclusive a disponibilização de materiais de limpeza, produtos e outros que forem necessários.</p>
                             <p>2.2 – Permitir livre acesso dos funcionários ao ambiente que se trata do objeto deste contrato, desde quando devidamente identificados.</p>
                             <p>2.3 – Deverá efetuar o pagamento na forma e condições estabelecidas na Cláusula 4ª.</p>
@@ -223,8 +233,8 @@ export function ContractGeneratorView() {
 
                             <p>2.24 – A Contratada prestará o serviço de forma regular com o seguinte quadro de pessoal qualificado:</p>
                             {serviceType === '22h' ? (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Uma Aux. Limpeza: 22 horas semanais. </p>
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
+                                    <p className="font-bold">A) Uma Aux. Limpeza: 22 horas semanais. </p>
                                     <p>   -Segunda á sexta-feira:</p>
                                     <p>        Período Matutino(08:00 às 12:00)</p>
                                     <br />
@@ -232,8 +242,8 @@ export function ContractGeneratorView() {
                                     <p>        Período Matutino(08:00 às 10:00)</p>
                                 </div>
                             ) : serviceType === '44h' ? (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
-                                    <p>A) Um Zelador: 44 horas semanais. </p>
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
+                                    <p className="font-bold">A) Um Zelador: 44 horas semanais. </p>
                                     <p>   -Segunda á sexta-feira:</p>
                                     <p>        Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
                                     <br />
@@ -241,21 +251,21 @@ export function ContractGeneratorView() {
                                     <p>        Período Matutino (08:00 às 12:00)</p>
                                 </div>
                             ) : (
-                                <div className="ml-4 font-bold whitespace-pre-wrap leading-relaxed">
+                                <div className="ml-4 whitespace-pre-wrap leading-relaxed">
                                     {manualServiceText.split('\n').map((line, i) => (
-                                        <p key={i}>{line}</p>
+                                        <p key={i} className={i === 0 ? "font-bold" : ""}>{line}</p>
                                     ))}
                                 </div>
                             )}
 
-                            <p className="font-bold text-center mt-6">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</h4>
                             <p>2.27 – Os serviços serão prestados de forma pessoal à CONTRATANTE, sendo incluídos, também, aqueles que indiretamente se vinculam ao presente contrato.</p>
                             <p>2.28 – A CONTRATADA atuará nos serviços contratados de acordo com as especificações descritas na Cláusula 1ª.</p>
                             <p>2.29 – Os serviços terão início imediatamente após a assinatura deste contrato.</p>
                             <p>2.30 – A CONTRATANTE poderá suspender os pagamentos ou a execução dos serviços, em virtude de inadimplemento, pelo CONTRATADO, de qualquer cláusula ou condição deste contrato.</p>
                             <p>2.31 – Obriga-se a CONTRATADA a manter o estrito sigilo de todos os dados pessoais tratados, decorrentes do presente contrato, não podendo divulgá-los sem a devida autorização, por escrito, da CONTRATANTE</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
                             {serviceType === '22h' ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 3.600,00 (Três mil e seiscentos reais)</span> por mês.</p>
                             ) : serviceType === '44h' ? (
@@ -272,9 +282,9 @@ export function ContractGeneratorView() {
                             <p>3.8 – A CONTRATANTE não autoriza que a empresa CONTRATADA, seus sócios ou diretores, negociem ou descontem em empresa de factoring ou transações congêneres, total ou parcialmente os valores objeto deste contrato.</p>
                             <p>3.9 – O CONTRATANTE poderá reter o pagamento da fatura a ser paga, nas hipóteses de ausência na prestação de serviços; falta de recolhimento de encargos, tributos e contribuições; atraso no pagamento de salários dos funcionários alocados nas suas dependências, cujos comprovantes / folhas de pagamento de funcionários / holerites deverão ser encaminhados mensalmente à CONTRATANTE antes do envio da(s) fatura(s) de pagamento; sem aplicação de multa e juros, até efetiva regularização da questão, que deverá ocorrer no prazo de 5 (CINCO) dias úteis, sob pena de rescisão imediata do contrato.</p>
 
-                            <br className="page-break" /> {/* Page break for printing to not cutoff badly */}
+                            <div className="page-break-container" style={{ breakBefore: 'page', height: '6cm', display: 'block', visibility: 'visible' }}>&nbsp;</div>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 4ª – DA RESCISÃO</h4>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 4ª – DA RESCISÃO</h4>
                             <p>4.1 – O presente contrato poderá ser rescindido imotivadamente a qualquer tempo pelas partes, mediante comunicação escrita à outra parte, com antecedência mínima de 30 (trinta) dias, sem acarretar ônus para ambas as partes.</p>
                             <p>4.2 – O presente instrumento será considerado rescindido de pleno direito, independentemente de notificação judicial ou extrajudicial, nas seguintes hipóteses:</p>
                             <p className="ml-4">a) Descumprimento das obrigações ajustadas por quaisquer das PARTES, se não sanado o inadimplemento dentro de 5 (cinco) dias, a contar da data do recebimento de notificação escrita pela parte prejudicada;</p>
@@ -283,13 +293,13 @@ export function ContractGeneratorView() {
                             <p className="ml-4">d) Condenação trabalhista da CONTRATADA em primeira instância decorrente de reclamação trabalhista proposta por seus funcionários e que prestem ou prestaram serviços nas dependências do CONTRATANTE, sendo que, neste caso, é facultado a este último reter o pagamento das faturas, limitada a três, até que haja a satisfação da obrigação.</p>
                             <p>4.3 – Na ocorrência de resolução contratual motivada, a CONTRATADA apresentará, no prazo de 07 (sete) dias, um relatório completo dos trabalhos executados até a data da resolução e entregará ao CONTRATANTE os documentos de propriedade desta. Após a aprovação deste relatório em igual período pelo CONTRATANTE, este pagará em até 10 (dez) dias úteis, os valores devidos pelos serviços executados até o momento, nos termos do contrato.</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
                             <p>5.1 – O prazo do presente contrato será de 12 (doze) meses, com início em <span className="font-bold">{startFormatted}</span> e término em <span className="font-bold">{endFormatted}</span>.</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
                             <p>7.1. Os serviços objeto do presente contrato serão realizados exclusivamente por empregados da Contratada, razão pela qual nenhuma relação empregatícia ou jurídica existirá entre os mesmos e a Contratante, ficando a Contratante isenta de qualquer encargos trabalhistas, sociais ou previdenciários que possam decorrer dos serviços que serão prestados pelos referidos empregados, pois tais ônus serão de exclusiva responsabilidade da Contratada.</p>
 
-                            <h4 className="font-bold text-center mt-6 uppercase">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
+                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
                             <p>8.1 – Os tributos e contribuições, que incidam ou venham a incidir sobre as importâncias pagas em decorrência direta ou indireta deste Contrato ou de sua execução, serão suportados pelo seu contribuinte, assim definido na legislação que instituir e/ou regular esses tributos e contribuições</p>
                             <p>8.2 – O presente contrato não implica em qualquer outra forma de associação, consórcio ou solidariedade ativa ou passiva entre as partes nenhuma delas poderá representar a outra perante terceiros sem autorização expressa e escrita para tanto.</p>
                             <p>8.3 – Este contrato, bem como seus direitos e obrigações dele decorrentes, não poderão ser cedidos e/ou transferidos pelas partes, obrigando-as, por si, seus herdeiros e/ou sucessores.</p>
@@ -315,14 +325,14 @@ export function ContractGeneratorView() {
                                     <div className="border-t border-black pt-2 mb-1">
                                         <p className="font-bold">CONTRATANTE</p>
                                     </div>
-                                    <p className="font-bold uppercase leading-tight line-clamp-1 h-5 overflow-hidden text-clip">{contractorName || "========================="}</p>
+                                    <p className="font-bold uppercase leading-tight min-h-[1.2em]">{contractorName || "========================="}</p>
                                     <p className="text-xs">CNPJ Nº {contractorCNPJ || "00.000.000/0000-00"}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="border-t border-black pt-2 mb-1">
                                         <p className="font-bold">CONTRATADA</p>
                                     </div>
-                                    <p className="font-bold">DELUCCA SERVICOS PREDIAIS</p>
+                                    <p className="font-bold uppercase leading-tight min-h-[1.2em]">DELUCCA SERVIÇOS PREDIAIS LTDA</p>
                                     <p className="text-xs">CNPJ Nº 49.909.068/0001-87</p>
                                 </div>
                                 <div className="space-y-1 mt-6">
@@ -346,29 +356,34 @@ export function ContractGeneratorView() {
 
             <style dangerouslySetInnerHTML={{
                 __html: `
+                @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap');
+                
                 .printable-area {
                     width: 100%;
                     max-width: 21cm;
                     min-height: 29.7cm;
-                    padding: 3cm 2cm 2cm 3cm;
+                    padding: 1cm;
                     margin: 0 auto;
                     background: white;
-                    font-family: "Times New Roman", Times, serif;
-                    font-size: 12pt;
-                    line-height: 1.5;
+                    font-family: "Arial", sans-serif;
+                    font-size: 10pt;
+                    line-height: 1.4;
                     text-align: justify;
+                }
+                @media (min-width: 1280px) {
+                    .printable-area {
+                        padding: 2cm;
+                        font-size: 11pt;
+                    }
                 }
                 .contract-header {
                     text-align: center;
                     font-size: 14pt;
                     font-weight: bold;
-                    margin-bottom: 2cm;
+                    margin-bottom: 1.5cm;
                 }
                 @media print {
-                    @page { 
-                        size: A4;
-                        margin: 0; 
-                    }
+                    @page { margin: 0; }
                     body { margin: 0; }
                     body * {
                         visibility: hidden;
@@ -387,15 +402,21 @@ export function ContractGeneratorView() {
                     #printable-contract {
                         position: absolute;
                         left: 0;
+                        right: 0;
                         top: 0;
                         margin: 0;
-                        padding: 0;
-                        width: 100%;
+                        padding: 3cm 2cm 2cm 3cm; /* Margins: Top 3cm, Right 2cm, Bottom 2cm, Left 3cm */
+                        width: 21cm;
                         box-shadow: none;
                         max-width: 100%;
                     }
-                    .page-break {
+                    .page-break-container {
+                        break-before: page;
                         page-break-before: always;
+                    }
+                    /* Ensure no other elements overlap the top margin */
+                    .page-break-container + * {
+                        margin-top: 0 !important;
                     }
                 }
             ` }} />
