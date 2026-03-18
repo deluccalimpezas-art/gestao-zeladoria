@@ -100,8 +100,21 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     };
 
     const handlePrint = () => {
-        if (!selectedEmployeeId) return;
+        if (!selectedEmployeeRecord) return;
+        
+        const originalTitle = document.title;
+        const now = new Date();
+        const month = now.toLocaleDateString('pt-BR', { month: 'long' });
+        const year = now.getFullYear();
+        const formattedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+        
+        document.title = `Recibo de pagamento de salario ${selectedEmployeeRecord.nome} ${formattedMonth} ${year}`;
+        
         window.print();
+        
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 1000);
     };
 
     return (
