@@ -317,7 +317,10 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-8 mt-12 pt-8 border-t border-slate-200">
-                                        <div className="text-center space-y-1">
+                                        <div className="text-center space-y-1 relative">
+                                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 opacity-80">
+                                                <img src="/images/signature_eduardo.png" alt="Assinatura Eduardo Lucca" className="w-full h-auto" />
+                                            </div>
                                             <div className="border-t border-slate-400 w-full pt-2"></div>
                                             <p className="text-[8px] uppercase font-bold text-slate-400">Assinatura da Empresa</p>
                                         </div>
@@ -447,7 +450,10 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                             </div>
 
                             <div className="grid grid-cols-2 gap-12 mt-16 pt-12 border-t border-slate-300 pb-4">
-                                <div className="text-center space-y-2">
+                                <div className="text-center space-y-2 relative">
+                                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-48">
+                                        <img src="/images/signature_eduardo.png" alt="Assinatura" className="w-full h-auto" />
+                                    </div>
                                     <div className="border-t-2 border-slate-900 w-full pt-4 font-bold text-xs uppercase text-slate-600 tracking-widest">
                                         DELUCCA SERVIÇOS PREDIAIS LTDA
                                         <p className="text-[9px] font-normal tracking-normal normal-case italic mt-1 text-slate-400 font-serif">Assinatura do Empregador</p>
