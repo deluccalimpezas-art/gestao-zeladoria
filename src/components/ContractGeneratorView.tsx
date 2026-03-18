@@ -185,9 +185,14 @@ export function ContractGeneratorView() {
                                     <td style={{ height: '2.5cm' }}></td>
                                 </tr>
                             </thead>
+                            <tfoot>
+                                <tr>
+                                    <td style={{ height: '2.5cm' }}></td>
+                                </tr>
+                            </tfoot>
                             <tbody>
                                 <tr>
-                                    <td style={{ paddingLeft: '3cm', paddingRight: '2cm', paddingBottom: '2cm' }}>
+                                    <td style={{ paddingLeft: '3cm', paddingRight: '2cm', paddingBottom: '0' }}>
                                         {/* A4 Page Content */}
                                         <div className="flex flex-col items-center pt-0 mb-8">
                                             <div className="flex items-baseline gap-0">
