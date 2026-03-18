@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Copy, AlertCircle, Calendar, Check, Briefcase, Mail, DollarSign } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FileText, Copy, Check, Briefcase, Mail, DollarSign, ChevronDown } from 'lucide-react';
 import { CondominioData } from '@/modelsFinance';
 
 interface NFDraftGeneratorProps {
     condominios: CondominioData[];
-}
-
-interface Feriado {
-    date: string;
-    name: string;
-    type: string;
 }
 
 const ADMIN_EMAILS: Record<string, string> = {
@@ -30,278 +24,255 @@ const getAdminEmail = (administradora?: string): string | null => {
     return null;
 };
 
-const formatCurrency = (value?: number): string => {
-    if (value === undefined || value === null) return 'R$ 0,00';
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+const formatCurrency = (value: number): string =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+const parseCurrency = (str: string): number => {
+    const cleaned = str.replace(/[^\d,]/g, '').replace(',', '.');
+    return parseFloat(cleaned) || 0;
 };
+
+const MONTHS = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+];
 
 const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const [selectedCondoId, setSelectedCondoId] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-    const [feriados, setFeriados] = useState<Feriado[]>([]);
-    const [customDescription, setCustomDescription] = useState<string>('');
-    const [isLoadingHolidays, setIsLoadingHolidays] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const [copiedEmail, setCopiedEmail] = useState(false);
+    const [selectedYear] = useState<number>(new Date().getFullYear());
 
-    const monthsRaw = [
-        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
+    // NF values
+    const [valorBruto, setValorBruto] = useState<number>(0);
+    const [editingBruto, setEditingBruto] = useState(false);
+    const [tempBruto, setTempBruto] = useState('');
+
+    // Copy states
+    const [copiedDesc, setCopiedDesc] = useState(false);
+    const [copiedEmail, setCopiedEmail] = useState(false);
+    const [copiedSubject, setCopiedSubject] = useState(false);
+
+    const RETENCAO_RATE = 0.11;
+    const retencao = valorBruto * RETENCAO_RATE;
+    const valorLiquido = valorBruto - retencao;
 
     const currentCondo = condominios.find(c => c.nome === selectedCondoId);
     const adminEmail = getAdminEmail(currentCondo?.administradora);
+    const mesVigencia = `${MONTHS[selectedMonth - 1]} de ${selectedYear}`;
+    const mesVigenciaCurto = MONTHS[selectedMonth - 1];
 
-    // Determine which contract value to use (verao or base)
-    const valorAtivo = currentCondo?.valorAtivo === 'verao' && currentCondo?.valorVerao
-        ? currentCondo.valorVerao
-        : currentCondo?.valorContrato;
-
-    useEffect(() => {
-        const fetchFeriados = async () => {
-            setIsLoadingHolidays(true);
-            try {
-                const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${selectedYear}`);
-                if (!response.ok) throw new Error('Falha ao buscar feriados');
-                const data: Feriado[] = await response.json();
-                const monthHolidays = data.filter(feriado => {
-                    const dateObj = new Date(feriado.date);
-                    return dateObj.getUTCMonth() + 1 === selectedMonth;
-                });
-                setFeriados(monthHolidays);
-            } catch (error) {
-                console.error('Erro ao carregar feriados:', error);
-                setFeriados([]);
-            } finally {
-                setIsLoadingHolidays(false);
-            }
-        };
-        fetchFeriados();
-    }, [selectedYear, selectedMonth]);
-
+    // Auto-fill values from condo
     useEffect(() => {
         if (currentCondo) {
-            const defaultText = `Referente à prestação de serviços de zeladoria e manutenção no ${currentCondo.nome} durante o mês de ${monthsRaw[selectedMonth - 1]} de ${selectedYear}.`;
-            setCustomDescription(defaultText);
+            const valorBase = currentCondo.receitaBruta ||
+                (currentCondo.valorAtivo === 'verao' ? currentCondo.valorVerao : currentCondo.valorContrato) || 0;
+            setValorBruto(valorBase);
         } else {
-            setCustomDescription('Selecione um condomínio para gerar o rascunho base.');
+            setValorBruto(0);
         }
-        setCopied(false);
-    }, [selectedCondoId, selectedMonth, selectedYear]);
+    }, [selectedCondoId, currentCondo]);
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(customDescription).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+    const nfDescription = currentCondo
+        ? `Referente à prestação de serviços de zeladoria e manutenção no ${currentCondo.nome} durante o mês de ${mesVigencia}.`
+        : '';
+
+    const emailSubject = currentCondo
+        ? `Nota Fiscal ${currentCondo.nome} ${mesVigenciaCurto}`
+        : '';
+
+    const emailBody = currentCondo
+        ? `Bom dia, espero que esteja bem!\n\nEm anexo, envio a Nota Fiscal referente aos serviços de zeladoria do ${currentCondo.nome} do mês de ${mesVigenciaCurto}.\n\nCaso tenha alguma dúvida ou precise de mais informações, estou à disposição para ajudar.\n\nAtenciosamente,\nDeLucca Gestão em Limpeza`
+        : '';
+
+    const copyText = useCallback((text: string, setter: (v: boolean) => void) => {
+        navigator.clipboard.writeText(text).then(() => {
+            setter(true);
+            setTimeout(() => setter(false), 2000);
         });
-    };
+    }, []);
 
-    const handleCopyEmail = () => {
-        if (adminEmail) {
-            navigator.clipboard.writeText(adminEmail).then(() => {
-                setCopiedEmail(true);
-                setTimeout(() => setCopiedEmail(false), 2000);
-            });
-        }
-    };
-
-    const formatDate = (dateString: string) => {
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    };
+    const CopyButton = ({ text, copied, onCopy, label }: { text: string, copied: boolean, onCopy: () => void, label?: string }) => (
+        <button
+            onClick={onCopy}
+            disabled={!currentCondo}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed ${copied ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}
+        >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {label || (copied ? 'Copiado!' : 'Copiar')}
+        </button>
+    );
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in zoom-in duration-300">
-            <header className="flex items-center justify-between pb-4 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
+            {/* Header + Selectors */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-slate-800/60 p-5 rounded-2xl border border-slate-700">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                         <FileText className="w-6 h-6 text-amber-400" />
                         Gerador de Nota Fiscal
                     </h1>
-                    <p className="text-slate-400 text-sm mt-1">Configure o rascunho da sua NF antes de emitir no sistema oficial.</p>
-                </div>
-            </header>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {/* Painel de Configuração (Esquerda) */}
-                <div className="lg:col-span-1 space-y-4">
-                    {/* Seleção de Condomínio e Período */}
-                    <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
-                        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-blue-400" />
-                            Configurações
-                        </h2>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1">Condomínio</label>
-                                <select 
-                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                                    value={selectedCondoId}
-                                    onChange={(e) => setSelectedCondoId(e.target.value)}
-                                >
-                                    <option value="">Selecione um Condomínio...</option>
-                                    {condominios.map((c) => (
-                                        <option key={c.nome} value={c.nome}>{c.nome}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-1">Mês de Ref.</label>
-                                    <select 
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                                        value={selectedMonth}
-                                        onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                                    >
-                                        {monthsRaw.map((m, i) => (
-                                            <option key={i + 1} value={i + 1}>{m}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-1">Ano</label>
-                                    <select 
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                                        value={selectedYear}
-                                        onChange={(e) => setSelectedYear(Number(e.target.value))}
-                                    >
-                                        {[2024, 2025, 2026, 2027, 2028].map(y => (
-                                            <option key={y} value={y}>{y}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Valores do Condomínio (aparece ao selecionar) */}
-                    {currentCondo && (
-                        <div className="bg-slate-800 p-5 rounded-xl border border-amber-500/30 transition-colors space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                                <DollarSign className="w-4 h-4 text-amber-400" />
-                                Valores da NF
-                            </h2>
-                            <div className="space-y-1 text-sm">
-                                <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                                    <span className="text-slate-400">Valor Bruto</span>
-                                    <span className="font-bold text-white">{formatCurrency(currentCondo.receitaBruta || valorAtivo)}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
-                                    <span className="text-slate-400">Retenção INSS</span>
-                                    <span className="font-bold text-red-400">− {formatCurrency(currentCondo.inssRetido)}</span>
-                                </div>
-                                <div className="flex justify-between items-center py-2">
-                                    <span className="text-slate-400">Valor Líquido</span>
-                                    <span className="font-bold text-emerald-400">{formatCurrency(currentCondo.receitaLiquida)}</span>
-                                </div>
-                            </div>
-
-                            {/* Administradora + Email */}
-                            {currentCondo.administradora && (
-                                <div className="pt-3 border-t border-slate-700/50">
-                                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Administradora</p>
-                                    <p className="text-sm text-white font-medium mb-2">{currentCondo.administradora}</p>
-                                    {adminEmail ? (
-                                        <button
-                                            onClick={handleCopyEmail}
-                                            className={`w-full flex items-center gap-2 text-xs px-3 py-2 rounded-lg transition-all group border ${copiedEmail ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/20'}`}
-                                            title="Clique para copiar o e-mail"
-                                        >
-                                            {copiedEmail ? <Check className="w-3.5 h-3.5 shrink-0" /> : <Mail className="w-3.5 h-3.5 shrink-0" />}
-                                            <span className="truncate font-mono">{adminEmail}</span>
-                                            {!copiedEmail && <Copy className="w-3 h-3 ml-auto shrink-0 opacity-40 group-hover:opacity-100" />}
-                                        </button>
-                                    ) : (
-                                        <p className="text-xs text-slate-600 italic">E-mail não cadastrado para esta administradora.</p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Feriados no Mês */}
-                    <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
-                        <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-emerald-400" />
-                            Feriados no Mês
-                        </h2>
-                        {isLoadingHolidays ? (
-                            <div className="space-y-2">
-                                <div className="h-10 bg-slate-700/50 rounded-lg animate-pulse"></div>
-                                <div className="h-10 bg-slate-700/50 rounded-lg animate-pulse w-3/4"></div>
-                            </div>
-                        ) : feriados.length > 0 ? (
-                            <ul className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                                {feriados.map((f, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 hover:border-amber-500/30 transition-colors">
-                                        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                                        <div>
-                                            <span className="text-white font-medium block">{f.name}</span>
-                                            <span className="text-slate-400 text-xs">{formatDate(f.date)}</span>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg flex items-center gap-2 text-emerald-400">
-                                <Check className="w-4 h-4 shrink-0" />
-                                <span className="text-sm">Nenhum feriado nacional neste mês.</span>
-                            </div>
-                        )}
-                    </div>
+                    <p className="text-slate-400 text-sm mt-1">Selecione o condomínio e o mês para gerar a NF e o e-mail automaticamente.</p>
                 </div>
 
-                {/* Painel do Rascunho (Direita) */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 h-full flex flex-col hover:border-slate-600 transition-colors">
-                        <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-3">
-                            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                                Descrição da Nota Fiscal
-                            </h2>
-                            <button 
-                                onClick={handleCopy}
-                                disabled={!currentCondo}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all transform active:scale-95 ${
-                                    copied 
-                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                                        : 'bg-amber-500 text-slate-900 hover:bg-amber-400 shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none'
-                                }`}
-                            >
-                                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                {copied ? 'Copiado!' : 'Copiar Texto para Nota'}
-                            </button>
-                        </div>
-                        
-                        <div className="flex-1 flex flex-col group relative h-full min-h-[300px]">
-                            <textarea
-                                className="w-full h-full absolute inset-0 bg-slate-900 border border-slate-700 rounded-xl p-5 text-white text-base resize-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all font-mono leading-relaxed outline-none"
-                                value={customDescription}
-                                onChange={(e) => setCustomDescription(e.target.value)}
-                                placeholder="Selecione um condomínio ou digite a descrição da nota aqui..."
-                                disabled={!currentCondo}
-                            />
-                            {!currentCondo && (
-                                <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center rounded-xl backdrop-blur-sm z-10">
-                                    <div className="bg-slate-800 text-slate-300 px-6 py-4 rounded-xl border border-slate-700 shadow-2xl flex flex-col items-center gap-3 animate-in fade-in zoom-in duration-300">
-                                        <div className="p-3 bg-slate-700/50 rounded-full">
-                                            <FileText className="w-6 h-6 text-slate-400" />
-                                        </div>
-                                        <p className="font-medium">Selecione o condomínio primeiro</p>
-                                        <p className="text-sm text-slate-500 text-center max-w-[250px]">
-                                            Para gerar o rascunho automático da nota fiscal, escolha um condomínio no painel lateral.
-                                        </p>
+                {/* Selectors */}
+                <div className="flex flex-wrap gap-3">
+                    <div className="relative">
+                        <select
+                            className="appearance-none bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 outline-none min-w-[220px]"
+                            value={selectedCondoId}
+                            onChange={(e) => setSelectedCondoId(e.target.value)}
+                        >
+                            <option value="">Selecione o Condomínio...</option>
+                            {condominios.map((c) => (
+                                <option key={c.nome} value={c.nome}>{c.nome}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                        <select
+                            className="appearance-none bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                        >
+                            {MONTHS.map((m, i) => (
+                                <option key={i + 1} value={i + 1}>{m}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Two panels */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+                {/* === PAINEL 1: NOTA FISCAL === */}
+                <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden flex flex-col">
+                    <div className="px-6 py-4 border-b border-slate-700 bg-slate-900/30 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-amber-400" />
+                        <h2 className="text-lg font-bold text-white">Nota Fiscal</h2>
+                        {currentCondo && <span className="ml-auto text-xs text-slate-500 font-medium">{currentCondo.nome} · {mesVigenciaCurto}</span>}
+                    </div>
+
+                    <div className="p-6 space-y-5 flex-1 flex flex-col">
+                        {/* Valores */}
+                        <div className="bg-slate-900/60 rounded-xl border border-slate-700 divide-y divide-slate-700/50">
+                            {/* Valor Bruto */}
+                            <div className="flex items-center justify-between px-5 py-3">
+                                <span className="text-sm text-slate-400">Valor Bruto</span>
+                                {editingBruto ? (
+                                    <div className="flex items-center gap-2 bg-slate-800 border border-indigo-500 rounded-lg px-3 py-1.5">
+                                        <span className="text-slate-500 text-xs">R$</span>
+                                        <input
+                                            autoFocus
+                                            type="number"
+                                            step="0.01"
+                                            value={tempBruto}
+                                            onChange={(e) => setTempBruto(e.target.value)}
+                                            onBlur={() => { setValorBruto(parseFloat(tempBruto) || 0); setEditingBruto(false); }}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') { setValorBruto(parseFloat(tempBruto) || 0); setEditingBruto(false); } }}
+                                            className="bg-transparent border-none outline-none text-white font-bold text-sm w-28 text-right"
+                                        />
                                     </div>
+                                ) : (
+                                    <button
+                                        onClick={() => { setTempBruto(valorBruto.toString()); setEditingBruto(true); }}
+                                        className="font-bold text-white hover:text-amber-300 transition-colors cursor-text"
+                                        title="Clique para editar"
+                                    >
+                                        {formatCurrency(valorBruto)}
+                                    </button>
+                                )}
+                            </div>
+                            {/* Retenção */}
+                            <div className="flex items-center justify-between px-5 py-3">
+                                <span className="text-sm text-slate-400">Retenção INSS <span className="text-xs text-slate-600">(11%)</span></span>
+                                <span className="font-bold text-red-400">− {formatCurrency(retencao)}</span>
+                            </div>
+                            {/* Líquido */}
+                            <div className="flex items-center justify-between px-5 py-3 bg-emerald-500/5 rounded-b-xl">
+                                <span className="text-sm font-bold text-slate-300">Valor Líquido</span>
+                                <span className="font-black text-emerald-400 text-lg">{formatCurrency(valorLiquido)}</span>
+                            </div>
+                        </div>
+
+                        {/* Descrição da NF */}
+                        <div className="flex-1 flex flex-col space-y-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Descrição da Nota</span>
+                                <CopyButton
+                                    text={nfDescription}
+                                    copied={copiedDesc}
+                                    onCopy={() => copyText(nfDescription, setCopiedDesc)}
+                                />
+                            </div>
+                            <div className="relative flex-1 min-h-[120px]">
+                                <div className="w-full h-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 font-mono leading-relaxed min-h-[120px]">
+                                    {nfDescription || <span className="text-slate-600 italic">Selecione um condomínio para gerar a descrição...</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* === PAINEL 2: E-MAIL === */}
+                <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden flex flex-col">
+                    <div className="px-6 py-4 border-b border-slate-700 bg-slate-900/30 flex items-center gap-2">
+                        <Mail className="w-5 h-5 text-indigo-400" />
+                        <h2 className="text-lg font-bold text-white">E-mail para Administradora</h2>
+                        {currentCondo && adminEmail && <span className="ml-auto text-xs text-slate-500 font-medium">{currentCondo.administradora}</span>}
+                    </div>
+
+                    <div className="p-6 space-y-4 flex-1 flex flex-col">
+                        {/* Assunto */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Assunto</span>
+                                <CopyButton
+                                    text={emailSubject}
+                                    copied={copiedSubject}
+                                    onCopy={() => copyText(emailSubject, setCopiedSubject)}
+                                />
+                            </div>
+                            <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-medium">
+                                {emailSubject || <span className="text-slate-600 italic">Selecione um condomínio...</span>}
+                            </div>
+                        </div>
+
+                        {/* E-mail destinatário */}
+                        <div className="space-y-1.5">
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Para</span>
+                            {adminEmail ? (
+                                <button
+                                    onClick={() => copyText(adminEmail, setCopiedEmail)}
+                                    className={`w-full flex items-center gap-2 text-sm px-4 py-3 rounded-xl transition-all border font-mono ${copiedEmail ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-amber-300 bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10'}`}
+                                >
+                                    {copiedEmail ? <Check className="w-4 h-4 shrink-0" /> : <Mail className="w-4 h-4 shrink-0" />}
+                                    <span className="truncate">{adminEmail}</span>
+                                    {!copiedEmail && <Copy className="w-3.5 h-3.5 ml-auto shrink-0 opacity-50" />}
+                                </button>
+                            ) : (
+                                <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-600 italic">
+                                    {currentCondo ? 'E-mail não cadastrado para esta administradora.' : 'Selecione um condomínio...'}
                                 </div>
                             )}
                         </div>
-                        
-                        <div className="mt-4 flex items-start gap-2 text-xs text-slate-500 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                            <AlertCircle className="w-4 h-4 shrink-0 text-amber-500/70" />
-                            <p>
-                                <strong className="text-slate-400 font-medium">Atenção:</strong> Revise as informações de feriados listados e adicione eventuais extras (como horas adicionais em feriados) antes de copiar este texto para o emissor oficial da sua prefeitura.
-                            </p>
+
+                        {/* Corpo do e-mail */}
+                        <div className="flex-1 flex flex-col space-y-1.5">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mensagem</span>
+                                <CopyButton
+                                    text={emailBody}
+                                    copied={copiedEmail && false}
+                                    onCopy={() => copyText(emailBody, () => {})}
+                                    label="Copiar Mensagem"
+                                />
+                            </div>
+                            <div className="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 font-mono leading-relaxed whitespace-pre-line min-h-[200px]">
+                                {emailBody || <span className="text-slate-600 italic">Selecione um condomínio para gerar o e-mail...</span>}
+                            </div>
                         </div>
                     </div>
                 </div>
