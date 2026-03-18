@@ -358,9 +358,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     const sortedImpostos = useMemo(() => {
         const parseDate = (dStr?: string) => {
-            if (!dStr) return 0;
+            if (!dStr || dStr.trim() === '') return Infinity;
             const parts = dStr.split('/');
-            if (parts.length < 2) return 0;
+            if (parts.length < 2) return Infinity;
             const day = parseInt(parts[0]) || 0;
             const month = parseInt(parts[1]) || 0;
             const year = parts.length === 3 ? parseInt(parts[2]) : 2026;

@@ -98,11 +98,69 @@ export function ScheduleView() {
     const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
+    const getHolidays = (year: number, month: number) => {
+        const holidays: { day: number, title: string, isHoliday: boolean }[] = [];
+        
+        // Fixed National Holidays
+        const fixed = [
+            { m: 0, d: 1, t: 'Confraternização Universal' },
+            { m: 3, d: 21, t: 'Tiradentes / Aniv. Itapema' },
+            { m: 4, d: 1, t: 'Dia do Trabalho' },
+            { m: 5, d: 13, t: 'Santo Antônio (Itapema)' },
+            { m: 8, d: 7, t: 'Independência do Brasil' },
+            { m: 9, d: 12, t: 'Nossa Senhora Aparecida' },
+            { m: 10, d: 2, t: 'Finados' },
+            { m: 10, d: 15, t: 'Proclamação da República' },
+            { m: 11, d: 25, t: 'Natal' },
+        ];
+
+        fixed.forEach(h => {
+            if (h.m === month) holidays.push({ day: h.d, title: h.t, isHoliday: true });
+        });
+
+        // Mobile Holidays (Easter-based)
+        const getEaster = (y: number) => {
+            const f = Math.floor,
+                G = y % 19,
+                C = f(y / 100),
+                H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+                I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+                J = (y + f(y / 4) + I + 2 - C + f(C / 4)) % 7,
+                L = I - J,
+                m = 3 + f((L + 40) / 44),
+                d = L + 28 - 31 * f(m / 4);
+            return new Date(y, m - 1, d);
+        };
+
+        const easter = getEaster(year);
+        const addMobile = (date: Date, title: string) => {
+            if (date.getMonth() === month) holidays.push({ day: date.getDate(), title, isHoliday: true });
+        };
+
+        // Carnival (47 days before Easter)
+        const carnival = new Date(easter);
+        carnival.setDate(easter.getDate() - 47);
+        addMobile(carnival, 'Carnaval');
+
+        // Good Friday (2 days before Easter)
+        const goodFriday = new Date(easter);
+        goodFriday.setDate(easter.getDate() - 2);
+        addMobile(goodFriday, 'Sexta-feira Santa');
+
+        // Corpus Christi (60 days after Easter)
+        const corpus = new Date(easter);
+        corpus.setDate(easter.getDate() + 60);
+        addMobile(corpus, 'Corpus Christi');
+
+        return holidays;
+    };
+
     const renderCalendarDays = () => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         const daysInMonth = getDaysInMonth(year, month);
         const firstDay = getFirstDayOfMonth(year, month);
+        const holidays = getHolidays(year, month);
         
         const days = [];
         
@@ -116,13 +174,15 @@ export function ScheduleView() {
             const isToday = new Date().toDateString() === date.toDateString();
             
             // Filter events for this day
-            // If it's permanent, check if the "day" number matches regardless of month
             const dayEvents = calendarEvents.filter(e => {
                 if (e.isPermanent) {
                     return new Date(e.date).getDate() === day;
                 }
                 return new Date(e.date).toDateString() === date.toDateString();
             });
+
+            // Find holidays for this day
+            const dayHolidays = holidays.filter(h => h.day === day);
 
             days.push(
                 <div 
@@ -131,12 +191,17 @@ export function ScheduleView() {
                     className={`p-2 border border-slate-700/50 min-h-[100px] rounded-lg cursor-pointer transition-all hover:border-indigo-500/50 hover:bg-slate-800/80 group ${isToday ? 'bg-indigo-900/20 shadow-inner' : 'bg-slate-800/40'}`}
                 >
                     <div className="flex justify-between items-start mb-2">
-                        <span className={`text-sm font-bold w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-indigo-500 text-white' : 'text-slate-400'}`}>
+                        <span className={`text-sm font-bold w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-indigo-500 text-white' : dayHolidays.length > 0 ? 'bg-red-500/20 text-red-400' : 'text-slate-400'}`}>
                             {day}
                         </span>
                         <Plus className="w-3 h-3 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="space-y-1">
+                        {dayHolidays.map((h, i) => (
+                            <div key={`hol-${i}`} className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 font-bold uppercase tracking-tighter truncate">
+                                🇧🇷 {h.title}
+                            </div>
+                        ))}
                         {dayEvents.map(evt => (
                             <div 
                                 key={evt.id} 
