@@ -346,117 +346,115 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                 <div id="printable-holerite" className="hidden print:block bg-white text-slate-900 p-0 m-0 w-full overflow-hidden">
                     {/* Duplicate Pay Stub for 2 copies per page */}
                     {[1, 2].map((copy) => (
-                        <div key={copy} className={`border-2 border-slate-900 p-8 space-y-6 ${copy === 1 ? 'border-b-4 border-dashed mb-16' : ''}`}>
-                            <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6">
+                        <div key={copy} className={`border border-slate-300 p-4 space-y-1 ${copy === 1 ? 'border-b border-dashed mb-1 pb-2' : ''}`}>
+                            <div className="flex justify-between items-start border-b border-slate-200 pb-1">
                                 <div className="flex flex-col items-center">
                                     <div className="flex items-baseline gap-0">
-                                        <span className="text-5xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
-                                        <span className="text-5xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                                        <span className="text-3xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                        <span className="text-3xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
                                     </div>
-                                    <div className="text-[22px] text-[#00CEE4] -mt-2 italic font-serif" style={{ textShadow: '0.2px 0.2px 0px rgba(0,0,0,0.05)' }}>
+                                    <div className="text-[14px] text-[#00CEE4] -mt-1 italic font-serif">
                                         Gestão em Limpeza
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mês de Referência</p>
-                                        <p className="text-sm font-black">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</p>
+                                    <div className="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
+                                        <p className="text-[7px] font-bold text-slate-500 uppercase tracking-widest leading-none">Mês de Referência</p>
+                                        <p className="text-[10px] font-black">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</p>
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">Recibo de Pagamento de Salário</p>
+                                    <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">Recibo de Pagamento de Salário</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-8 py-4 bg-slate-50 border-y border-slate-200">
-                                <div className="space-y-1 px-4">
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Colaborador</p>
-                                    <p className="text-base font-black text-slate-900">{selectedEmployeeRecord.nome}</p>
+                            <div className="grid grid-cols-2 gap-4 py-1 bg-slate-50 border-y border-slate-100">
+                                <div className="px-2">
+                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Colaborador</p>
+                                    <p className="text-xs font-black text-slate-900">{selectedEmployeeRecord.nome}</p>
                                 </div>
-                                <div className="space-y-1 px-4 border-l border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alocação</p>
-                                    <p className="text-base font-black text-slate-900">{selectedEmployeeRecord.condominio || 'Geral'}</p>
+                                <div className="px-2 border-l border-slate-100">
+                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Alocação</p>
+                                    <p className="text-xs font-black text-slate-900">{selectedEmployeeRecord.condominio || 'Geral'}</p>
                                 </div>
                             </div>
 
-                            <table className="w-full text-left text-xs border-collapse mt-6">
+                            <table className="w-full text-left text-[9px] border-collapse">
                                 <thead>
                                     <tr className="bg-slate-900 text-white font-bold uppercase tracking-widest">
-                                        <th className="p-3 border border-slate-900">Código / Descrição</th>
-                                        <th className="p-3 text-center border border-slate-900">Referência</th>
-                                        <th className="p-3 text-right border border-slate-900">Vencimentos</th>
-                                        <th className="p-3 text-right border border-slate-900">Descontos</th>
+                                        <th className="p-1.5 border border-slate-900">Código / Descrição</th>
+                                        <th className="p-1.5 text-center border border-slate-900">Referência</th>
+                                        <th className="p-1.5 text-right border border-slate-900">Vencimentos</th>
+                                        <th className="p-1.5 text-right border border-slate-900">Descontos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr className="font-medium text-slate-900 border-b border-slate-200">
-                                        <td className="p-3 border border-slate-200">001 - Salário Base Mensal</td>
-                                        <td className="p-3 text-center border border-slate-200">30 Dias</td>
-                                        <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.salario)}</td>
-                                        <td className="p-3 text-right border border-slate-200">-</td>
+                                    <tr className="font-medium text-slate-900 border-b border-slate-100">
+                                        <td className="p-1.5 border border-slate-100">001 - Salário Base Mensal</td>
+                                        <td className="p-1.5 text-center border border-slate-100">30 Dias</td>
+                                        <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.salario)}</td>
+                                        <td className="p-1.5 text-right border border-slate-100">-</td>
                                     </tr>
                                     {selectedEmployeeRecord.extras > 0 && (
-                                        <tr className="font-medium text-slate-900 border-b border-slate-200">
-                                            <td className="p-3 border border-slate-200">050 - Adicionais / Horas Extras</td>
-                                            <td className="p-3 text-center border border-slate-200">-</td>
-                                            <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.extras)}</td>
-                                            <td className="p-3 text-right border border-slate-200">-</td>
+                                        <tr className="font-medium text-slate-900 border-b border-slate-100">
+                                            <td className="p-1.5 border border-slate-100">050 - Adicionais / Horas Extras</td>
+                                            <td className="p-1.5 text-center border border-slate-100">-</td>
+                                            <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.extras)}</td>
+                                            <td className="p-1.5 text-right border border-slate-100">-</td>
                                         </tr>
                                     )}
                                     {selectedEmployeeRecord.salaofestas > 0 && (
-                                        <tr className="font-medium text-slate-900 border-b border-slate-200">
-                                            <td className="p-3 border border-slate-200">060 - Limpeza Salão de Festas</td>
-                                            <td className="p-3 text-center border border-slate-200">-</td>
-                                            <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
-                                            <td className="p-3 text-right border border-slate-200">-</td>
+                                        <tr className="font-medium text-slate-900 border-b border-slate-100">
+                                            <td className="p-1.5 border border-slate-100">060 - Limpeza Salão de Festas</td>
+                                            <td className="p-1.5 text-center border border-slate-100">-</td>
+                                            <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
+                                            <td className="p-1.5 text-right border border-slate-100">-</td>
                                         </tr>
                                     )}
-                                    <tr className="font-medium text-slate-900 border-b border-slate-200">
-                                        <td className="p-3 border border-slate-200">401 - Desc. Faltas não Justificadas</td>
-                                        <td className="p-3 text-center border border-slate-200">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
-                                        <td className="p-3 text-right border border-slate-200">-</td>
-                                        <td className="p-3 text-right border border-slate-200 text-red-600">
+                                    <tr className="font-medium text-slate-900 border-b border-slate-100">
+                                        <td className="p-1.5 border border-slate-100">401 - Desc. Faltas não Justificadas</td>
+                                        <td className="p-1.5 text-center border border-slate-100">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
+                                        <td className="p-1.5 text-right border border-slate-100">-</td>
+                                        <td className="p-1.5 text-right border border-slate-100 text-red-600">
                                             {selectedEmployeeRecord.faltas > 0 ? formatCurrency(selectedEmployeeRecord.descontoFaltas) : '-'}
                                         </td>
                                     </tr>
-                                    {/* Empty lines for professional look */}
-                                    {[1, 2].map(i => (
-                                        <tr key={i} className="border-b border-slate-100">
-                                            <td className="p-3 h-10 border border-slate-100 text-slate-300 italic opacity-30">---</td>
-                                            <td className="p-3 border border-slate-100 text-slate-300 italic opacity-30 text-center">--</td>
-                                            <td className="p-3 border border-slate-100 text-slate-300 italic opacity-30 text-right">--</td>
-                                            <td className="p-3 border border-slate-100 text-slate-300 italic opacity-30 text-right">--</td>
-                                        </tr>
-                                    ))}
+                                    {/* Minimal empty line */}
+                                    <tr className="border-b border-slate-100">
+                                        <td className="p-1.5 h-6 border border-slate-100 text-slate-300 italic opacity-20">---</td>
+                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-center">--</td>
+                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-right">--</td>
+                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-right">--</td>
+                                    </tr>
                                 </tbody>
                             </table>
 
-                            <div className="flex justify-between items-start mt-8">
-                                <div className="w-1/2 bg-slate-50 border border-slate-200 p-4 rounded space-y-2">
-                                    <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+                            <div className="flex justify-between items-center mt-2">
+                                <div className="w-1/2 bg-slate-50 border border-slate-100 p-1.5 rounded space-y-0.5">
+                                    <div className="flex justify-between text-[7px] font-bold uppercase text-slate-500">
                                         <span>Total Vencimentos:</span>
                                         <span>{formatCurrency(selectedEmployeeRecord.salario + selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
+                                    <div className="flex justify-between text-[7px] font-bold uppercase text-slate-500">
                                         <span>Total Descontos:</span>
                                         <span className="text-red-600">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</span>
                                     </div>
                                 </div>
-                                <div className="w-1/3 bg-indigo-900 text-white p-6 rounded text-right shadow-lg">
-                                    <p className="text-[10px] font-black uppercase opacity-70 tracking-widest mb-1">Líquido a Receber</p>
-                                    <p className="text-3xl font-black">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
+                                <div className="w-1/3 bg-indigo-900 text-white p-2 rounded text-right">
+                                    <p className="text-[7px] font-black uppercase opacity-70 tracking-widest">Líquido a Receber</p>
+                                    <p className="text-lg font-black">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-12 mt-16 pt-12 border-t border-slate-300 pb-4">
-                                <div className="text-center space-y-2">
-                                    <div className="border-t-2 border-slate-900 w-full pt-4 font-bold text-xs uppercase text-slate-600 tracking-widest">
+                            <div className="grid grid-cols-2 gap-8 mt-6 pt-4 border-t border-slate-200">
+                                <div className="text-center">
+                                    <div className="border-t border-slate-900 w-full pt-1 font-bold text-[9px] uppercase text-slate-600 tracking-widest">
                                         DELUCCA SERVIÇOS PREDIAIS LTDA
-                                        <p className="text-[9px] font-normal tracking-normal normal-case italic mt-1 text-slate-400 font-serif">Assinatura do Empregador</p>
+                                        <p className="text-[7px] font-normal normal-case italic text-slate-400 font-serif">Assinatura do Empregador</p>
                                     </div>
                                 </div>
-                                <div className="text-center space-y-2">
-                                    <div className="border-t-2 border-slate-900 w-full pt-4 font-bold text-xs uppercase text-slate-600 tracking-widest">
+                                <div className="text-center">
+                                    <div className="border-t border-slate-900 w-full pt-1 font-bold text-[9px] uppercase text-slate-600 tracking-widest">
                                         {selectedEmployeeRecord.nome}
-                                        <p className="text-[9px] font-normal tracking-normal normal-case italic mt-1 text-slate-400 font-serif">Assinatura do Funcionário</p>
+                                        <p className="text-[7px] font-normal normal-case italic text-slate-400 font-serif">Assinatura do Funcionário</p>
                                     </div>
                                 </div>
                             </div>
@@ -484,7 +482,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                         top: 0;
                         width: 100%;
                         margin: 0;
-                        padding: 1cm;
+                        padding: 0.5cm;
                     }
                     @page {
                         margin: 0;
