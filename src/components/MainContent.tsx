@@ -166,7 +166,17 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
         <div className="flex h-screen bg-slate-900 text-slate-200">
             <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} flex-shrink-0 bg-slate-800 border-r border-slate-700 transition-all duration-300 flex flex-col`}>
                 <div className="h-16 flex items-center justify-between px-4 border-b border-slate-700">
-                    {sidebarOpen && <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Secretaria DeLucca</span>}
+                    {sidebarOpen && (
+                        <div className="flex flex-col items-center flex-1">
+                            <div className="flex items-baseline gap-0 transform scale-75 origin-left">
+                                <span className="text-2xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                <span className="text-2xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                            </div>
+                            <div className="text-[12px] text-[#00CEE4] -mt-2 italic font-serif">
+                                Gestão em Limpeza
+                            </div>
+                        </div>
+                    )}
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
                         <Menu className="w-5 h-5" />
                     </button>
@@ -252,7 +262,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                     {activeTab === 'visao_geral' ? (
                         <div className="max-w-7xl mx-auto space-y-8">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <h1 className="text-3xl font-bold text-white tracking-tight">Bom dia, Chefe.</h1>
+                                <h1 className="text-3xl font-bold text-white tracking-tight">Olá, Eduardo</h1>
                                 <div className="flex gap-4">
                                     <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
                                         <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
