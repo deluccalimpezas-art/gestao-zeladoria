@@ -15,6 +15,11 @@ export function ContractGeneratorView() {
     const [manualPrice, setManualPrice] = useState('0,00');
     const [manualPriceExtenso, setManualPriceExtenso] = useState('Zero reais');
 
+    // Optional price override for 22h/44h modes
+    const [usePriceOverride, setUsePriceOverride] = useState(false);
+    const [overridePrice, setOverridePrice] = useState('');
+    const [overridePriceExtenso, setOverridePriceExtenso] = useState('');
+
     // Dates
     const today = new Date().toISOString().substring(0, 10);
     const [startDateRaw, setStartDateRaw] = useState(today);
@@ -153,6 +158,43 @@ export function ContractGeneratorView() {
                             </>
                         )}
 
+                        {/* Price override for 22h/44h (optional) */}
+                        {serviceType !== 'manual' && (
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        checked={usePriceOverride}
+                                        onChange={e => setUsePriceOverride(e.target.checked)}
+                                        className="w-4 h-4 rounded border-slate-600 text-rose-500 focus:ring-rose-500/50"
+                                    />
+                                    <span className="text-xs font-bold text-slate-400 group-hover:text-slate-300 transition-colors">Usar preço personalizado</span>
+                                </label>
+                                {usePriceOverride && (
+                                    <div className="grid grid-cols-2 gap-3 animate-in slide-in-from-top-2 duration-200">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-bold text-slate-500 ml-1">Valor (R$)</label>
+                                            <input
+                                                value={overridePrice}
+                                                onChange={e => setOverridePrice(e.target.value)}
+                                                placeholder="4.500,00"
+                                                className="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-bold text-slate-500 ml-1">Valor p/ Extenso</label>
+                                            <input
+                                                value={overridePriceExtenso}
+                                                onChange={e => setOverridePriceExtenso(e.target.value)}
+                                                placeholder="Quatro mil e quinhentos reais"
+                                                className="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Data de Início do Serviço</label>
                             <input
@@ -279,12 +321,14 @@ export function ContractGeneratorView() {
                             <p>2.31 – Obriga-se a CONTRATADA a manter o estrito sigilo de todos os dados pessoais tratados, decorrentes do presente contrato, não podendo divulgá-los sem a devida autorização, por escrito, da CONTRATANTE</p>
 
                             <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
-                            {serviceType === '22h' ? (
+                            {serviceType === '22h' && !usePriceOverride ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 3.600,00 (Três mil e seiscentos reais)</span> por mês.</p>
-                            ) : serviceType === '44h' ? (
+                            ) : serviceType === '44h' && !usePriceOverride ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 6.200,00 (Seis mil e duzentos reais)</span> por mês.</p>
-                            ) : (
+                            ) : serviceType === 'manual' ? (
                                 <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ {manualPrice} ({manualPriceExtenso})</span> por mês.</p>
+                            ) : (
+                                <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ {overridePrice || '___'} ({overridePriceExtenso || '___'})</span> por mês.</p>
                             )}
                             <p>3.2 – O pagamento deverá ser realizado mensalmente, com emissão da respectiva Nota Fiscal, por meio de Pix, TED ou dinheiro físico, com vencimento para todo dia 05 de cada mês.</p>
                             <p>3.3 – Caso o contrato seja extinto pela CONTRATANTE, não haverá a devolução de nenhum dos valores já pagos à empresa CONTRATADA dos serviços efetivamente realizados, se a empresa contratada não infringiu nenhum dos termos deste contrato.</p>
