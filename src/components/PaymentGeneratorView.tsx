@@ -231,14 +231,20 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
 
                             {/* Live Preview (Web Style) */}
                             <div className="bg-white text-slate-900 rounded-sm shadow-2xl p-8 border border-slate-200 pointer-events-none scale-[0.9] origin-top">
-                                <div className="border-2 border-slate-900 p-4 space-y-4">
+                                <div className="border-2 border-slate-900 p-4 space-y-4 text-black">
                                     <div className="flex justify-between items-start border-b border-slate-300 pb-4">
-                                        <div>
-                                            <h2 className="text-lg font-black uppercase text-indigo-900">Secretaria DeLucca</h2>
-                                            <p className="text-[10px] font-bold text-slate-500">RECIBO DE PAGAMENTO DE SALÁRIO</p>
+                                        <div className="flex flex-col items-center">
+                                            <div className="flex items-baseline gap-0 transform scale-75 origin-top">
+                                                <span className="text-4xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                                <span className="text-4xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                                            </div>
+                                            <div className="text-[18px] text-[#00CEE4] -mt-2 italic font-serif opacity-90">
+                                                Gestão em Limpeza
+                                            </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-bold">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</p>
+                                            <p className="text-[10px] font-bold text-slate-500 mb-1">RECIBO DE PAGAMENTO DE SALÁRIO</p>
+                                            <p className="text-xs font-bold uppercase">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</p>
                                         </div>
                                     </div>
 
@@ -248,8 +254,8 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             <p className="text-sm font-black">{selectedEmployeeRecord.nome}</p>
                                         </div>
                                         <div>
-                                            <p className="font-bold text-slate-400 uppercase">Cargo / Alocação</p>
-                                            <p className="text-sm font-black">{selectedEmployeeRecord.cargo || 'Auxiliar'} - {selectedEmployeeRecord.condominio || 'Geral'}</p>
+                                            <p className="font-bold text-slate-400 uppercase">Alocação</p>
+                                            <p className="text-sm font-black">{selectedEmployeeRecord.condominio || 'Geral'}</p>
                                         </div>
                                     </div>
 
@@ -288,7 +294,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             {selectedEmployeeRecord.faltas > 0 && (
                                                 <tr className="border-b border-slate-100 italic text-red-600">
                                                     <td className="p-2">Faltas não justificadas</td>
-                                                    <td className="p-2 text-center">{selectedEmployeeRecord.faltas}d</td>
+                                                    <td className="p-2 text-center">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
                                                     <td className="p-2 text-right">-</td>
                                                     <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</td>
                                                 </tr>
@@ -342,15 +348,21 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                     {[1, 2].map((copy) => (
                         <div key={copy} className={`border-2 border-slate-900 p-8 space-y-6 ${copy === 1 ? 'border-b-4 border-dashed mb-16' : ''}`}>
                             <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6">
-                                <div>
-                                    <h1 className="text-2xl font-black uppercase text-indigo-900 tracking-tighter">Secretaria DeLucca</h1>
-                                    <p className="text-xs font-bold text-slate-700 tracking-widest mt-1">RECIBO DE PAGAMENTO DE SALÁRIO</p>
+                                <div className="flex flex-col items-center">
+                                    <div className="flex items-baseline gap-0">
+                                        <span className="text-5xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                        <span className="text-5xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                                    </div>
+                                    <div className="text-[22px] text-[#00CEE4] -mt-2 italic font-serif" style={{ textShadow: '0.2px 0.2px 0px rgba(0,0,0,0.05)' }}>
+                                        Gestão em Limpeza
+                                    </div>
                                 </div>
                                 <div className="text-right">
                                     <div className="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mês de Referência</p>
                                         <p className="text-sm font-black">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</p>
                                     </div>
+                                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">Recibo de Pagamento de Salário</p>
                                 </div>
                             </div>
 
@@ -360,8 +372,8 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                     <p className="text-base font-black text-slate-900">{selectedEmployeeRecord.nome}</p>
                                 </div>
                                 <div className="space-y-1 px-4 border-l border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cargo e Alocação</p>
-                                    <p className="text-base font-black text-slate-900">{selectedEmployeeRecord.cargo || 'Auxiliar'} - {selectedEmployeeRecord.condominio || 'Geral'}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Alocação</p>
+                                    <p className="text-base font-black text-slate-900">{selectedEmployeeRecord.condominio || 'Geral'}</p>
                                 </div>
                             </div>
 
@@ -399,7 +411,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                     )}
                                     <tr className="font-medium text-slate-900 border-b border-slate-200">
                                         <td className="p-3 border border-slate-200">401 - Desc. Faltas não Justificadas</td>
-                                        <td className="p-3 text-center border border-slate-200">{selectedEmployeeRecord.faltas} Dia(s)</td>
+                                        <td className="p-3 text-center border border-slate-200">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
                                         <td className="p-3 text-right border border-slate-200">-</td>
                                         <td className="p-3 text-right border border-slate-200 text-red-600">
                                             {selectedEmployeeRecord.faltas > 0 ? formatCurrency(selectedEmployeeRecord.descontoFaltas) : '-'}
@@ -437,7 +449,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                             <div className="grid grid-cols-2 gap-12 mt-16 pt-12 border-t border-slate-300 pb-4">
                                 <div className="text-center space-y-2">
                                     <div className="border-t-2 border-slate-900 w-full pt-4 font-bold text-xs uppercase text-slate-600 tracking-widest">
-                                        Secretaria DeLucca
+                                        DELUCCA SERVIÇOS PREDIAIS LTDA
                                         <p className="text-[9px] font-normal tracking-normal normal-case italic mt-1 text-slate-400 font-serif">Assinatura do Empregador</p>
                                     </div>
                                 </div>
