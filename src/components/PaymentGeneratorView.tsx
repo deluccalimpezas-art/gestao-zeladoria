@@ -346,7 +346,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                 <div id="printable-holerite" className="hidden print:block bg-white text-slate-900 p-0 m-0 w-full overflow-hidden">
                     {/* Duplicate Pay Stub for 2 copies per page */}
                     {[1, 2].map((copy) => (
-                        <div key={copy} className={`border border-slate-300 p-4 space-y-1 ${copy === 1 ? 'border-b border-dashed mb-1 pb-2' : ''}`}>
+                        <div key={copy} className={`border border-slate-300 p-4 space-y-1 ${copy === 1 ? 'border-b border-dashed mb-16 pb-6' : 'mt-12 pt-6'}`}>
                             <div className="flex justify-between items-start border-b border-slate-200 pb-1">
                                 <div className="flex flex-col items-center">
                                     <div className="flex items-baseline gap-0">
