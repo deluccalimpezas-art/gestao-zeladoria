@@ -20,10 +20,12 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
 
     const filteredEmployees = useMemo(() => {
-        return employees.filter(emp =>
-            emp.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (emp.condominio || '').toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        return employees
+            .filter(emp =>
+                emp.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (emp.condominio || '').toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .sort((a, b) => a.nome.localeCompare(b.nome));
     }, [employees, searchTerm]);
 
     const handleAbsenceChange = (id: string, faltas: number) => {
