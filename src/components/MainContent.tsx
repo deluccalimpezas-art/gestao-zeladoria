@@ -264,13 +264,55 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <section className="space-y-4">
-                                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                                        <Users className="w-5 h-5 text-blue-400" />
+                                <section className="space-y-6">
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-2">
+                                        <Users className="w-6 h-6 text-blue-400" />
                                         Alertas de Funcionários
                                     </h2>
+                                    
+                                    {/* Pasta: Fazer Registro */}
                                     <div className="space-y-3">
-                                        {allEmployeeAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                        <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2">
+                                            <PenTool className="w-4 h-4 text-amber-500" />
+                                            Fazer Registro
+                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).length}</span>
+                                        </h3>
+                                        <div className="space-y-3 pl-2">
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).length === 0 && (
+                                                <p className="text-xs text-slate-600 italic pl-2">Nenhum registro pendente.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Pasta: Contrato de Experiência */}
+                                    <div className="space-y-3">
+                                        <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2">
+                                            <Briefcase className="w-4 h-4 text-rose-500" />
+                                            Vencendo Contrato de Experiência
+                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).length}</span>
+                                        </h3>
+                                        <div className="space-y-3 pl-2">
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).length === 0 && (
+                                                <p className="text-xs text-slate-600 italic pl-2">Nenhum contrato vencendo.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Pasta: Férias */}
+                                    <div className="space-y-3">
+                                        <h3 className="text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2">
+                                            <CalendarDays className="w-4 h-4 text-emerald-500" />
+                                            Vencendo as Férias
+                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).length}</span>
+                                        </h3>
+                                        <div className="space-y-3 pl-2">
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                            {allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).length === 0 && (
+                                                <p className="text-xs text-slate-600 italic pl-2">Nenhuma férias vencendo.</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </section>
                                 <section className="space-y-4">

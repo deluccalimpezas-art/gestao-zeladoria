@@ -190,7 +190,7 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
             }
         }
 
-        // 3. Aniversário de Empresa
+        // 3. Aniversário de Empresa (Aviso 15 dias)
         if (func.dataAdmissao) {
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
@@ -224,6 +224,19 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                     }
                 }
             }
+        }
+
+        // 4. Status de Registro (Fazer Registro)
+        if (func.statusClt === 'precisa_registrar' || func.statusClt === 'em_processo') {
+            alertas.push({
+                id: `rh-registro-${func.nome.replace(/\s+/g, '-').toLowerCase()}`,
+                type: 'contrato', // Using contrato as base, MainContent will filter by description or I can add a sub-type
+                category: 'funcionario',
+                title: func.nome,
+                subtitle: func.statusClt === 'precisa_registrar' ? '⚠️ PRECISA REGISTRAR' : '⏳ EM PROCESSO',
+                deadline: 'Pendente',
+                description: `REGISTRO: Colaborador aguardando regularização CLT. ${func.condominio ? `Alocação: ${func.condominio}.` : ''}`
+            });
         }
     });
 
