@@ -61,6 +61,12 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const mesVigencia = `${MONTHS[selectedMonth - 1]} de ${selectedYear}`;
     const mesVigenciaCurto = MONTHS[selectedMonth - 1];
 
+    // The service month is always the previous month (NF is issued after the service month)
+    const refMonthIdx = selectedMonth === 1 ? 11 : selectedMonth - 2;
+    const refYear = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
+    const mesReferenciaCurto = MONTHS[refMonthIdx];
+    const mesReferencia = `${mesReferenciaCurto} de ${refYear}`;
+
     // Auto-fill values from condo
     useEffect(() => {
         if (currentCondo) {
@@ -73,7 +79,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     }, [selectedCondoId, currentCondo]);
 
     const nfDescription = currentCondo
-        ? `Referente à prestação de serviços de zeladoria e manutenção no ${currentCondo.nome} durante o mês de ${mesVigencia}.`
+        ? `Referente à prestação de serviços de zeladoria e manutenção no ${currentCondo.nome} durante o mês de ${mesReferencia}.`
         : '';
 
     const emailSubject = currentCondo
@@ -81,7 +87,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
         : '';
 
     const emailBody = currentCondo
-        ? `Bom dia, espero que esteja bem!\n\nEm anexo, envio a Nota Fiscal referente aos serviços de zeladoria do ${currentCondo.nome} do mês de ${mesVigenciaCurto}.\n\nCaso tenha alguma dúvida ou precise de mais informações, estou à disposição para ajudar.\n\nAtenciosamente,\nDeLucca Gestão em Limpeza`
+        ? `Bom dia, espero que esteja bem!\n\nEm anexo, envio a Nota Fiscal referente aos serviços de zeladoria do ${currentCondo.nome} do mês de ${mesReferenciaCurto}.\n\nCaso tenha alguma dúvida ou precise de mais informações, estou à disposição para ajudar.\n\nAtenciosamente,\nDeLucca Gestão em Limpeza`
         : '';
 
     const copyText = useCallback((text: string, setter: (v: boolean) => void) => {
