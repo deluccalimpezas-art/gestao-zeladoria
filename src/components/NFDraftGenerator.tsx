@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Copy, AlertCircle, Calendar, Check, Briefcase } from 'lucide-react';
+import { FileText, Copy, AlertCircle, Calendar, Check, Briefcase, Mail, DollarSign } from 'lucide-react';
 import { CondominioData } from '@/modelsFinance';
 
 interface NFDraftGeneratorProps {
@@ -12,6 +12,29 @@ interface Feriado {
     type: string;
 }
 
+const ADMIN_EMAILS: Record<string, string> = {
+    'UP': 'contato@upcondominios.com',
+    'VIBRA': 'financeiro@vibracondominios.com.br',
+    'VIP': 'contato@vipscondominios.com.br',
+    'JN': 'financeiro@jncondominios.com.br',
+    'REM': 'financeiro1@rmcontabilidadesc.com.br',
+    'RM': 'financeiro1@rmcontabilidadesc.com.br',
+};
+
+const getAdminEmail = (administradora?: string): string | null => {
+    if (!administradora) return null;
+    const upper = administradora.trim().toUpperCase();
+    for (const [key, email] of Object.entries(ADMIN_EMAILS)) {
+        if (upper.includes(key)) return email;
+    }
+    return null;
+};
+
+const formatCurrency = (value?: number): string => {
+    if (value === undefined || value === null) return 'R$ 0,00';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+};
+
 const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const [selectedCondoId, setSelectedCondoId] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -20,6 +43,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const [customDescription, setCustomDescription] = useState<string>('');
     const [isLoadingHolidays, setIsLoadingHolidays] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [copiedEmail, setCopiedEmail] = useState(false);
 
     const monthsRaw = [
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -27,25 +51,24 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     ];
 
     const currentCondo = condominios.find(c => c.nome === selectedCondoId);
+    const adminEmail = getAdminEmail(currentCondo?.administradora);
+
+    // Determine which contract value to use (verao or base)
+    const valorAtivo = currentCondo?.valorAtivo === 'verao' && currentCondo?.valorVerao
+        ? currentCondo.valorVerao
+        : currentCondo?.valorContrato;
 
     useEffect(() => {
         const fetchFeriados = async () => {
             setIsLoadingHolidays(true);
             try {
-                // Fetching from Brasil API
                 const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${selectedYear}`);
-                if (!response.ok) {
-                    throw new Error('Falha ao buscar feriados');
-                }
+                if (!response.ok) throw new Error('Falha ao buscar feriados');
                 const data: Feriado[] = await response.json();
-                
-                // Filter holidays for the selected month
                 const monthHolidays = data.filter(feriado => {
                     const dateObj = new Date(feriado.date);
-                    // getUTCMonth is used because dates from API might be UTC and we want to match the numeric month exactly
                     return dateObj.getUTCMonth() + 1 === selectedMonth;
                 });
-                
                 setFeriados(monthHolidays);
             } catch (error) {
                 console.error('Erro ao carregar feriados:', error);
@@ -54,12 +77,10 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                 setIsLoadingHolidays(false);
             }
         };
-
         fetchFeriados();
     }, [selectedYear, selectedMonth]);
 
     useEffect(() => {
-        // Auto-generate description when condo or month changes
         if (currentCondo) {
             const defaultText = `Referente à prestação de serviços de zeladoria e manutenção no ${currentCondo.nome} durante o mês de ${monthsRaw[selectedMonth - 1]} de ${selectedYear}.`;
             setCustomDescription(defaultText);
@@ -67,13 +88,22 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
             setCustomDescription('Selecione um condomínio para gerar o rascunho base.');
         }
         setCopied(false);
-    }, [selectedCondoId, selectedMonth, selectedYear, currentCondo]);
+    }, [selectedCondoId, selectedMonth, selectedYear]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(customDescription).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
+    };
+
+    const handleCopyEmail = () => {
+        if (adminEmail) {
+            navigator.clipboard.writeText(adminEmail).then(() => {
+                setCopiedEmail(true);
+                setTimeout(() => setCopiedEmail(false), 2000);
+            });
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -97,12 +127,12 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                 
                 {/* Painel de Configuração (Esquerda) */}
                 <div className="lg:col-span-1 space-y-4">
+                    {/* Seleção de Condomínio e Período */}
                     <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
                         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                             <Briefcase className="w-4 h-4 text-blue-400" />
                             Configurações
                         </h2>
-                        
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-300 mb-1">Condomínio</label>
@@ -117,7 +147,6 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                                     ))}
                                 </select>
                             </div>
-
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-1">Mês de Ref.</label>
@@ -147,13 +176,57 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                         </div>
                     </div>
 
-                    {/* Alertas sobre Feriados */}
+                    {/* Valores do Condomínio (aparece ao selecionar) */}
+                    {currentCondo && (
+                        <div className="bg-slate-800 p-5 rounded-xl border border-amber-500/30 transition-colors space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <h2 className="text-base font-semibold text-white flex items-center gap-2">
+                                <DollarSign className="w-4 h-4 text-amber-400" />
+                                Valores da NF
+                            </h2>
+                            <div className="space-y-1 text-sm">
+                                <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span className="text-slate-400">Valor Bruto</span>
+                                    <span className="font-bold text-white">{formatCurrency(currentCondo.receitaBruta || valorAtivo)}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                                    <span className="text-slate-400">Retenção INSS</span>
+                                    <span className="font-bold text-red-400">− {formatCurrency(currentCondo.inssRetido)}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2">
+                                    <span className="text-slate-400">Valor Líquido</span>
+                                    <span className="font-bold text-emerald-400">{formatCurrency(currentCondo.receitaLiquida)}</span>
+                                </div>
+                            </div>
+
+                            {/* Administradora + Email */}
+                            {currentCondo.administradora && (
+                                <div className="pt-3 border-t border-slate-700/50">
+                                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Administradora</p>
+                                    <p className="text-sm text-white font-medium mb-2">{currentCondo.administradora}</p>
+                                    {adminEmail ? (
+                                        <button
+                                            onClick={handleCopyEmail}
+                                            className={`w-full flex items-center gap-2 text-xs px-3 py-2 rounded-lg transition-all group border ${copiedEmail ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/20'}`}
+                                            title="Clique para copiar o e-mail"
+                                        >
+                                            {copiedEmail ? <Check className="w-3.5 h-3.5 shrink-0" /> : <Mail className="w-3.5 h-3.5 shrink-0" />}
+                                            <span className="truncate font-mono">{adminEmail}</span>
+                                            {!copiedEmail && <Copy className="w-3 h-3 ml-auto shrink-0 opacity-40 group-hover:opacity-100" />}
+                                        </button>
+                                    ) : (
+                                        <p className="text-xs text-slate-600 italic">E-mail não cadastrado para esta administradora.</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Feriados no Mês */}
                     <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
                         <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-emerald-400" />
                             Feriados no Mês
                         </h2>
-                        
                         {isLoadingHolidays ? (
                             <div className="space-y-2">
                                 <div className="h-10 bg-slate-700/50 rounded-lg animate-pulse"></div>
@@ -197,7 +270,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                                 }`}
                             >
                                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                {copied ? 'Copiado para a área de transferência!' : 'Copiar Texto para Nota'}
+                                {copied ? 'Copiado!' : 'Copiar Texto para Nota'}
                             </button>
                         </div>
                         
