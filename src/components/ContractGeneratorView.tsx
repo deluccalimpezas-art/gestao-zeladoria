@@ -297,7 +297,7 @@ export function ContractGeneratorView() {
 
 
 
-                            <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 4ª – DA RESCISÃO</h4>
+                            <h4 className="page-break-container font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 4ª – DA RESCISÃO</h4>
                             <p>4.1 – O presente contrato poderá ser rescindido imotivadamente a qualquer tempo pelas partes, mediante comunicação escrita à outra parte, com antecedência mínima de 30 (trinta) dias, sem acarretar ônus para ambas as partes.</p>
                             <p>4.2 – O presente instrumento será considerado rescindido de pleno direito, independentemente de notificação judicial ou extrajudicial, nas seguintes hipóteses:</p>
                             <p className="ml-4">a) Descumprimento das obrigações ajustadas por quaisquer das PARTES, se não sanado o inadimplemento dentro de 5 (cinco) dias, a contar da data do recebimento de notificação escrita pela parte prejudicada;</p>
