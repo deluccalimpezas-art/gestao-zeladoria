@@ -17,7 +17,7 @@ interface PaymentRecord extends FuncionarioData {
 export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
-    const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number }>>({});
+    const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
 
     const filteredEmployees = useMemo(() => {
         return employees.filter(emp =>
@@ -30,7 +30,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { salarioBase: employees.find(e => e.id === id)?.salario || 0 }),
+                ...(prev[id] || { salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0, salaofestas: 0 }),
                 faltas
             }
         }));
@@ -40,27 +40,49 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { faltas: 0 }),
+                ...(prev[id] || { faltas: 0, extras: 0, salaofestas: 0 }),
                 salarioBase
             }
         }));
     };
 
-    const selectedEmployeeRecord = useMemo((): PaymentRecord | null => {
+    const handleExtrasChange = (id: string, extras: number) => {
+        setPaymentData(prev => ({
+            ...prev,
+            [id]: {
+                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, salaofestas: 0 }),
+                extras
+            }
+        }));
+    };
+
+    const handleSalaoChange = (id: string, salaofestas: number) => {
+        setPaymentData(prev => ({
+            ...prev,
+            [id]: {
+                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0 }),
+                salaofestas
+            }
+        }));
+    };
+
+    const selectedEmployeeRecord = useMemo((): PaymentRecord & { extras: number; salaofestas: number } | null => {
         if (!selectedEmployeeId) return null;
         const emp = employees.find(e => e.id === selectedEmployeeId);
         if (!emp) return null;
 
-        const data = paymentData[selectedEmployeeId] || { faltas: 0, salarioBase: emp.salario };
+        const data = paymentData[selectedEmployeeId] || { faltas: 0, salarioBase: emp.salario, extras: 0, salaofestas: 0 };
         const salario = data.salarioBase;
         const valorDiaria = salario / 30;
         const descontoFaltas = valorDiaria * data.faltas;
-        const totalLiquido = Math.max(0, salario - descontoFaltas);
+        const totalLiquido = Math.max(0, salario - descontoFaltas + (data.extras || 0) + (data.salaofestas || 0));
 
         return {
             ...emp,
             salario: salario,
             faltas: data.faltas,
+            extras: data.extras || 0,
+            salaofestas: data.salaofestas || 0,
             valorDiaria,
             descontoFaltas,
             totalLiquido,
@@ -160,9 +182,27 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-red-500/50 outline-none"
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Extras (R$)</label>
+                                        <input
+                                            type="number"
+                                            value={selectedEmployeeRecord.extras}
+                                            onChange={(e) => handleExtrasChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-blue-400 font-bold focus:ring-2 focus:ring-blue-500/50 outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Salão de Festas (R$)</label>
+                                        <input
+                                            type="number"
+                                            value={selectedEmployeeRecord.salaofestas}
+                                            onChange={(e) => handleSalaoChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-purple-400 font-bold focus:ring-2 focus:ring-purple-500/50 outline-none"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="p-4 bg-slate-900 rounded-xl border border-slate-700/50 grid grid-cols-3 gap-4 text-center">
+                                <div className="p-4 bg-slate-900 rounded-xl border border-slate-700/50 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Valor Diária</p>
                                         <p className="text-sm font-bold text-white">{formatCurrency(selectedEmployeeRecord.valorDiaria)}</p>
@@ -170,6 +210,10 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Desconto Faltas</p>
                                         <p className="text-sm font-bold text-red-400">-{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-slate-500 uppercase font-bold">Adicionais</p>
+                                        <p className="text-sm font-bold text-blue-400">+{formatCurrency(selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</p>
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Total Líquido</p>
@@ -225,6 +269,22 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                                 <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.salario)}</td>
                                                 <td className="p-2 text-right">-</td>
                                             </tr>
+                                            {selectedEmployeeRecord.extras > 0 && (
+                                                <tr className="border-b border-slate-100 italic">
+                                                    <td className="p-2">Adicionais / Horas Extras</td>
+                                                    <td className="p-2 text-center">-</td>
+                                                    <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.extras)}</td>
+                                                    <td className="p-2 text-right">-</td>
+                                                </tr>
+                                            )}
+                                            {selectedEmployeeRecord.salaofestas > 0 && (
+                                                <tr className="border-b border-slate-100 italic">
+                                                    <td className="p-2">Limpeza Salão de Festas</td>
+                                                    <td className="p-2 text-center">-</td>
+                                                    <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
+                                                    <td className="p-2 text-right">-</td>
+                                                </tr>
+                                            )}
                                             {selectedEmployeeRecord.faltas > 0 && (
                                                 <tr className="border-b border-slate-100 italic text-red-600">
                                                     <td className="p-2">Faltas não justificadas</td>
@@ -237,7 +297,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         <tfoot>
                                             <tr className="bg-slate-50 font-black">
                                                 <td colSpan={2} className="p-2 text-right uppercase">Totais</td>
-                                                <td className="p-2 text-right text-indigo-900">{formatCurrency(selectedEmployeeRecord.salario)}</td>
+                                                <td className="p-2 text-right text-indigo-900">{formatCurrency(selectedEmployeeRecord.salario + selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</td>
                                                 <td className="p-2 text-right text-red-600">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</td>
                                             </tr>
                                         </tfoot>
@@ -321,6 +381,22 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.salario)}</td>
                                         <td className="p-3 text-right border border-slate-200">-</td>
                                     </tr>
+                                    {selectedEmployeeRecord.extras > 0 && (
+                                        <tr className="font-medium text-slate-900 border-b border-slate-200">
+                                            <td className="p-3 border border-slate-200">050 - Adicionais / Horas Extras</td>
+                                            <td className="p-3 text-center border border-slate-200">-</td>
+                                            <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.extras)}</td>
+                                            <td className="p-3 text-right border border-slate-200">-</td>
+                                        </tr>
+                                    )}
+                                    {selectedEmployeeRecord.salaofestas > 0 && (
+                                        <tr className="font-medium text-slate-900 border-b border-slate-200">
+                                            <td className="p-3 border border-slate-200">060 - Limpeza Salão de Festas</td>
+                                            <td className="p-3 text-center border border-slate-200">-</td>
+                                            <td className="p-3 text-right border border-slate-200">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
+                                            <td className="p-3 text-right border border-slate-200">-</td>
+                                        </tr>
+                                    )}
                                     <tr className="font-medium text-slate-900 border-b border-slate-200">
                                         <td className="p-3 border border-slate-200">401 - Desc. Faltas não Justificadas</td>
                                         <td className="p-3 text-center border border-slate-200">{selectedEmployeeRecord.faltas} Dia(s)</td>
@@ -330,7 +406,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         </td>
                                     </tr>
                                     {/* Empty lines for professional look */}
-                                    {[1, 2, 3].map(i => (
+                                    {[1, 2].map(i => (
                                         <tr key={i} className="border-b border-slate-100">
                                             <td className="p-3 h-10 border border-slate-100 text-slate-300 italic opacity-30">---</td>
                                             <td className="p-3 border border-slate-100 text-slate-300 italic opacity-30 text-center">--</td>
@@ -345,7 +421,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                 <div className="w-1/2 bg-slate-50 border border-slate-200 p-4 rounded space-y-2">
                                     <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
                                         <span>Total Vencimentos:</span>
-                                        <span>{formatCurrency(selectedEmployeeRecord.salario)}</span>
+                                        <span>{formatCurrency(selectedEmployeeRecord.salario + selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</span>
                                     </div>
                                     <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500">
                                         <span>Total Descontos:</span>
