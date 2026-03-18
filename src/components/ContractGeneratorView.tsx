@@ -7,7 +7,7 @@ export function ContractGeneratorView() {
     const [contractorName, setContractorName] = useState('NOME DO CLIENTE');
     const [contractorCNPJ, setContractorCNPJ] = useState('00.000.000/0000-00');
     const [contractorAddress, setContractorAddress] = useState('Rua X, S/N, Bairro, CEP 00.000-000');
-    const [contractorCity, setContractorCity] = useState('Itapema');
+    const [contractorCity, setContractorCity] = useState('Itapema/SC');
 
     // Service options
     const [serviceType, setServiceType] = useState<'22h' | '44h' | 'manual'>('22h');
