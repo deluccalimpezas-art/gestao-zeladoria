@@ -87,7 +87,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                         <FileText className="w-6 h-6 text-amber-400" />
-                        Rascunho de Nota Fiscal
+                        Gerador de Nota Fiscal
                     </h1>
                     <p className="text-slate-400 text-sm mt-1">Configure o rascunho da sua NF antes de emitir no sistema oficial.</p>
                 </div>
