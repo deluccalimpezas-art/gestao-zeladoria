@@ -178,20 +178,28 @@ export function ContractGeneratorView() {
                 {/* Print Col (A4 format) */}
                 <div className="lg:col-span-8 overflow-auto pb-10">
                     <div id="printable-contract" className="bg-white text-black mx-auto shadow-2xl printable-area">
-                        {/* A4 Page Content */}
-                        <div className="flex flex-col items-center pt-0 mb-8">
-                            <div className="flex items-baseline gap-0">
-                                <span className="text-6xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
-                                <span className="text-6xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
-                            </div>
-                            <div className="text-[28px] text-[#00CEE4] -mt-3 italic" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.1)' }}>
-                                Gestão em Limpeza
-                            </div>
-                        </div>
-
-                        <div className="contract-header uppercase mb-8">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</div>
-
-                        <div className="contract-body space-y-4 px-2">
+                        {/* Table trick for consistent margins and hiding browser header/footer */}
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr>
+                                    <td style={{ height: '2.5cm' }}></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style={{ paddingLeft: '3cm', paddingRight: '2cm', paddingBottom: '2cm' }}>
+                                        {/* A4 Page Content */}
+                                        <div className="flex flex-col items-center pt-0 mb-8">
+                                            <div className="flex items-baseline gap-0">
+                                                <span className="text-6xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                                <span className="text-6xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                                            </div>
+                                            <div className="text-[28px] text-[#00CEE4] -mt-3 italic" style={{ fontFamily: "'Dancing Script', cursive", textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.1)' }}>
+                                                Gestão em Limpeza
+                                            </div>
+                                        </div>
+                                        <div className="contract-header uppercase mb-8">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</div>
+                                        <div className="contract-body space-y-4 px-0">
                             <p><strong>CONTRATANTE:</strong> <span className="font-bold uppercase underline-offset-2">{contractorName || '___________'}</span>, Sob CNPJ nº <span className="font-bold">{contractorCNPJ || '___________'}</span>, situado na {contractorAddress || '___________'}.</p>
 
                             <p><strong>CONTRATADA:</strong> <span className="font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº <span className="font-bold">49.909.068/0001-87</span>, localizada na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC, 88.220-000, neste ato representada por seu sócio administrador Eduardo Gabriel Lucca, portador do CPF sob o nº 143.364.479-77.</p>
@@ -350,10 +358,13 @@ export function ContractGeneratorView() {
                             </div>
 
                         </div>
-                    </div>
-                </div>
-            </div>
-
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap');
@@ -384,9 +395,9 @@ export function ContractGeneratorView() {
                 }
                 @media print {
                     @page { 
-                        margin: 3cm 2cm 2cm 3cm; 
+                        margin: 0; /* Suppress browser header/footer */
                     }
-                    body { margin: 0; }
+                    body { margin: 0; border: none; }
                     body * {
                         visibility: hidden;
                     }
@@ -407,10 +418,15 @@ export function ContractGeneratorView() {
                         right: 0;
                         top: 0;
                         margin: 0;
-                        padding: 0; /* Margin is handled by @page */
+                        padding: 0;
                         width: 100%;
                         box-shadow: none;
                     }
+                    .printable-area {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                    }
+                }
                     .page-break-container {
                         break-before: page;
                         page-break-before: always;
@@ -419,7 +435,6 @@ export function ContractGeneratorView() {
                     .page-break-container + * {
                         margin-top: 0 !important;
                     }
-                }
             ` }} />
         </div>
     );
