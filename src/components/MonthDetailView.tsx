@@ -236,7 +236,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }
     };
 
-    const updateFunc = (index: number, field: keyof FuncionarioData, value: string | number) => {
+    const updateFunc = (index: number, field: keyof FuncionarioData, value: string | number | boolean) => {
         const list = [...(localMonth.funcionarios || [])];
         const updated = { ...list[index], [field]: value };
 
@@ -257,7 +257,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setHasChanges(true);
     };
 
-    const updateImposto = (index: number, field: keyof ImpostoData, value: string | number) => {
+    const updateImposto = (index: number, field: keyof ImpostoData, value: string | number | boolean) => {
         const list = [...(localMonth.impostos || [])];
         list[index] = { ...list[index], [field]: value };
 
@@ -373,6 +373,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const allNfFeita = useMemo(() => sortedCondos.length > 0 && sortedCondos.every(c => c.nfFeita), [sortedCondos]);
     const allNfEnviada = useMemo(() => sortedCondos.length > 0 && sortedCondos.every(c => c.nfEnviada), [sortedCondos]);
     const allPagamento = useMemo(() => sortedCondos.length > 0 && sortedCondos.every(c => c.pagamentoFeito), [sortedCondos]);
+    const allFuncsPago = useMemo(() => sortedFuncs.length > 0 && sortedFuncs.every(f => f.pagamentoFeito), [sortedFuncs]);
+    const allImpostosPago = useMemo(() => sortedImpostos.length > 0 && sortedImpostos.every(i => i.pagamentoFeito), [sortedImpostos]);
 
     const currentTotals = useMemo(() => {
         const validCondos = (localMonth.condominios || []).filter(c =>
@@ -709,6 +711,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-2 py-3 text-right text-emerald-400">Extras</th>
                                             <th className="px-2 py-3 text-right text-red-400">Vales</th>
                                             <th className="px-1 py-3 text-center">Faltas</th>
+                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 w-8"></th>
                                         </tr>
@@ -759,6 +762,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         value={func.faltas || 0}
                                                         onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
                                                         className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
+                                                    />
+                                                </td>
+                                                <td className="px-1 py-2 text-center">
+                                                    <button
+                                                        onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
                                                 <td className="px-2 py-2 text-right">
@@ -812,6 +821,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <tr>
                                             <th className="px-6 py-4">Imposto / Obrigação</th>
                                             <th className="px-6 py-4">Vencimento</th>
+                                            <th className={`px-2 py-4 text-center w-10 transition-colors ${allImpostosPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
                                             <th className="px-6 py-4 text-right">Valor Pago</th>
                                             <th className="px-6 py-4 w-10"></th>
                                         </tr>
@@ -831,6 +841,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         value={imp.vencimento || ''}
                                                         onChange={(e) => updateImposto(idx, 'vencimento', e.target.value)}
                                                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-amber-500 rounded px-1 w-full text-slate-400"
+                                                    />
+                                                </td>
+                                                <td className="px-2 py-3 text-center">
+                                                    <button
+                                                        onClick={() => updateImposto(idx, 'pagamentoFeito', !imp.pagamentoFeito)}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${imp.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
                                                 <td className="px-6 py-3 text-right">

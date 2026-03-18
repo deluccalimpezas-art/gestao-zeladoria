@@ -50,6 +50,7 @@ export interface FuncionarioData {
     deleted?: boolean;
     contratoPdf?: any;
     contratoNome?: string;
+    pagamentoFeito?: boolean;
 }
 
 export interface ImpostoData {
@@ -57,6 +58,7 @@ export interface ImpostoData {
     vencimento?: string;
     valor: number;
     observacao?: string;
+    pagamentoFeito?: boolean;
 }
 
 export interface MonthlyFinanceData {
