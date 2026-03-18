@@ -166,7 +166,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Salário Base (R$)</label>
                                         <input
                                             type="number"
-                                            value={selectedEmployeeRecord.salario}
+                                            value={selectedEmployeeRecord.salario || ''}
                                             onChange={(e) => handleSalaryChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold focus:ring-2 focus:ring-emerald-500/50 outline-none"
                                         />
@@ -177,7 +177,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             type="number"
                                             min="0"
                                             max="31"
-                                            value={selectedEmployeeRecord.faltas}
+                                            value={selectedEmployeeRecord.faltas || ''}
                                             onChange={(e) => handleAbsenceChange(selectedEmployeeRecord.id!, parseInt(e.target.value) || 0)}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-red-500/50 outline-none"
                                         />
@@ -186,7 +186,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Extras (R$)</label>
                                         <input
                                             type="number"
-                                            value={selectedEmployeeRecord.extras}
+                                            value={selectedEmployeeRecord.extras || ''}
                                             onChange={(e) => handleExtrasChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-blue-400 font-bold focus:ring-2 focus:ring-blue-500/50 outline-none"
                                         />
@@ -195,7 +195,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Salão de Festas (R$)</label>
                                         <input
                                             type="number"
-                                            value={selectedEmployeeRecord.salaofestas}
+                                            value={selectedEmployeeRecord.salaofestas || ''}
                                             onChange={(e) => handleSalaoChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-purple-400 font-bold focus:ring-2 focus:ring-purple-500/50 outline-none"
                                         />
