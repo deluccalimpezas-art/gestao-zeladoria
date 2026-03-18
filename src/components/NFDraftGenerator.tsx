@@ -83,7 +83,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
         : '';
 
     const emailSubject = currentCondo
-        ? `Nota Fiscal ${currentCondo.nome} ${mesVigenciaCurto}`
+        ? `Nota Fiscal ${currentCondo.nome} ${mesReferenciaCurto}`
         : '';
 
     const emailBody = currentCondo
