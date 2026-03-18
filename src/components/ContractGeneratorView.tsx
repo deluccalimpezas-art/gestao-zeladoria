@@ -63,8 +63,8 @@ export function ContractGeneratorView() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Form Col */}
-                <div className="lg:col-span-4 space-y-6 no-print lg:sticky lg:top-8 lg:self-start">
+                {/* Form Col - Follows default site scroll */}
+                <div className="lg:col-span-4 space-y-6 no-print">
                     <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-5">
                         <h3 className="text-sm font-bold text-white uppercase tracking-widest border-b border-slate-700 pb-3">Dados da Contratante</h3>
 
@@ -175,8 +175,8 @@ export function ContractGeneratorView() {
                     </div>
                 </div>
 
-                {/* Print Col (A4 format) */}
-                <div className="lg:col-span-8 overflow-auto pb-10">
+                {/* Print Col (A4 format) - Independent scrolling system */}
+                <div className="lg:col-span-8 lg:sticky lg:top-8 h-[calc(100vh-180px)] overflow-y-auto pr-2 custom-scrollbar no-print-scroll pb-10">
                     <div id="printable-contract" className="bg-white text-black mx-auto shadow-2xl printable-area">
                         {/* Table trick for consistent margins and hiding browser header/footer */}
                         <table className="w-full border-collapse">
@@ -392,6 +392,19 @@ export function ContractGeneratorView() {
                         font-size: 11pt;
                     }
                 }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #334155;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #475569;
+                }
                 .contract-header {
                     text-align: center;
                     font-size: 14pt;
@@ -399,6 +412,10 @@ export function ContractGeneratorView() {
                     margin-bottom: 1.5cm;
                 }
                 @media print {
+                    .no-print-scroll {
+                        height: auto !important;
+                        overflow: visible !important;
+                    }
                     @page { 
                         margin: 0; /* Suppress browser header/footer */
                     }
