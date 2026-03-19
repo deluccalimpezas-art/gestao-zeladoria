@@ -129,7 +129,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const item = { ...list[index], [field]: value };
 
         if (field === 'receitaBruta') {
-            item.inssRetido = (Number(item.receitaBruta) || 0) * 0.11;
+            item.inssRetido = (Number(item.receitaBruta) || 0) * (localMonth.inssRate || 0.11);
         }
 
         if (field === 'receitaBruta' || field === 'inssRetido') {
@@ -156,6 +156,36 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             receitaLiquida: totalLiquida
         });
         setHasChanges(true);
+    };
+
+    const handleInssRateChange = (newRate: number) => {
+        const list = [...(localMonth.condominios || [])].map(c => {
+            if (c.nome?.toUpperCase() === 'TOTAL' || c.nome?.toUpperCase() === 'TOTAL GERAL') return c;
+            const inss = (Number(c.receitaBruta) || 0) * newRate;
+            return {
+                ...c,
+                inssRetido: inss,
+                receitaLiquida: (Number(c.receitaBruta) || 0) - inss
+            };
+        });
+
+        // Recalcular totais globais
+        const validCondos = list.filter(c =>
+            c.nome?.toUpperCase() !== 'TOTAL' &&
+            c.nome?.toUpperCase() !== 'TOTAL GERAL'
+        );
+        const totalBruto = validCondos.reduce((acc, c) => acc + (Number(c.receitaBruta) || 0), 0);
+        const totalInss = validCondos.reduce((acc, c) => acc + (Number(c.inssRetido) || 0), 0);
+        const totalLiquida = totalBruto - totalInss;
+
+        updateHistory({
+            ...localMonth,
+            inssRate: newRate,
+            condominios: list,
+            receitaBruta: totalBruto,
+            inssRetido: totalInss,
+            receitaLiquida: totalLiquida
+        });
     };
 
     const openNfModal = (condoIndex: number) => {
@@ -598,16 +628,35 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                     <div className="flex flex-wrap items-center gap-3">
                                         <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Bruto:</span>
-                                            <span className="text-xs font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
+                                            <span className="text-sm font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
                                         </div>
                                         <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">INSS:</span>
-                                            <span className="text-xs font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
+                                            <span className="text-sm font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
                                         </div>
                                         <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 shadow-sm">
-                                            <span className="text-[9px] text-emerald-500 uppercase font-bold tracking-wider">Líquido:</span>
-                                            <span className="text-sm font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                            <span className="text-[10px] text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
+                                            <span className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                        </div>
+                                        
+                                        {/* INSS Rate Toggle */}
+                                        <div className="flex items-center gap-2 ml-2 pl-4 border-l border-slate-700">
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Taxa INSS</span>
+                                            <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50 scale-90 origin-left">
+                                                <button 
+                                                    onClick={() => handleInssRateChange(0.11)}
+                                                    className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                >
+                                                    11%
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleInssRateChange(0.13)}
+                                                    className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                >
+                                                    13%
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     

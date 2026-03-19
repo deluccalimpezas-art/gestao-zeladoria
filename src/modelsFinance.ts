@@ -77,6 +77,7 @@ export interface MonthlyFinanceData {
     condominios?: CondominioData[];
 
     // Lista de funcionários e obrigações
+    inssRate?: number;
     funcionarios?: FuncionarioData[];
     impostos?: ImpostoData[];
 }
