@@ -22,16 +22,17 @@ import {
     User,
     Loader2
 } from 'lucide-react';
-import type { MasterRHData } from '../modelsFinance';
+import type { MasterRHData, FuncionarioData } from '../modelsFinance';
 
 interface CompanyRHViewProps {
     data: MasterRHData;
     onSave: (updated: MasterRHData) => Promise<{ success: boolean; error?: string } | void>;
 }
 
+type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar';
 type RegistrationCategory = 'Todos' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar';
 
-const STATUS_MAP: Record<string, RegistrationCategory> = {
+const STATUS_MAP: Record<RegistrationStatus, RegistrationCategory> = {
     'registrada': 'Registradas',
     'precisa_registrar': 'Precisa Registrar',
     'em_processo': 'Em Processo',
@@ -65,7 +66,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         return 'Precisa Registrar'; // Default fallback
     };
 
-    const handleStatusChange = async (employeeId: string, newStatus: string) => {
+    const handleStatusChange = async (employeeId: string, newStatus: RegistrationStatus) => {
         setIsSaving(employeeId);
         try {
             const updatedFuncionarios = data.funcionarios.map(f => 
@@ -196,15 +197,15 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             {/* Employee List (Rows) */}
             <div className="space-y-3 pb-12">
                 {employees.length > 0 ? (
-                    employees.map((employee) => {
-                        const isExpanded = expandedRows.has(employee.id);
+                    employees.map((employee: FuncionarioData) => {
+                        const isExpanded = employee.id ? expandedRows.has(employee.id) : false;
                         const category = getCategory(employee.statusClt);
                         
                         return (
-                            <div key={employee.id} className="group overflow-hidden">
+                            <div key={employee.id || Math.random()} className="group overflow-hidden">
                                 {/* Row Header */}
                                 <div 
-                                    onClick={() => toggleRow(employee.id)}
+                                    onClick={() => employee.id && toggleRow(employee.id)}
                                     className={`relative flex items-center justify-between p-4 bg-slate-800/30 border ${isExpanded ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-slate-700/50 hover:bg-slate-800/60'} rounded-3xl transition-all cursor-pointer select-none`}
                                 >
                                     <div className="flex items-center gap-4 flex-1">
@@ -237,7 +238,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                 </div>
 
                                 {/* Expandable Content */}
-                                {isExpanded && (
+                                {isExpanded && employee.id && (
                                     <div className="mx-6 px-8 py-6 bg-slate-800/40 border-x border-b border-indigo-500/20 rounded-b-[2rem] -mt-4 pt-10 animate-in slide-in-from-top-4 duration-300">
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                                             <div className="space-y-4">
@@ -245,13 +246,13 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                     <UserCheck className="w-3.5 h-3.5 text-indigo-400" /> Status CLT (Troque Aqui)
                                                 </p>
                                                 <div className="flex flex-col gap-2">
-                                                    {Object.entries(STATUS_MAP).map(([val, label]) => (
+                                                    {(Object.entries(STATUS_MAP) as [RegistrationStatus, RegistrationCategory][]).map(([val, label]) => (
                                                         <button
                                                             key={val}
                                                             disabled={isSaving === employee.id}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                handleStatusChange(employee.id, val);
+                                                                if (employee.id) handleStatusChange(employee.id, val);
                                                             }}
                                                             className={`flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${employee.statusClt === val ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}
                                                         >
