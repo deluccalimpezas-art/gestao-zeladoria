@@ -1,19 +1,21 @@
-import { getCondominios, getFinanceMonths } from './actions'
+import { getCondominios, getFinanceMonths, getFuncionarios } from './actions'
 import MainContent from '@/components/MainContent'
 
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
     try {
-        const [condominios, financeMonths] = await Promise.all([
+        const [condominios, financeMonths, funcionarios] = await Promise.all([
             getCondominios(),
             getFinanceMonths(),
+            getFuncionarios(),
         ]);
 
         return (
             <MainContent
                 initialCondos={condominios}
                 initialFinanceMonths={financeMonths}
+                initialFuncs={funcionarios}
             />
         );
     } catch (error: any) {

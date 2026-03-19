@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Briefcase,
+    Building2,
     Users,
     Menu,
     Search,
@@ -20,6 +21,7 @@ import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
 import { gerarAlertasRH, gerarAlertasCondominios } from '@/lib/alertEngine';
 import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { RHManagerView } from '@/components/RHManagerView';
+import { CompanyRHView } from '@/components/CompanyRHView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
 import { ContractGeneratorView } from './ContractGeneratorView';
 import { PaymentGeneratorView } from './PaymentGeneratorView';
@@ -40,17 +42,18 @@ import {
 interface MainContentProps {
     initialCondos: any[];
     initialFinanceMonths: any[];
+    initialFuncs: any[];
 }
 
-export default function MainContent({ initialCondos, initialFinanceMonths }: MainContentProps) {
+export default function MainContent({ initialCondos, initialFinanceMonths, initialFuncs }: MainContentProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'rh' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
-        funcionarios: initialCondos?.flatMap((c: any) => c.funcionarios) || [],
+        funcionarios: initialFuncs || [],
         ultimaAtualizacao: new Date().toISOString()
     });
 
@@ -242,8 +245,17 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 onClick={() => setActiveTab('rh')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'rh' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
-                                <Users className="w-5 h-5 flex-shrink-0" />
+                                <Building2 className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Base de Dados RH</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('rh_empresa')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'rh_empresa' ? 'bg-blue-600/10 text-blue-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Users className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">RH da Empresa</span>}
                             </button>
                         </li>
                     </ul>
@@ -379,6 +391,30 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                         <RHManagerView
                             data={masterRH}
                             onSave={async (updated) => {
+                                // Sanitização: Resolve IDs de condomínios por nome se faltarem
+                                const sanitizedFuncs = updated.funcionarios.map(f => {
+                                    if (!f.condominioId && f.condominio && f.condominio !== 'Sede' && f.condominio !== 'Gerente' && f.condominio !== 'Volante') {
+                                        const condo = updated.condominios.find(c => c.nome === f.condominio);
+                                        if (condo) return { ...f, condominioId: condo.id };
+                                    }
+                                    return f;
+                                });
+                                const finalData = { ...updated, funcionarios: sanitizedFuncs };
+                                const res = await saveMasterRH(finalData);
+                                if (res && !res.success) {
+                                    alert("Falha ao salvar no banco: " + res.error);
+                                } else {
+                                    setMasterRH(finalData);
+                                }
+                                return res;
+                            }}
+                            onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
+                            availableMonths={financeMonths.map(m => m.monthName)}
+                        />
+                    ) : activeTab === 'rh_empresa' ? (
+                        <CompanyRHView
+                            data={masterRH}
+                            onSave={async (updated) => {
                                 const res = await saveMasterRH(updated);
                                 if (res && !res.success) {
                                     alert("Falha ao salvar no banco: " + res.error);
@@ -387,8 +423,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths }: Mai
                                 }
                                 return res;
                             }}
-                            onImportFromMonth={(monthName) => setImportConfirm({ monthName })}
-                            availableMonths={financeMonths.map(m => m.monthName)}
                         />
                     ) : activeTab === 'cronograma' ? (
                         <ScheduleView />

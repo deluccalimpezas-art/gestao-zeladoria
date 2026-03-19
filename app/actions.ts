@@ -3,6 +3,16 @@
 import prisma from '../src/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
+export async function getFuncionarios() {
+    const raw = await prisma.funcionario.findMany();
+    return raw.map((f: any) => ({
+        ...f,
+        salario: f.salarioBase || 0,
+        condominio: f.condominioNome || '',
+        contratoPdf: f.contratoPdf ? f.contratoPdf.toString('base64') : null
+    }));
+}
+
 // Master RH: Condominios
 export async function getCondominios() {
     const raw = await (prisma.condominio as any).findMany({
@@ -110,18 +120,25 @@ export async function upsertFuncionario(data: any) {
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
-        const isSpecial = cId === 'Gerente' || cId === 'Volante';
+        const isSpecial = cId === 'Gerente' || cId === 'Volante' || cId === 'Sede';
 
         if (isSpecial) {
             cId = null;
-        } else if (!cId && condominio) {
-            const c = await (prisma.condominio as any).findFirst({ where: { nome: condominio } });
-            if (c) cId = c.id;
+        } else if (cId) {
+            // Validate if cId is a valid UUID and exists
+            const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cId);
+            if (isValidUuid) {
+                const exists = await (prisma.condominio as any).findUnique({ where: { id: cId } });
+                if (!exists) cId = null; 
+            } else {
+                cId = null; // Invalid UUID format, treat as null
+            }
         }
 
-        if (!cId && !isSpecial) {
-            console.error(`Não foi possível salvar funcionário ${nome} pois o condomínio "${condominio}" não foi encontrado no banco.`);
-            return { success: false, error: "Condomínio não encontrado." };
+        // If cId is still null, try to resolve by name
+        if (!cId && condominio) {
+            const c = await (prisma.condominio as any).findFirst({ where: { nome: condominio } });
+            if (c) cId = c.id;
         }
 
         const result = await (prisma.funcionario as any).upsert({
