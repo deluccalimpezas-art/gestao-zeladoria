@@ -788,7 +788,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <td className="px-1 py-2 text-center">
                                                         <button
                                                             onClick={() => toggleNoteRow(`condo-${condo.originalIndex}`)}
-                                                            className={`p-1 rounded transition-colors ${expandedNoteRows.has(`condo-${condo.originalIndex}`) ? 'text-yellow-400' : (condo.observacao ? 'text-yellow-500/70' : 'text-slate-600 hover:text-slate-400')}`}
+                                                            className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`condo-${condo.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (condo.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
                                                             title="Observação"
                                                         >
                                                             <StickyNote className="w-3.5 h-3.5" />
@@ -962,7 +962,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <td className="px-1 py-2 text-center">
                                                         <button
                                                             onClick={() => toggleNoteRow(`func-${func.originalIndex}`)}
-                                                            className={`p-1 rounded transition-colors ${expandedNoteRows.has(`func-${func.originalIndex}`) ? 'text-yellow-400' : (func.observacao ? 'text-yellow-500/70' : 'text-slate-600 hover:text-slate-400')}`}
+                                                            className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`func-${func.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (func.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
                                                             title="Observação"
                                                         >
                                                             <StickyNote className="w-3.5 h-3.5" />
@@ -1007,17 +1007,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 </table>
                             </div>
 
-                        {/* Observações - Funcionários */}
-                        <div className="p-6 border-t border-slate-700/50">
-                            <label className="block text-[10px] uppercase font-black text-slate-500 tracking-widest mb-2">📝 Observações — Funcionários</label>
-                            <textarea
-                                value={localMonth.observacoesFuncionarios || ''}
-                                onChange={(e) => updateHistory({ ...localMonth, observacoesFuncionarios: e.target.value })}
-                                rows={4}
-                                placeholder="Anote aqui qualquer observação sobre a folha deste mês: faltas justificadas, horas extras, acordos, funcionários em experiência, etc."
-                                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 resize-y transition-all min-h-[96px]"
-                            />
-                        </div>
                     </div>
                     )}
 
