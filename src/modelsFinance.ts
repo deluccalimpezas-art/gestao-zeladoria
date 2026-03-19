@@ -81,8 +81,17 @@ export interface MonthlyFinanceData {
     funcionarios?: FuncionarioData[];
     impostos?: ImpostoData[];
 }
+export interface CandidatoData {
+    id: string;
+    nome: string;
+    telefone: string;
+    observacao?: string;
+    dataRegistro?: string;
+}
+
 export interface MasterRHData {
     condominios: CondominioData[];
     funcionarios: FuncionarioData[];
+    candidatos?: CandidatoData[];
     ultimaAtualizacao: string;
 }
