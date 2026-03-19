@@ -62,7 +62,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         salario: 0,
         totalReceber: 0,
         statusClt: 'precisa_registrar',
-        condominio: 'Sede'
+        condominio: ''
     });
 
     const toggleRow = (id: string) => {
@@ -162,7 +162,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         const res = await onSave({ ...data, funcionarios: [fresh, ...data.funcionarios] });
         if (!res || res.success) {
             setIsAddModalOpen(false);
-            setNewEmployee({ nome: '', cargo: '', salario: 0, statusClt: 'precisa_registrar', condominio: 'Sede' });
+            setNewEmployee({ nome: '', cargo: '', salario: 0, statusClt: 'precisa_registrar', condominio: '' });
         }
     };
 
@@ -299,19 +299,19 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         <div className={`p-2.5 rounded-xl border ${isExpanded ? 'bg-indigo-600 text-white' : 'bg-slate-900 border-slate-700 text-indigo-400'}`}>
                                             <User className="w-5 h-5" />
                                         </div>
-                                        <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-6 flex-1">
-                                            <div className="min-w-[200px]">
-                                                <h3 className="font-black text-white uppercase tracking-tight truncate">{employee.nome}</h3>
+                                            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-6 flex-1">
+                                                <div className="min-w-[200px]">
+                                                    <h3 className="font-black text-white uppercase tracking-tight truncate">{employee.nome}</h3>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate min-w-[150px]">
+                                                    <Building className="w-3.5 h-3.5 opacity-40" />
+                                                    {employee.condominio || 'Não Definido'}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight min-w-[120px]">
+                                                    <DollarSign className="w-3.5 h-3.5 opacity-40" />
+                                                    {formatCurrency(employee.salario || 0)}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-black uppercase tracking-widest min-w-[150px]">
-                                                <Briefcase className="w-3.5 h-3.5 opacity-40" />
-                                                {employee.cargo || 'Staff'}
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate min-w-[150px]">
-                                                <Building className="w-3.5 h-3.5 opacity-40" />
-                                                {employee.condominio || 'Sede'}
-                                            </div>
-                                        </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         {employee.deleted ? (
@@ -343,7 +343,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
-                                                    <div className="space-y-1.5">
+                                                    <div className="space-y-1.5 hidden">
                                                         <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Cargo / Função</label>
                                                         <input 
                                                             type="text" 
@@ -370,7 +370,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                     <div className="space-y-1.5">
                                                         <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
                                                         <select 
-                                                            value={inlineEditingData[employee.id!].condominio || 'Sede'}
+                                                            value={inlineEditingData[employee.id!].condominio || ''}
                                                             onChange={(e) => {
                                                                 const name = e.target.value;
                                                                 const condo = data.condominios.find(c => c.nome === name);
@@ -381,10 +381,14 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             }}
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none appearance-none"
                                                         >
-                                                            <option value="Sede">🏠 Sede</option>
+                                                            <option value="">Selecione um Condomínio</option>
                                                             <option value="Gerente">👔 Gerente</option>
                                                             <option value="Volante">🚗 Volante</option>
-                                                            {data.condominios.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
+                                                            {data.condominios
+                                                                .filter(c => c.nome !== 'Sede')
+                                                                .sort((a, b) => a.nome.localeCompare(b.nome))
+                                                                .map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)
+                                                            }
                                                         </select>
                                                     </div>
                                                     <div className="space-y-1.5">
@@ -507,7 +511,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         placeholder="Digite o nome..."
                                     />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 hidden">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cargo / Função</label>
                                     <input 
                                         type="text" value={newEmployee.cargo || ''} 
@@ -527,14 +531,18 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
                                     <select 
-                                        value={newEmployee.condominio || 'Sede'} 
+                                        value={newEmployee.condominio || ''} 
                                         onChange={e => setNewEmployee({...newEmployee, condominio: e.target.value})}
                                         className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none appearance-none"
                                     >
-                                        <option value="Sede">Sede</option>
+                                        <option value="">Selecione um Condomínio</option>
                                         <option value="Gerente">Gerente</option>
                                         <option value="Volante">Volante</option>
-                                        {data.condominios.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
+                                        {data.condominios
+                                            .filter(c => c.nome !== 'Sede')
+                                            .sort((a, b) => a.nome.localeCompare(b.nome))
+                                            .map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)
+                                        }
                                     </select>
                                 </div>
                             </div>
