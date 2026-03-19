@@ -293,34 +293,37 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                             <div key={employee.id} className="group overflow-hidden">
                                 <div 
                                     onClick={() => employee.id && toggleRow(employee.id)}
-                                    className={`relative flex items-center justify-between p-4 bg-slate-800/30 border ${isExpanded ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-slate-700/50 hover:bg-slate-800/60'} rounded-3xl transition-all cursor-pointer select-none`}
+                                    className={`relative p-4 bg-slate-800/30 border ${isExpanded ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-slate-700/50 hover:bg-slate-800/60'} rounded-3xl transition-all cursor-pointer select-none`}
                                 >
-                                    <div className="flex items-center gap-4 flex-1">
+                                    <div className="grid grid-cols-[auto_2fr_1.5fr_1fr_140px_auto] items-center gap-6">
                                         <div className={`p-2.5 rounded-xl border ${isExpanded ? 'bg-indigo-600 text-white' : 'bg-slate-900 border-slate-700 text-indigo-400'}`}>
                                             <User className="w-5 h-5" />
                                         </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_1fr] items-center gap-4 flex-1">
-                                                <div className="min-w-0">
-                                                    <h3 className="font-black text-white uppercase tracking-tight truncate">{employee.nome}</h3>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate">
-                                                    <Building className="w-3.5 h-3.5 opacity-40 shrink-0" />
-                                                    <span className="truncate">{employee.condominio || 'Não Definido'}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight">
-                                                    <DollarSign className="w-3.5 h-3.5 opacity-40 shrink-0" />
-                                                    <span>{formatCurrency(employee.salario || 0)}</span>
-                                                </div>
-                                            </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        {employee.deleted ? (
-                                            <span className="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full text-[10px] font-black uppercase tracking-tighter">Lixeira</span>
-                                        ) : (
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${category === 'Registradas' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : category === 'Precisa Registrar' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}`}>
-                                                {category}
-                                            </span>
-                                        )}
+                                        
+                                        <div className="min-w-0">
+                                            <h3 className="font-black text-white uppercase tracking-tight truncate">{employee.nome}</h3>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate">
+                                            <Building className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                                            <span className="truncate">{employee.condominio || 'Não Definido'}</span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight">
+                                            <DollarSign className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                                            <span>{formatCurrency(employee.salario || 0)}</span>
+                                        </div>
+
+                                        <div className="flex justify-end">
+                                            {employee.deleted ? (
+                                                <span className="px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full text-[10px] font-black uppercase tracking-tighter shrink-0">Lixeira</span>
+                                            ) : (
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shrink-0 ${category === 'Registradas' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : category === 'Precisa Registrar' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}`}>
+                                                    {category}
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <ChevronDown className={`w-5 h-5 text-slate-500 transition-all ${isExpanded ? 'rotate-180 text-indigo-400' : ''}`} />
                                     </div>
                                 </div>
