@@ -53,8 +53,8 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [isSaving, setIsSaving] = useState<string | null>(null);
     
-    // Modais
-    const [editingEmployee, setEditingEmployee] = useState<FuncionarioData | null>(null);
+    // Estados de edição
+    const [inlineEditingData, setInlineEditingData] = useState<Record<string, FuncionarioData>>({});
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [newEmployee, setNewEmployee] = useState<Partial<FuncionarioData>>({
         nome: '',
@@ -69,8 +69,17 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         const newExpanded = new Set(expandedRows);
         if (newExpanded.has(id)) {
             newExpanded.delete(id);
+            // Limpar dados temporários ao fechar
+            const updatedData = { ...inlineEditingData };
+            delete updatedData[id];
+            setInlineEditingData(updatedData);
         } else {
             newExpanded.add(id);
+            // Inicializar dados de edição com cópia do funcionário
+            const emp = data.funcionarios.find(f => f.id === id);
+            if (emp) {
+                setInlineEditingData(prev => ({ ...prev, [id]: { ...emp } }));
+            }
         }
         setExpandedRows(newExpanded);
     };
@@ -118,13 +127,23 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         await onSave({ ...data, funcionarios: updatedFuncionarios });
     };
 
-    const handleSaveEdit = async () => {
-        if (!editingEmployee) return;
-        const updatedFuncionarios = data.funcionarios.map(f => 
-            f.id === editingEmployee.id ? editingEmployee : f
-        );
-        const res = await onSave({ ...data, funcionarios: updatedFuncionarios });
-        if (!res || res.success) setEditingEmployee(null);
+    const handleInlineSave = async (employeeId: string) => {
+        const editData = inlineEditingData[employeeId];
+        if (!editData) return;
+        
+        setIsSaving(employeeId);
+        try {
+            const updatedFuncionarios = data.funcionarios.map(f => 
+                f.id === employeeId ? editData : f
+            );
+            await onSave({ ...data, funcionarios: updatedFuncionarios });
+            
+            // Fechar a linha após salvar (opcional, mas o usuário pediu "clicar para abrir e já editar")
+            // Vamos manter aberta mas sinalizar sucesso visualmente se necessário. 
+            // Para simplicidade, apenas mantemos aberta.
+        } finally {
+            setIsSaving(null);
+        }
     };
 
     const handleAddNew = async () => {
@@ -306,39 +325,111 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                     </div>
                                 </div>
 
-                                {isExpanded && (
+                                {isExpanded && inlineEditingData[employee.id!] && (
                                     <div className="mx-6 px-8 py-6 bg-slate-800/40 border-x border-b border-indigo-500/20 rounded-b-[2rem] -mt-4 pt-10 animate-in slide-in-from-top-4 duration-300">
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                                            {/* Column 1: Core Info */}
+                                            <div className="space-y-4 col-span-1 md:col-span-2">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Nome Completo</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={inlineEditingData[employee.id!].nome}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], nome: e.target.value }
+                                                            })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Cargo / Função</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={inlineEditingData[employee.id!].cargo || ''}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], cargo: e.target.value }
+                                                            })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Salário (R$)</label>
+                                                        <input 
+                                                            type="number" 
+                                                            value={inlineEditingData[employee.id!].salario || 0}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], salario: parseFloat(e.target.value) || 0 }
+                                                            })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
+                                                        <select 
+                                                            value={inlineEditingData[employee.id!].condominio || 'Sede'}
+                                                            onChange={(e) => {
+                                                                const name = e.target.value;
+                                                                const condo = data.condominios.find(c => c.nome === name);
+                                                                setInlineEditingData({
+                                                                    ...inlineEditingData,
+                                                                    [employee.id!]: { ...inlineEditingData[employee.id!], condominio: name, condominioId: condo?.id }
+                                                                });
+                                                            }}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none appearance-none"
+                                                        >
+                                                            <option value="Sede">🏠 Sede</option>
+                                                            <option value="Gerente">👔 Gerente</option>
+                                                            <option value="Volante">🚗 Volante</option>
+                                                            {data.condominios.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Admissão</label>
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="DD/MM/YYYY"
+                                                            value={inlineEditingData[employee.id!].dataAdmissao || ''}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], dataAdmissao: e.target.value }
+                                                            })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Column 2: Status buttons */}
                                             <div className="space-y-4">
                                                 <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest flex items-center gap-2">
                                                     <UserCheck className="w-3.5 h-3.5 text-indigo-400" /> Status CLT
                                                 </p>
-                                                <div className="flex flex-col gap-2">
+                                                <div className="flex flex-col gap-1.5">
                                                     {(Object.entries(STATUS_MAP) as [RegistrationStatus, RegistrationCategory][]).map(([val, label]) => (
                                                         <button
                                                             key={val}
                                                             disabled={isSaving === employee.id || employee.deleted}
-                                                            onClick={(e) => { e.stopPropagation(); handleStatusChange(employee.id!, val); }}
-                                                            className={`flex items-center justify-between px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${employee.statusClt === val ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'} ${employee.deleted ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                setInlineEditingData({
+                                                                    ...inlineEditingData,
+                                                                    [employee.id!]: { ...inlineEditingData[employee.id!], statusClt: val }
+                                                                });
+                                                            }}
+                                                            className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border ${inlineEditingData[employee.id!].statusClt === val ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'} ${employee.deleted ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                         >
                                                             {label}
-                                                            {employee.statusClt === val && <CheckCircle2 className="w-3 h-3" />}
+                                                            {inlineEditingData[employee.id!].statusClt === val && <CheckCircle2 className="w-3 h-3" />}
                                                         </button>
                                                     ))}
                                                 </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest flex items-center gap-2">
-                                                    <DollarSign className="w-3.5 h-3.5 text-indigo-400" /> Remuneração
-                                                </p>
-                                                <p className="text-lg font-black text-white">{formatCurrency(employee.salario || 0)}</p>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest flex items-center gap-2">
-                                                    <Calendar className="w-3.5 h-3.5 text-indigo-400" /> Admissão
-                                                </p>
-                                                <p className="text-lg font-black text-slate-300">{employee.dataAdmissao || '--/--/----'}</p>
-                                            </div>
+
+                                            {/* Column 4: Actions */}
                                             <div className="flex flex-col items-end justify-end gap-3">
                                                 {employee.deleted ? (
                                                     <div className="flex gap-2 w-full">
@@ -356,21 +447,21 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col gap-2 w-full">
-                                                        <div className="flex gap-2">
-                                                            <button 
-                                                                onClick={() => setEditingEmployee(employee)}
-                                                                className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-2xl transition-all text-[11px] font-black uppercase tracking-widest"
-                                                            >
-                                                                Editar Perfil
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => handleDelete(employee.id!)}
-                                                                className="bg-red-500/10 border border-red-500/20 hover:bg-red-500 text-red-500 hover:text-white p-3 rounded-2xl transition-all"
-                                                            >
-                                                                <Trash2 className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
+                                                    <div className="flex flex-col gap-3 w-full">
+                                                        <button 
+                                                            onClick={() => handleInlineSave(employee.id!)}
+                                                            disabled={isSaving === employee.id}
+                                                            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl transition-all text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                                                        >
+                                                            {isSaving === employee.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                                                            Salvar Alterações
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDelete(employee.id!)}
+                                                            className="w-full bg-red-500/5 border border-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-2xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" /> Mover para Lixeira
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>
@@ -389,93 +480,6 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 )}
             </div>
 
-            {/* Edit Modal */}
-            {editingEmployee && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="p-8 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-transparent">
-                            <div>
-                                <h2 className="text-2xl font-black text-white tracking-tighter flex items-center gap-3">
-                                    <User className="w-6 h-6 text-indigo-400" /> Editar Colaborador
-                                </h2>
-                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Perfil Profissional</p>
-                            </div>
-                            <button onClick={() => setEditingEmployee(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                                <X className="w-6 h-6 text-slate-400" />
-                            </button>
-                        </div>
-                        <div className="p-8 overflow-y-auto space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nome Completo</label>
-                                    <input 
-                                        type="text" value={editingEmployee.nome} 
-                                        onChange={e => setEditingEmployee({...editingEmployee, nome: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cargo / Função</label>
-                                    <input 
-                                        type="text" value={editingEmployee.cargo || ''} 
-                                        onChange={e => setEditingEmployee({...editingEmployee, cargo: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Salário Base (R$)</label>
-                                    <input 
-                                        type="number" value={editingEmployee.salario || 0} 
-                                        onChange={e => setEditingEmployee({...editingEmployee, salario: parseFloat(e.target.value) || 0})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none font-bold"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
-                                    <select 
-                                        value={editingEmployee.condominio || 'Sede'} 
-                                        onChange={e => {
-                                            const name = e.target.value;
-                                            const condo = data.condominios.find(c => c.nome === name);
-                                            setEditingEmployee({...editingEmployee, condominio: name, condominioId: condo?.id});
-                                        }}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none appearance-none"
-                                    >
-                                        <option value="Sede">Sede</option>
-                                        <option value="Gerente">Gerente</option>
-                                        <option value="Volante">Volante</option>
-                                        {data.condominios.map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Data de Admissão</label>
-                                    <input 
-                                        type="text" value={editingEmployee.dataAdmissao || ''} 
-                                        placeholder="DD/MM/YYYY"
-                                        onChange={e => setEditingEmployee({...editingEmployee, dataAdmissao: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Status CLT</label>
-                                    <select 
-                                        value={editingEmployee.statusClt} 
-                                        onChange={e => setEditingEmployee({...editingEmployee, statusClt: e.target.value as any})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none appearance-none"
-                                    >
-                                        {Object.entries(STATUS_MAP).map(([val, label]) => <option key={val} value={val}>{label}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-8 bg-slate-800/50 flex gap-4">
-                            <button onClick={handleSaveEdit} className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase text-xs tracking-widest py-4 rounded-3xl transition-all shadow-xl shadow-indigo-600/20">
-                                Salvar Alterações
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Add Modal */}
             {isAddModalOpen && (
