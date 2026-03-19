@@ -28,7 +28,9 @@ import {
     Mail,
     MapPin,
     Building2,
-    FileText
+    FileText,
+    Printer,
+    FileCheck
 } from 'lucide-react';
 import type { MasterRHData, FuncionarioData, CondominioData, CandidatoData } from '../modelsFinance';
 
@@ -37,14 +39,16 @@ interface CompanyRHViewProps {
     onSave: (updated: MasterRHData) => Promise<{ success: boolean; error?: string } | void>;
 }
 
-type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar';
-type RegistrationCategory = 'Todos' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Lixeira' | 'Candidatos';
+type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar' | 'afastada_inss' | 'ferias';
+type RegistrationCategory = 'Todos' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Lixeira';
 
 const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todos' | 'Lixeira' | 'Candidatos'>> = {
     'registrada': 'Registradas',
     'precisa_registrar': 'Precisa Registrar',
     'em_processo': 'Em Processo',
-    'nao_vai_registrar': 'Não vai Registrar'
+    'nao_vai_registrar': 'Não vai Registrar',
+    'afastada_inss': 'Afastadas INSS',
+    'ferias': 'Férias'
 };
 
 export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
@@ -70,6 +74,9 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [isAddCandidatoOpen, setIsAddCandidatoOpen] = useState(false);
     const [newCandidato, setNewCandidato] = useState({ nome: '', telefone: '', observacao: '' });
 
+    // Printing state
+    const [printingContract, setPrintingContract] = useState<{ employee: FuncionarioData, type: 'trabalho' | 'demissao' } | null>(null);
+
     const toggleRow = (id: string) => {
         const newExpanded = new Set(expandedRows);
         if (newExpanded.has(id)) {
@@ -92,6 +99,8 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const getCategory = (status: string | undefined): RegistrationCategory => {
         if (!status) return 'Precisa Registrar';
         const s = status.toLowerCase();
+        if (s === 'afastada_inss' || s.includes('afastada') || s.includes('inss')) return 'Afastadas INSS';
+        if (s === 'ferias' || s === 'férias' || s.includes('feria')) return 'Férias';
         if (s.includes('registrada') || s === 'clt') return 'Registradas';
         if (s.includes('nao') || s.includes('não') || s.includes('vai')) return 'Não vai Registrar';
         if (s.includes('precisa') || s.includes('registrar')) return 'Precisa Registrar';
@@ -159,6 +168,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             totalReceber: newEmployee.salario || 0,
             statusClt: (newEmployee.statusClt as any) || 'precisa_registrar',
             condominio: newEmployee.condominio || 'Sede',
+            condominioId: newEmployee.condominioId,
             dataAdmissao: newEmployee.dataAdmissao || '',
             deleted: false
         };
@@ -208,13 +218,15 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         { label: 'Precisa Registrar', icon: Clock, color: 'text-amber-400' },
         { label: 'Em Processo', icon: Briefcase, color: 'text-blue-400' },
         { label: 'Não vai Registrar', icon: UserMinus, color: 'text-rose-400' },
-        { label: 'Lixeira', icon: Trash2, color: 'text-red-400' },
+        { label: 'Afastadas INSS', icon: AlertCircle, color: 'text-orange-400' },
+        { label: 'Férias', icon: Calendar, color: 'text-indigo-400' },
         { label: 'Candidatos', icon: Users, color: 'text-violet-400' },
+        { label: 'Lixeira', icon: Trash2, color: 'text-red-400' },
     ];
 
     const statsByCategory = useMemo(() => {
         const counts: Record<RegistrationCategory, number> = {
-            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Lixeira': 0, 'Candidatos': 0
+            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Afastadas INSS': 0, 'Férias': 0, 'Candidatos': 0, 'Lixeira': 0
         };
         data.funcionarios.forEach(f => {
             if (f.deleted) {
@@ -540,6 +552,31 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                 </div>
                                             </div>
 
+                                            {/* Column 3: Contracts */}
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest flex items-center gap-2">
+                                                    <FileText className="w-3.5 h-3.5 text-indigo-400" /> Contratos
+                                                </p>
+                                                <div className="flex flex-col gap-2">
+                                                    {!employee.deleted ? (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setPrintingContract({ employee, type: 'trabalho' }); }}
+                                                            className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-lg shadow-indigo-500/10"
+                                                        >
+                                                            <FileCheck className="w-4 h-4" /> Contrato de Trabalho
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setPrintingContract({ employee, type: 'demissao' }); }}
+                                                            className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 border border-red-500/30 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-lg shadow-red-500/10"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" /> Contrato de Demissão
+                                                        </button>
+                                                    )}
+                                                    <p className="text-[9px] text-slate-600 text-center font-bold italic">Gera documento em A4 pronto para impressão.</p>
+                                                </div>
+                                            </div>
+
                                             {/* Column 4: Actions */}
                                             <div className="flex flex-col items-end justify-end gap-3">
                                                 {employee.deleted ? (
@@ -637,14 +674,17 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         placeholder="Digite o nome..."
                                     />
                                 </div>
-                                <div className="space-y-2 hidden">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cargo / Função</label>
-                                    <input 
-                                        type="text" value={newEmployee.cargo || ''} 
-                                        onChange={e => setNewEmployee({...newEmployee, cargo: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none"
-                                        placeholder="Ex: Auxiliar de Limpeza"
-                                    />
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Status CLT</label>
+                                    <select 
+                                        value={newEmployee.statusClt || 'precisa_registrar'} 
+                                        onChange={e => setNewEmployee({...newEmployee, statusClt: e.target.value as any})}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none appearance-none"
+                                    >
+                                        {Object.entries(STATUS_MAP).map(([val, label]) => (
+                                            <option key={val} value={val}>{label}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Salário Base (R$)</label>
@@ -658,12 +698,16 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
                                     <select 
                                         value={newEmployee.condominio || ''} 
-                                        onChange={e => setNewEmployee({...newEmployee, condominio: e.target.value})}
+                                        onChange={e => {
+                                            const name = e.target.value;
+                                            const condo = data.condominios.find(c => c.nome === name);
+                                            setNewEmployee({...newEmployee, condominio: name, condominioId: condo?.id});
+                                        }}
                                         className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none appearance-none"
                                     >
                                         <option value="">Selecione um Condomínio</option>
-                                        <option value="Gerente">Gerente</option>
-                                        <option value="Volante">Volante</option>
+                                        <option value="Gerente">👔 Gerente</option>
+                                        <option value="Volante">🚗 Volante</option>
                                         {data.condominios
                                             .filter(c => c.nome !== 'Sede')
                                             .sort((a, b) => a.nome.localeCompare(b.nome))
@@ -679,6 +723,112 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+            {/* Contract Modal */}
+            {printingContract && (
+                <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md flex flex-col items-center py-8 overflow-y-auto no-print">
+                    <div className="flex items-center justify-between w-full max-w-4xl px-6 mb-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-indigo-500/20 rounded-2xl">
+                                <FileText className="w-6 h-6 text-indigo-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-white uppercase tracking-tighter">
+                                    {printingContract.type === 'trabalho' ? 'Contrato de Trabalho' : 'Contrato de Demissão'}
+                                </h2>
+                                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{printingContract.employee.nome}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => window.print()}
+                                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-600/20 transition-all active:scale-95"
+                            >
+                                <Printer className="w-5 h-5" /> Imprimir / PDF
+                            </button>
+                            <button 
+                                onClick={() => setPrintingContract(null)}
+                                className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white text-black p-[2cm] w-[21cm] min-h-[29.7cm] shadow-2xl rounded-sm print:m-0 print:shadow-none print:w-full printable-contract">
+                        <div className="flex flex-col items-center mb-10">
+                            <div className="flex items-baseline gap-0">
+                                <span className="text-5xl font-black text-slate-900 tracking-tighter font-serif">De</span>
+                                <span className="text-5xl font-black text-indigo-600 tracking-tighter font-sans">Lucca</span>
+                            </div>
+                            <div className="text-xl text-indigo-500 -mt-2 italic font-serif">
+                                Gestão em Limpeza
+                            </div>
+                            <div className="w-24 h-1 bg-indigo-600 mt-4"></div>
+                        </div>
+
+                        <div className="space-y-8 text-sm leading-relaxed text-justify">
+                            <h1 className="text-lg font-black text-center uppercase border-b-2 border-slate-900 pb-2">
+                                {printingContract.type === 'trabalho' ? 'Contrato Individual de Trabalho' : 'Termo de Rescisão de Contrato'}
+                            </h1>
+
+                            <div className="space-y-4">
+                                <p><strong>EMPREGADOR:</strong> <span className="uppercase font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, inscrita no CNPJ sob o nº <span className="font-bold">49.909.068/0001-87</span>, com sede na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC.</p>
+                                <p><strong>EMPREGADO(A):</strong> <span className="uppercase font-bold">{printingContract.employee.nome}</span>, residente e domiciliado(a) em [ENDEREÇO], portador(a) do CPF nº [CPF].</p>
+                            </div>
+
+                            {printingContract.type === 'trabalho' ? (
+                                <div className="space-y-6">
+                                    <p><strong>Cláusula 1ª:</strong> O(A) EMPREGADO(A) é contratado(a) para exercer a função de <span className="font-bold uppercase">{printingContract.employee.cargo || 'Auxiliar de Limpeza'}</span>, devendo realizar todas as atividades inerentes ao cargo.</p>
+                                    <p><strong>Cláusula 2ª:</strong> A jornada de trabalho será de acordo com as normas da categoria, sendo inicialmente alocada no condomínio <span className="font-bold uppercase">{printingContract.employee.condominio || 'Sede'}</span>.</p>
+                                    <p><strong>Cláusula 3ª:</strong> Pela prestação dos serviços, o(a) EMPREGADO(A) receberá o salário bruto mensal de <span className="font-bold">{formatCurrency(printingContract.employee.salario)}</span>.</p>
+                                    <p><strong>Cláusula 4ª:</strong> O presente contrato tem início em <span className="font-bold">{printingContract.employee.dataAdmissao || new Date().toLocaleDateString('pt-BR')}</span>.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <p>Pelo presente instrumento, a EMPREGADORA comunica a rescisão do contrato de trabalho firmado com o(a) EMPREGADO(A) acima identificado(a).</p>
+                                    <p>A rescisão ocorre nesta data, ficando o(a) EMPREGADO(A) ciente de seus direitos e obrigações decorrentes do desligamento.</p>
+                                    <p>Data do Desligamento: <span className="font-bold">{new Date().toLocaleDateString('pt-BR')}</span>.</p>
+                                </div>
+                            )}
+
+                            <div className="pt-20 space-y-20">
+                                <div className="text-right italic">
+                                    Itapema/SC, {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date())}.
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-20">
+                                    <div className="border-t border-slate-900 pt-2 text-center">
+                                        <p className="font-bold uppercase text-[10px]">DELUCCA SERVIÇOS PREDIAIS LTDA</p>
+                                        <p className="text-[9px]">Empregador</p>
+                                    </div>
+                                    <div className="border-t border-slate-900 pt-2 text-center">
+                                        <p className="font-bold uppercase text-[10px]">{printingContract.employee.nome}</p>
+                                        <p className="text-[9px]">Empregado(a)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style dangerouslySetInnerHTML={{ __html: `
+                        @media print {
+                            body * { visibility: hidden; }
+                            .no-print { display: none !important; }
+                            .printable-contract, .printable-contract * { visibility: visible; }
+                            .printable-contract {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                width: 100%;
+                                margin: 0;
+                                padding: 2cm;
+                                box-shadow: none !important;
+                            }
+                            @page { margin: 0; }
+                        }
+                    `}} />
                 </div>
             )}
         </div>

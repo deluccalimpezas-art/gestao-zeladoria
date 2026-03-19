@@ -42,7 +42,7 @@ export interface FuncionarioData {
     vales?: number;
     faltas?: number;
     totalReceber: number;
-    statusClt?: 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar';
+    statusClt?: 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar' | 'afastada_inss' | 'ferias';
     vencimentoFerias?: string;
     fimContratoExperiencia?: string;
     dataAdmissao?: string;
