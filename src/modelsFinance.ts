@@ -80,6 +80,9 @@ export interface MonthlyFinanceData {
     inssRate?: number;
     funcionarios?: FuncionarioData[];
     impostos?: ImpostoData[];
+    // Observações livres por seção
+    observacoesCondominios?: string;
+    observacoesFuncionarios?: string;
 }
 export interface CandidatoData {
     id: string;

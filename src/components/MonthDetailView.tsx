@@ -622,214 +622,228 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     )}
 
                     {activeTab === 'condominios' && (
-                        <div className="flex flex-col">
-                            {/* Summary at Top - New Compact Layout */}
-                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700">
-                                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
-                                            <span className="text-sm font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
-                                            <span className="text-sm font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 shadow-sm">
-                                            <span className="text-[10px] text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
-                                            <span className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                        <>
+                            <div className="flex flex-col">
+                                {/* Summary at Top - New Compact Layout */}
+                                <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700">
+                                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
+                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
+                                                <span className="text-sm font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
+                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
+                                                <span className="text-sm font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 shadow-sm">
+                                                <span className="text-[10px] text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
+                                                <span className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                            </div>
+                                            
+                                            {/* INSS Rate Toggle */}
+                                            <div className="flex items-center gap-2 ml-2 pl-4 border-l border-slate-700">
+                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Taxa INSS</span>
+                                                <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50 scale-90 origin-left">
+                                                    <button 
+                                                        onClick={() => handleInssRateChange(0.11)}
+                                                        className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    >
+                                                        11%
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleInssRateChange(0.13)}
+                                                        className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    >
+                                                        13%
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                         
-                                        {/* INSS Rate Toggle */}
-                                        <div className="flex items-center gap-2 ml-2 pl-4 border-l border-slate-700">
-                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Taxa INSS</span>
-                                            <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50 scale-90 origin-left">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {/* Sorting Toolbar - More Compact */}
+                                            <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50">
                                                 <button 
-                                                    onClick={() => handleInssRateChange(0.11)}
-                                                    className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    onClick={() => setCondoSortMethod('value')}
+                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
-                                                    11%
+                                                    Valor
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleInssRateChange(0.13)}
-                                                    className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    onClick={() => setCondoSortMethod('name')}
+                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
-                                                    13%
+                                                    Nome
                                                 </button>
+                                                <button 
+                                                    onClick={() => setCondoSortMethod('status')}
+                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                >
+                                                    Pagamento
+                                                </button>
+                                            </div>
+                                            <button
+                                                onClick={addCondo}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/10"
+                                            >
+                                                <Plus className="w-3 h-3" /> Condomínio
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm text-slate-300 border-collapse">
+                                        <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
+                                            <tr>
+                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[180px]">Condomínio / CNPJ</th>
+                                                <th className="px-1 py-3 text-center w-8 text-slate-400" title="Ver Detalhes da Nota Fiscal">NF</th>
+                                                <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfFeita ? 'text-amber-300' : 'text-slate-400'}`} title="NF Feita">Feita</th>
+                                                <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfEnviada ? 'text-amber-300' : 'text-slate-400'}`} title="NF Enviada">Env.</th>
+                                                <th className={`px-1 py-3 text-center w-10 transition-colors ${allPagamento ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagamento Realizado">Pagt.</th>
+                                                <th className="px-2 py-3 text-right text-slate-400 w-28">Bruto</th>
+                                                <th className="px-2 py-3 text-right text-slate-400 w-28">INSS</th>
+                                                <th className="px-2 py-3 text-right font-bold text-slate-400 w-28">Líquido</th>
+                                                <th className="px-2 py-3 w-8"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-700/50">
+                                            {sortedCondos?.map((condo) => (
+                                                <tr key={condo.originalIndex} className="hover:bg-slate-700/10 group h-14">
+                                                    <td className="px-2 py-2">
+                                                        <div className="flex flex-col gap-0.5 w-full max-w-[250px]">
+                                                            <input
+                                                                value={condo.nome}
+                                                                onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
+                                                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-black text-sm uppercase tracking-tight truncate"
+                                                                placeholder="Nome"
+                                                                title={condo.nome}
+                                                            />
+                                                            <div className="flex items-center gap-1 px-1">
+                                                                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter shrink-0">CNPJ:</span>
+                                                                <input
+                                                                    value={condo.cnpj || ''}
+                                                                    onChange={(e) => updateCondo(condo.originalIndex, 'cnpj', e.target.value)}
+                                                                    className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-slate-500 font-mono text-[10px]"
+                                                                    placeholder="00.000.../0000-00"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-1 py-2 text-center">
+                                                        <button
+                                                            onClick={() => openNfModal(condo.originalIndex)}
+                                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center mx-auto ${condo.notaFiscal && condo.notaFiscal.valor > 0 ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                                                            title="Detalhes da Nota Fiscal"
+                                                        >
+                                                            <FileText className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                    <td className="px-1 py-2 text-center">
+                                                        <button
+                                                            onClick={() => updateCondo(condo.originalIndex, 'nfFeita', !condo.nfFeita)}
+                                                            className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfFeita ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        />
+                                                    </td>
+                                                    <td className="px-1 py-2 text-center">
+                                                        <button
+                                                            onClick={() => updateCondo(condo.originalIndex, 'nfEnviada', !condo.nfEnviada)}
+                                                            className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfEnviada ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        />
+                                                    </td>
+                                                    <td className="px-1 py-2 text-center">
+                                                        <button
+                                                            onClick={() => updateCondo(condo.originalIndex, 'pagamentoFeito', !condo.pagamentoFeito)}
+                                                            className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-2 text-right">
+                                                        <CurrencyField
+                                                            value={condo.receitaBruta || 0}
+                                                            onChange={(val) => updateCondo(condo.originalIndex, 'receitaBruta', val)}
+                                                            textColor="text-white"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-2 text-right">
+                                                        <div className="px-2 py-1 font-bold text-red-400 bg-red-400/5 rounded inline-block min-w-[100px] text-xs">
+                                                            {formatCurrency(condo.inssRetido || 0)}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-2 py-2 text-right">
+                                                        <div className="px-2 py-1 font-bold text-emerald-400 bg-emerald-400/5 rounded inline-block min-w-[100px] text-xs">
+                                                            {formatCurrency(condo.receitaLiquida)}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-2 py-2 text-center">
+                                                        <button
+                                                            onClick={() => removeCondo(condo.originalIndex)}
+                                                            className="p-1 text-slate-600 hover:text-red-500 transition-colors"
+                                                            title="Remover"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Bottom Payment Summary */}
+                                <div className="p-8 bg-slate-900/40 border-t border-slate-700 mt-auto">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Recebido</p>
+                                                <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPaid)}</h4>
+                                            </div>
+                                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                                                <Check className="w-5 h-5" />
+                                            </div>
+                                        </div>
+                                        <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Total Pendente</p>
+                                                <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPending)}</h4>
+                                            </div>
+                                            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                                                <Activity className="w-5 h-5" />
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Condomínios Pagos</p>
+                                                <h4 className="text-lg font-black text-white">{paymentStats.countPaid} <span className="text-slate-600 text-xs font-bold">/ {paymentStats.totalCount}</span></h4>
+                                            </div>
+                                            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                                <Check className="w-5 h-5" />
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                                            <div>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
+                                                <h4 className="text-lg font-black text-amber-500">{paymentStats.countUnpaid}</h4>
+                                            </div>
+                                            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
+                                                <Activity className="w-5 h-5" />
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        {/* Sorting Toolbar - More Compact */}
-                                        <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50">
-                                            <button 
-                                                onClick={() => setCondoSortMethod('value')}
-                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                            >
-                                                Valor
-                                            </button>
-                                            <button 
-                                                onClick={() => setCondoSortMethod('name')}
-                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                            >
-                                                Nome
-                                            </button>
-                                            <button 
-                                                onClick={() => setCondoSortMethod('status')}
-                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                            >
-                                                Pagamento
-                                            </button>
-                                        </div>
-                                        <button
-                                            onClick={addCondo}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/10"
-                                        >
-                                            <Plus className="w-3 h-3" /> Condomínio
-                                        </button>
-                                    </div>
                                 </div>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm text-slate-300 border-collapse">
-                                    <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
-                                        <tr>
-                                            <th className="px-2 py-3 w-auto text-slate-400 min-w-[180px]">Condomínio / CNPJ</th>
-                                            <th className="px-1 py-3 text-center w-8 text-slate-400" title="Ver Detalhes da Nota Fiscal">NF</th>
-                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfFeita ? 'text-amber-300' : 'text-slate-400'}`} title="NF Feita">Feita</th>
-                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allNfEnviada ? 'text-amber-300' : 'text-slate-400'}`} title="NF Enviada">Env.</th>
-                                            <th className={`px-1 py-3 text-center w-10 transition-colors ${allPagamento ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagamento Realizado">Pagt.</th>
-                                            <th className="px-2 py-3 text-right text-slate-400 w-28">Bruto</th>
-                                            <th className="px-2 py-3 text-right text-slate-400 w-28">INSS</th>
-                                            <th className="px-2 py-3 text-right font-bold text-slate-400 w-28">Líquido</th>
-                                            <th className="px-2 py-3 w-8"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-700/50">
-                                        {sortedCondos?.map((condo) => (
-                                            <tr key={condo.originalIndex} className="hover:bg-slate-700/10 group h-14">
-                                                <td className="px-2 py-2">
-                                                    <div className="flex flex-col gap-0.5 w-full max-w-[250px]">
-                                                        <input
-                                                            value={condo.nome}
-                                                            onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-black text-sm uppercase tracking-tight truncate"
-                                                            placeholder="Nome"
-                                                            title={condo.nome}
-                                                        />
-                                                        <div className="flex items-center gap-1 px-1">
-                                                            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter shrink-0">CNPJ:</span>
-                                                            <input
-                                                                value={condo.cnpj || ''}
-                                                                onChange={(e) => updateCondo(condo.originalIndex, 'cnpj', e.target.value)}
-                                                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-slate-500 font-mono text-[10px]"
-                                                                placeholder="00.000.../0000-00"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-1 py-2 text-center">
-                                                    <button
-                                                        onClick={() => openNfModal(condo.originalIndex)}
-                                                        className={`p-1.5 rounded-lg transition-colors flex items-center justify-center mx-auto ${condo.notaFiscal && condo.notaFiscal.valor > 0 ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
-                                                        title="Detalhes da Nota Fiscal"
-                                                    >
-                                                        <FileText className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </td>
-                                                <td className="px-1 py-2 text-center">
-                                                    <button
-                                                        onClick={() => updateCondo(condo.originalIndex, 'nfFeita', !condo.nfFeita)}
-                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfFeita ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
-                                                    />
-                                                </td>
-                                                <td className="px-1 py-2 text-center">
-                                                    <button
-                                                        onClick={() => updateCondo(condo.originalIndex, 'nfEnviada', !condo.nfEnviada)}
-                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.nfEnviada ? 'bg-amber-300 shadow-sm' : 'bg-slate-700/40'}`}
-                                                    />
-                                                </td>
-                                                <td className="px-1 py-2 text-center">
-                                                    <button
-                                                        onClick={() => updateCondo(condo.originalIndex, 'pagamentoFeito', !condo.pagamentoFeito)}
-                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${condo.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
-                                                    />
-                                                </td>
-                                                <td className="px-2 py-2 text-right">
-                                                    <CurrencyField
-                                                        value={condo.receitaBruta || 0}
-                                                        onChange={(val) => updateCondo(condo.originalIndex, 'receitaBruta', val)}
-                                                        textColor="text-white"
-                                                    />
-                                                </td>
-                                                <td className="px-2 py-2 text-right">
-                                                    <div className="px-2 py-1 font-bold text-red-400 bg-red-400/5 rounded inline-block min-w-[100px] text-xs">
-                                                        {formatCurrency(condo.inssRetido || 0)}
-                                                    </div>
-                                                </td>
-                                                <td className="px-2 py-2 text-right">
-                                                    <div className="px-2 py-1 font-bold text-emerald-400 bg-emerald-400/5 rounded inline-block min-w-[100px] text-xs">
-                                                        {formatCurrency(condo.receitaLiquida)}
-                                                    </div>
-                                                </td>
-                                                <td className="px-2 py-2 text-center">
-                                                    <button
-                                                        onClick={() => removeCondo(condo.originalIndex)}
-                                                        className="p-1 text-slate-600 hover:text-red-500 transition-colors"
-                                                        title="Remover"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
                             </div>
 
-                            {/* Bottom Payment Summary */}
-                            <div className="p-8 bg-slate-900/40 border-t border-slate-700 mt-auto">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Recebido</p>
-                                            <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPaid)}</h4>
-                                        </div>
-                                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
-                                            <Check className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                    <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Total Pendente</p>
-                                            <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPending)}</h4>
-                                        </div>
-                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
-                                            <Activity className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Condomínios Pagos</p>
-                                            <h4 className="text-lg font-black text-white">{paymentStats.countPaid} <span className="text-slate-600 text-xs font-bold">/ {paymentStats.totalCount}</span></h4>
-                                        </div>
-                                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-                                            <Check className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
-                                            <h4 className="text-lg font-black text-amber-500">{paymentStats.countUnpaid}</h4>
-                                        </div>
-                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
-                                            <Activity className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                </div>
+                            {/* Observações - Condomínios */}
+                            <div className="p-6 border-t border-slate-700/50">
+                                <label className="block text-[10px] uppercase font-black text-slate-500 tracking-widest mb-2">📝 Observações — Condomínios</label>
+                                <textarea
+                                    value={localMonth.observacoesCondominios || ''}
+                                    onChange={(e) => updateHistory({ ...localMonth, observacoesCondominios: e.target.value })}
+                                    rows={4}
+                                    placeholder="Anote aqui qualquer observação sobre os condomínios deste mês: pagamentos pendentes, contratos a renovar, condôminos problemáticos, etc."
+                                    className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-y transition-all min-h-[96px]"
+                                />
                             </div>
-                        </div>
+                        </>
                     )}
 
                     {activeTab === 'folha' && (
@@ -943,7 +957,19 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </tfoot>
                                 </table>
                             </div>
+
+                        {/* Observações - Funcionários */}
+                        <div className="p-6 border-t border-slate-700/50">
+                            <label className="block text-[10px] uppercase font-black text-slate-500 tracking-widest mb-2">📝 Observações — Funcionários</label>
+                            <textarea
+                                value={localMonth.observacoesFuncionarios || ''}
+                                onChange={(e) => updateHistory({ ...localMonth, observacoesFuncionarios: e.target.value })}
+                                rows={4}
+                                placeholder="Anote aqui qualquer observação sobre a folha deste mês: faltas justificadas, horas extras, acordos, funcionários em experiência, etc."
+                                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-3 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 resize-y transition-all min-h-[96px]"
+                            />
                         </div>
+                    </div>
                     )}
 
                     {activeTab === 'impostos' && (
