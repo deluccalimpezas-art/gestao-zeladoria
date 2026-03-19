@@ -428,8 +428,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const paid = validCondos.filter(c => c.pagamentoFeito);
         const unpaid = validCondos.filter(c => !c.pagamentoFeito);
         const totalPaid = paid.reduce((acc, c) => acc + (Number(c.receitaLiquida) || 0), 0);
+        const totalPending = unpaid.reduce((acc, c) => acc + (Number(c.receitaLiquida) || 0), 0);
         return { 
             totalPaid, 
+            totalPending,
             countPaid: paid.length, 
             countUnpaid: unpaid.length,
             totalCount: validCondos.length
@@ -591,50 +593,51 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                     {activeTab === 'condominios' && (
                         <div className="flex flex-col">
-                            {/* Summary at Top */}
-                            <div className="p-6 bg-slate-900/40 border-b border-slate-700">
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                    <div className="flex flex-wrap gap-4">
-                                        <div className="px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 min-w-[140px]">
-                                            <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Total Bruto</p>
-                                            <p className="text-lg font-black text-white">{formatCurrency(currentTotals.bruto)}</p>
+                            {/* Summary at Top - New Compact Layout */}
+                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700">
+                                <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
+                                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Bruto:</span>
+                                            <span className="text-xs font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
                                         </div>
-                                        <div className="px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 min-w-[140px]">
-                                            <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Total INSS</p>
-                                            <p className="text-lg font-black text-red-400">{formatCurrency(currentTotals.inss)}</p>
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
+                                            <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">INSS:</span>
+                                            <span className="text-xs font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
                                         </div>
-                                        <div className="px-4 py-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 min-w-[140px] shadow-lg shadow-emerald-500/5">
-                                            <p className="text-[10px] text-emerald-500 uppercase font-black mb-1">Total Líquido</p>
-                                            <p className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</p>
+                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 shadow-sm">
+                                            <span className="text-[9px] text-emerald-500 uppercase font-bold tracking-wider">Líquido:</span>
+                                            <span className="text-sm font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                                        {/* Sorting Toolbar */}
-                                        <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 w-full md:w-auto">
+                                    
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {/* Sorting Toolbar - More Compact */}
+                                        <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50">
                                             <button 
                                                 onClick={() => setCondoSortMethod('value')}
-                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                             >
-                                                Por Valor
+                                                Valor
                                             </button>
                                             <button 
                                                 onClick={() => setCondoSortMethod('name')}
-                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                             >
-                                                Alfabetica
+                                                Nome
                                             </button>
                                             <button 
                                                 onClick={() => setCondoSortMethod('status')}
-                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                                className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                             >
-                                                Por Pagamento
+                                                Pagamento
                                             </button>
                                         </div>
                                         <button
                                             onClick={addCondo}
-                                            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20 active:scale-95"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/10"
                                         >
-                                            <Plus className="w-4 h-4" /> Novo Condomínio
+                                            <Plus className="w-3 h-3" /> Condomínio
                                         </button>
                                     </div>
                                 </div>
@@ -662,7 +665,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         <input
                                                             value={condo.nome}
                                                             onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-bold text-xs truncate"
+                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-black text-sm uppercase tracking-tight truncate"
                                                             placeholder="Nome"
                                                             title={condo.nome}
                                                         />
@@ -738,32 +741,41 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                             {/* Bottom Payment Summary */}
                             <div className="p-8 bg-slate-900/40 border-t border-slate-700 mt-auto">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-2xl flex items-center justify-between">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Recebido</p>
-                                            <h4 className="text-2xl font-black text-white">{formatCurrency(paymentStats.totalPaid)}</h4>
+                                            <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Recebido</p>
+                                            <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPaid)}</h4>
                                         </div>
-                                        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                                            <Wallet className="w-6 h-6" />
+                                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                                            <Check className="w-5 h-5" />
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex items-center justify-between">
+                                    <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Condomínios Pagos</p>
-                                            <h4 className="text-2xl font-black text-white">{paymentStats.countPaid} <span className="text-slate-600 text-sm font-bold">/ {paymentStats.totalCount}</span></h4>
+                                            <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Total Pendente</p>
+                                            <h4 className="text-xl font-black text-white">{formatCurrency(paymentStats.totalPending)}</h4>
                                         </div>
-                                        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-                                            <Check className="w-6 h-6" />
+                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                                            <Activity className="w-5 h-5" />
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex items-center justify-between">
+                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
-                                            <h4 className="text-2xl font-black text-amber-500">{paymentStats.countUnpaid}</h4>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Condomínios Pagos</p>
+                                            <h4 className="text-lg font-black text-white">{paymentStats.countPaid} <span className="text-slate-600 text-xs font-bold">/ {paymentStats.totalCount}</span></h4>
                                         </div>
-                                        <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
-                                            <Activity className="w-6 h-6" />
+                                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                            <Check className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
+                                            <h4 className="text-lg font-black text-amber-500">{paymentStats.countUnpaid}</h4>
+                                        </div>
+                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
+                                            <Activity className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </div>
