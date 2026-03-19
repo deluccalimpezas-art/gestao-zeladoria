@@ -19,6 +19,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [historyIndex, setHistoryIndex] = useState(0);
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+    const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('value');
 
     const onSaveRef = useRef(onSave);
     useEffect(() => {
@@ -343,11 +344,23 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
 
     const sortedCondos = useMemo(() => {
-        return (localMonth.condominios || [])
+        const base = (localMonth.condominios || [])
             .map((c, originalIndex) => ({ ...c, originalIndex }))
-            .filter(c => c.nome?.toUpperCase() !== 'TOTAL' && c.nome?.toUpperCase() !== 'TOTAL GERAL')
-            .sort((a, b) => (Number(b.receitaBruta) || 0) - (Number(a.receitaBruta) || 0));
-    }, [localMonth.condominios]);
+            .filter(c => c.nome?.toUpperCase() !== 'TOTAL' && c.nome?.toUpperCase() !== 'TOTAL GERAL');
+
+        switch (condoSortMethod) {
+            case 'name':
+                return base.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            case 'status':
+                return base.sort((a, b) => {
+                    if (a.pagamentoFeito === b.pagamentoFeito) return (a.nome || '').localeCompare(b.nome || '');
+                    return a.pagamentoFeito ? -1 : 1;
+                });
+            case 'value':
+            default:
+                return base.sort((a, b) => (Number(b.receitaBruta) || 0) - (Number(a.receitaBruta) || 0));
+        }
+    }, [localMonth.condominios, condoSortMethod]);
 
     const sortedFuncs = useMemo(() => {
         return (localMonth.funcionarios || [])
@@ -406,6 +419,22 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
         return { bruto, liquida, inss, salarios, impostos };
     }, [localMonth]);
+
+    const paymentStats = useMemo(() => {
+        const validCondos = (localMonth.condominios || []).filter(c =>
+            c.nome?.toUpperCase() !== 'TOTAL' &&
+            c.nome?.toUpperCase() !== 'TOTAL GERAL'
+        );
+        const paid = validCondos.filter(c => c.pagamentoFeito);
+        const unpaid = validCondos.filter(c => !c.pagamentoFeito);
+        const totalPaid = paid.reduce((acc, c) => acc + (Number(c.receitaLiquida) || 0), 0);
+        return { 
+            totalPaid, 
+            countPaid: paid.length, 
+            countUnpaid: unpaid.length,
+            totalCount: validCondos.length
+        };
+    }, [localMonth.condominios]);
 
     const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos);
 
@@ -562,13 +591,53 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                     {activeTab === 'condominios' && (
                         <div className="flex flex-col">
-                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
-                                <button
-                                    onClick={addCondo}
-                                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-purple-600/20"
-                                >
-                                    <Plus className="w-4 h-4" /> Adicionar Condomínio
-                                </button>
+                            {/* Summary at Top */}
+                            <div className="p-6 bg-slate-900/40 border-b border-slate-700">
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                    <div className="flex flex-wrap gap-4">
+                                        <div className="px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 min-w-[140px]">
+                                            <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Total Bruto</p>
+                                            <p className="text-lg font-black text-white">{formatCurrency(currentTotals.bruto)}</p>
+                                        </div>
+                                        <div className="px-4 py-3 bg-slate-800 rounded-xl border border-slate-700 min-w-[140px]">
+                                            <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Total INSS</p>
+                                            <p className="text-lg font-black text-red-400">{formatCurrency(currentTotals.inss)}</p>
+                                        </div>
+                                        <div className="px-4 py-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 min-w-[140px] shadow-lg shadow-emerald-500/5">
+                                            <p className="text-[10px] text-emerald-500 uppercase font-black mb-1">Total Líquido</p>
+                                            <p className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+                                        {/* Sorting Toolbar */}
+                                        <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 w-full md:w-auto">
+                                            <button 
+                                                onClick={() => setCondoSortMethod('value')}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                            >
+                                                Por Valor
+                                            </button>
+                                            <button 
+                                                onClick={() => setCondoSortMethod('name')}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                            >
+                                                Alfabetica
+                                            </button>
+                                            <button 
+                                                onClick={() => setCondoSortMethod('status')}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                                            >
+                                                Por Pagamento
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={addCondo}
+                                            className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20 active:scale-95"
+                                        >
+                                            <Plus className="w-4 h-4" /> Novo Condomínio
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300 border-collapse">
@@ -664,29 +733,40 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             </tr>
                                         ))}
                                     </tbody>
-                                    <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
-                                        <tr className="text-white font-bold h-16">
-                                            <td colSpan={4} className="px-4 py-4 text-xs uppercase tracking-wider text-slate-500">Total do Mês</td>
-                                            <td className="px-4 py-4 text-right text-lg border-l border-slate-700/30">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[10px] text-slate-500 uppercase font-medium">BRL</span>
-                                                    {formatCurrency(currentTotals.bruto)}
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-4 text-right text-lg border-l border-slate-700/30">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[10px] text-slate-500 uppercase font-medium">BRL</span>
-                                                    <span className="text-red-400">{formatCurrency(currentTotals.inss)}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-4 text-right">
-                                                <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-xl inline-block min-w-[140px] shadow-lg shadow-emerald-500/5">
-                                                    {formatCurrency(currentTotals.liquida)}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
+                            </div>
+
+                            {/* Bottom Payment Summary */}
+                            <div className="p-8 bg-slate-900/40 border-t border-slate-700 mt-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-2xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Recebido</p>
+                                            <h4 className="text-2xl font-black text-white">{formatCurrency(paymentStats.totalPaid)}</h4>
+                                        </div>
+                                        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+                                            <Wallet className="w-6 h-6" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Condomínios Pagos</p>
+                                            <h4 className="text-2xl font-black text-white">{paymentStats.countPaid} <span className="text-slate-600 text-sm font-bold">/ {paymentStats.totalCount}</span></h4>
+                                        </div>
+                                        <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+                                            <Check className="w-6 h-6" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700 p-5 rounded-2xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
+                                            <h4 className="text-2xl font-black text-amber-500">{paymentStats.countUnpaid}</h4>
+                                        </div>
+                                        <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
+                                            <Activity className="w-6 h-6" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
