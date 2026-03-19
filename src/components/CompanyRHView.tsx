@@ -107,7 +107,8 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     };
 
     const handleDelete = async (employeeId: string) => {
-        if (!confirm("Mover para a lixeira?")) return;
+        const confirmed = window.confirm("Mover para a lixeira?");
+        if (!confirmed) return;
         const updatedFuncionarios = data.funcionarios.map(f => 
             f.id === employeeId ? { ...f, deleted: true } : f
         );
@@ -441,13 +442,13 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                 {employee.deleted ? (
                                                     <div className="flex gap-2 w-full">
                                                         <button 
-                                                            onClick={() => handleRestore(employee.id!)}
+                                                            onClick={(e) => { e.stopPropagation(); handleRestore(employee.id!); }}
                                                             className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-2xl transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                                                         >
                                                             <RotateCcw className="w-4 h-4" /> Restaurar
                                                         </button>
                                                         <button 
-                                                            onClick={() => handlePermanentDelete(employee.id!)}
+                                                            onClick={(e) => { e.stopPropagation(); handlePermanentDelete(employee.id!); }}
                                                             className="bg-red-600/20 border border-red-600/30 hover:bg-red-600 text-red-500 hover:text-white p-3 rounded-2xl transition-all"
                                                         >
                                                             <Trash2 className="w-5 h-5" />
@@ -456,7 +457,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                 ) : (
                                                     <div className="flex flex-col gap-3 w-full">
                                                         <button 
-                                                            onClick={() => handleInlineSave(employee.id!)}
+                                                            onClick={(e) => { e.stopPropagation(); handleInlineSave(employee.id!); }}
                                                             disabled={isSaving === employee.id}
                                                             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl transition-all text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                                                         >
@@ -464,7 +465,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             Salvar Alterações
                                                         </button>
                                                         <button 
-                                                            onClick={() => handleDelete(employee.id!)}
+                                                            onClick={(e) => { e.stopPropagation(); handleDelete(employee.id!); }}
                                                             className="w-full bg-red-500/5 border border-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-2xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                                                         >
                                                             <Trash2 className="w-4 h-4" /> Mover para Lixeira
