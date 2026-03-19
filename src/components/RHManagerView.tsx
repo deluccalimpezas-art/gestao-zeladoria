@@ -412,19 +412,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                     </h1>
                     <p className="text-slate-400 text-sm mt-1">Gerencie os dados dos prédios atendidos e seus contratos.</p>
                 </div>
-                <div className="flex items-center gap-4 flex-wrap">
-                    {/* Total value card */}
-                    <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl px-5 py-3 text-right min-w-[180px]">
-                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Total dos Contratos</p>
-                        <p className="text-xl font-black text-white">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                localData.condominios
-                                    .filter(c => !c.deleted)
-                                    .reduce((acc, c) => acc + (c.valorAtivo === 'verao' ? (c.valorVerao || 0) : (c.valorContrato || 0)), 0)
-                            )}
-                        </p>
-                        <p className="text-[10px] text-slate-600 mt-0.5">{filteredCondos.length} condomínios ativos</p>
-                    </div>
+                <div className="flex items-center gap-3">
                     {availableMonths.length > 0 && (
                         <select
                             onChange={(e) => {
@@ -444,6 +432,31 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                         {saveStatus === 'saving' && <span className="text-indigo-400 text-xs animate-pulse font-bold uppercase tracking-widest">Sincronizando...</span>}
                         {saveStatus === 'saved' && <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Sincronizado</span>}
                     </div>
+                </div>
+            </div>
+
+            {/* Stats banner */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="col-span-2 md:col-span-1 bg-slate-800/40 border border-indigo-500/20 rounded-2xl p-5">
+                    <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Total dos Contratos</p>
+                    <p className="text-3xl font-black text-white">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                            localData.condominios
+                                .filter(c => !c.deleted)
+                                .reduce((acc, c) => acc + (c.valorAtivo === 'verao' ? (c.valorVerao || 0) : (c.valorContrato || 0)), 0)
+                        )}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-1">{filteredCondos.length} condomínios ativos</p>
+                </div>
+                <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                    <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Condomínios Ativos</p>
+                    <p className="text-3xl font-black text-indigo-400">{filteredCondos.length}</p>
+                    <p className="text-[11px] text-slate-500 mt-1">condomínios</p>
+                </div>
+                <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+                    <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1">Na Lixeira</p>
+                    <p className="text-3xl font-black text-rose-400">{trashCondos.length}</p>
+                    <p className="text-[11px] text-slate-500 mt-1">condomínios</p>
                 </div>
             </div>
 
