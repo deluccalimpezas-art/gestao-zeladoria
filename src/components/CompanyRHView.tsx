@@ -299,17 +299,17 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         <div className={`p-2.5 rounded-xl border ${isExpanded ? 'bg-indigo-600 text-white' : 'bg-slate-900 border-slate-700 text-indigo-400'}`}>
                                             <User className="w-5 h-5" />
                                         </div>
-                                            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-6 flex-1">
-                                                <div className="min-w-[200px]">
+                                            <div className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_1fr] items-center gap-4 flex-1">
+                                                <div className="min-w-0">
                                                     <h3 className="font-black text-white uppercase tracking-tight truncate">{employee.nome}</h3>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate min-w-[150px]">
-                                                    <Building className="w-3.5 h-3.5 opacity-40" />
-                                                    {employee.condominio || 'Não Definido'}
+                                                <div className="flex items-center gap-1.5 text-indigo-400/60 text-[10px] font-bold uppercase tracking-widest truncate">
+                                                    <Building className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                                                    <span className="truncate">{employee.condominio || 'Não Definido'}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight min-w-[120px]">
-                                                    <DollarSign className="w-3.5 h-3.5 opacity-40" />
-                                                    {formatCurrency(employee.salario || 0)}
+                                                <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight">
+                                                    <DollarSign className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                                                    <span>{formatCurrency(employee.salario || 0)}</span>
                                                 </div>
                                             </div>
                                     </div>
