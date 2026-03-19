@@ -412,7 +412,19 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                     </h1>
                     <p className="text-slate-400 text-sm mt-1">Gerencie os dados dos prédios atendidos e seus contratos.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4 flex-wrap">
+                    {/* Total value card */}
+                    <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl px-5 py-3 text-right min-w-[180px]">
+                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Total dos Contratos</p>
+                        <p className="text-xl font-black text-white">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                localData.condominios
+                                    .filter(c => !c.deleted)
+                                    .reduce((acc, c) => acc + (c.valorAtivo === 'verao' ? (c.valorVerao || 0) : (c.valorContrato || 0)), 0)
+                            )}
+                        </p>
+                        <p className="text-[10px] text-slate-600 mt-0.5">{filteredCondos.length} condomínios ativos</p>
+                    </div>
                     {availableMonths.length > 0 && (
                         <select
                             onChange={(e) => {
