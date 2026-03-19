@@ -55,6 +55,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     
     // Estados de edição
     const [inlineEditingData, setInlineEditingData] = useState<Record<string, FuncionarioData>>({});
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [newEmployee, setNewEmployee] = useState<Partial<FuncionarioData>>({
         nome: '',
@@ -107,12 +108,12 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     };
 
     const handleDelete = async (employeeId: string) => {
-        const confirmed = window.confirm("Mover para a lixeira?");
-        if (!confirmed) return;
         const updatedFuncionarios = data.funcionarios.map(f => 
             f.id === employeeId ? { ...f, deleted: true } : f
         );
         await onSave({ ...data, funcionarios: updatedFuncionarios });
+        setConfirmDeleteId(null);
+        setExpandedRows(prev => { const s = new Set(prev); s.delete(employeeId); return s; });
     };
 
     const handleRestore = async (employeeId: string) => {
@@ -128,20 +129,17 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         await onSave({ ...data, funcionarios: updatedFuncionarios });
     };
 
-    const handleInlineSave = async (employeeId: string) => {
-        const editData = inlineEditingData[employeeId];
-        if (!editData) return;
-        
+    const handleAutoSave = async (employeeId: string, updatedField: Partial<FuncionarioData>) => {
+        const current = inlineEditingData[employeeId];
+        if (!current) return;
+        const merged = { ...current, ...updatedField };
+        setInlineEditingData(prev => ({ ...prev, [employeeId]: merged }));
         setIsSaving(employeeId);
         try {
-            const updatedFuncionarios = data.funcionarios.map(f => 
-                f.id === employeeId ? editData : f
+            const updatedFuncionarios = data.funcionarios.map(f =>
+                f.id === employeeId ? merged : f
             );
             await onSave({ ...data, funcionarios: updatedFuncionarios });
-            
-            // Fechar a linha após salvar (opcional, mas o usuário pediu "clicar para abrir e já editar")
-            // Vamos manter aberta mas sinalizar sucesso visualmente se necessário. 
-            // Para simplicidade, apenas mantemos aberta.
         } finally {
             setIsSaving(null);
         }
@@ -344,6 +342,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                                 ...inlineEditingData,
                                                                 [employee.id!]: { ...inlineEditingData[employee.id!], nome: e.target.value }
                                                             })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { nome: e.target.value })}
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
@@ -368,6 +367,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                                 ...inlineEditingData,
                                                                 [employee.id!]: { ...inlineEditingData[employee.id!], salario: parseFloat(e.target.value) || 0 }
                                                             })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { salario: parseFloat(e.target.value) || 0 })}
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
@@ -378,10 +378,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             onChange={(e) => {
                                                                 const name = e.target.value;
                                                                 const condo = data.condominios.find(c => c.nome === name);
-                                                                setInlineEditingData({
-                                                                    ...inlineEditingData,
-                                                                    [employee.id!]: { ...inlineEditingData[employee.id!], condominio: name, condominioId: condo?.id }
-                                                                });
+                                                                handleAutoSave(employee.id!, { condominio: name, condominioId: condo?.id });
                                                             }}
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none appearance-none"
                                                         >
@@ -405,6 +402,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                                 ...inlineEditingData,
                                                                 [employee.id!]: { ...inlineEditingData[employee.id!], dataAdmissao: e.target.value }
                                                             })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { dataAdmissao: e.target.value })}
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
@@ -423,10 +421,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             disabled={isSaving === employee.id || employee.deleted}
                                                             onClick={(e) => { 
                                                                 e.stopPropagation(); 
-                                                                setInlineEditingData({
-                                                                    ...inlineEditingData,
-                                                                    [employee.id!]: { ...inlineEditingData[employee.id!], statusClt: val }
-                                                                });
+                                                                handleAutoSave(employee.id!, { statusClt: val });
                                                             }}
                                                             className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border ${inlineEditingData[employee.id!].statusClt === val ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'} ${employee.deleted ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                         >
@@ -455,21 +450,40 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col gap-3 w-full">
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); handleInlineSave(employee.id!); }}
-                                                            disabled={isSaving === employee.id}
-                                                            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl transition-all text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
-                                                        >
-                                                            {isSaving === employee.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                                                            Salvar Alterações
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); handleDelete(employee.id!); }}
-                                                            className="w-full bg-red-500/5 border border-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-2xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" /> Mover para Lixeira
-                                                        </button>
+                                                    <div className="flex flex-col gap-2 w-full">
+                                                        {/* Saving indicator */}
+                                                        {isSaving === employee.id && (
+                                                            <div className="flex items-center justify-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest py-2">
+                                                                <Loader2 className="w-3 h-3 animate-spin" /> Salvando...
+                                                            </div>
+                                                        )}
+                                                        {/* Trash confirmation flow */}
+                                                        {confirmDeleteId === employee.id ? (
+                                                            <div className="flex flex-col gap-2">
+                                                                <p className="text-[10px] text-amber-400 font-black uppercase tracking-widest text-center">Mover para lixeira?</p>
+                                                                <div className="flex gap-2">
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); handleDelete(employee.id!); }}
+                                                                        className="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-xl transition-all text-[10px] font-black uppercase"
+                                                                    >
+                                                                        Sim, mover
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                                                                        className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-xl transition-all text-[10px] font-black uppercase"
+                                                                    >
+                                                                        Cancelar
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(employee.id!); }}
+                                                                className="w-full bg-red-500/5 border border-red-500/20 hover:bg-red-500/10 text-red-500 py-2.5 rounded-2xl transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" /> Mover para Lixeira
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
