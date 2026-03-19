@@ -102,60 +102,6 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
 
             {monthsData.length > 0 && (
                 <>
-                    {/* Último Mês Highlight */}
-                    {(() => {
-                        const last = monthsData[monthsData.length - 1];
-                        const prev = monthsData.length > 1 ? monthsData[monthsData.length - 2] : null;
-                        const diff = (curr: number, old: number | undefined) => {
-                            if (!old || old === 0) return null;
-                            const pct = ((curr - old) / old) * 100;
-                            return pct;
-                        };
-                        const Trend = ({ curr, old }: { curr: number, old?: number }) => {
-                            const pct = diff(curr, old);
-                            if (pct === null) return null;
-                            const up = pct >= 0;
-                            return (
-                                <span className={`flex items-center gap-0.5 text-[10px] font-black ${up ? 'text-emerald-400' : 'text-red-400'}`}>
-                                    {up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                    {Math.abs(pct).toFixed(1)}%
-                                </span>
-                            );
-                        };
-                        return (
-                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-                                <div className="flex items-center justify-between mb-5">
-                                    <div>
-                                        <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Último Mês</p>
-                                        <h3 className="text-xl font-black text-white mt-0.5">{last.monthName}</h3>
-                                    </div>
-                                    {prev && <span className="text-[10px] text-slate-600 font-bold uppercase">vs. {prev.monthName}</span>}
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-slate-900/60 rounded-xl p-4 border border-slate-700/50">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Receita Bruta</p>
-                                        <p className="text-lg font-black text-white">{formatCurrency(last.receitaBruta)}</p>
-                                        <Trend curr={last.receitaBruta} old={prev?.receitaBruta} />
-                                    </div>
-                                    <div className="bg-slate-900/60 rounded-xl p-4 border border-slate-700/50">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">INSS Retido</p>
-                                        <p className="text-lg font-black text-amber-400">{formatCurrency(last.inssRetido || 0)}</p>
-                                        <Trend curr={last.inssRetido || 0} old={prev?.inssRetido} />
-                                    </div>
-                                    <div className="bg-slate-900/60 rounded-xl p-4 border border-slate-700/50">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Receita Líquida</p>
-                                        <p className="text-lg font-black text-emerald-400">{formatCurrency(last.receitaLiquida)}</p>
-                                        <Trend curr={last.receitaLiquida} old={prev?.receitaLiquida} />
-                                    </div>
-                                    <div className="bg-indigo-900/30 rounded-xl p-4 border border-indigo-500/20">
-                                        <p className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-1">Folha de Pagamento</p>
-                                        <p className="text-lg font-black text-white">{formatCurrency(last.totalSalarios || 0)}</p>
-                                        <Trend curr={last.totalSalarios || 0} old={prev?.totalSalarios} />
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })()}
 
                     {/* Bloco 1: Acumulado Anual */}
                     <section>
