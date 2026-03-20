@@ -111,3 +111,15 @@ model CalendarEvent {
   createdAt   DateTime @default(now())
   userId      String   @default("Usuário 1")
 }
+
+model Gasto {
+  id          String   @id @default(uuid())
+  descricao   String
+  valor       Float
+  categoria   String?
+  data        DateTime @default(now())
+  formaPagto  String?
+  observacao  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

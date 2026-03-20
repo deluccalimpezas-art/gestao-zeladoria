@@ -659,4 +659,68 @@ export async function toggleEventPermanent(id: string, currentStatus: boolean) {
     }
 }
 
+// ==========================================
+// MÓDULO GASTOS (FLUXO DE CAIXA)
+// ==========================================
+
+export async function getGastos() {
+    try {
+        const raw: any[] = await (prisma as any).$queryRaw`SELECT * FROM "Gasto" ORDER BY "data" DESC`;
+        return raw.map((g: any) => ({
+            ...g,
+            data: g.data.toISOString()
+        }));
+    } catch (e) {
+        console.error("Erro getGastos:", e);
+        return [];
+    }
+}
+
+export async function upsertGasto(data: any) {
+    try {
+        const { id, descricao, valor, categoria, data: dataGasto, formaPagto, observacao } = data;
+        const valorNum = parseFloat(valor.toString());
+        const dateObj = new Date(dataGasto);
+        
+        if (id && id.length > 20) {
+            // Update
+            await (prisma as any).$executeRaw`
+                UPDATE "Gasto" 
+                SET "descricao" = ${descricao}, 
+                    "valor" = ${valorNum}, 
+                    "categoria" = ${categoria}, 
+                    "data" = ${dateObj}, 
+                    "formaPagto" = ${formaPagto}, 
+                    "observacao" = ${observacao},
+                    "updatedAt" = NOW()
+                WHERE "id" = ${id}
+            `;
+            return { success: true };
+        } else {
+            // Create
+            const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+            await (prisma as any).$executeRaw`
+                INSERT INTO "Gasto" ("id", "descricao", "valor", "categoria", "data", "formaPagto", "observacao", "createdAt", "updatedAt")
+                VALUES (${newId}, ${descricao}, ${valorNum}, ${categoria}, ${dateObj}, ${formaPagto}, ${observacao}, NOW(), NOW())
+            `;
+            revalidatePath('/');
+            return { success: true };
+        }
+    } catch (e: any) {
+        console.error("Erro upsertGasto:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteGasto(id: string) {
+    try {
+        await (prisma as any).$executeRaw`DELETE FROM "Gasto" WHERE "id" = ${id}`;
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deleteGasto:", e);
+        return { success: false, error: e.message };
+    }
+}
+
 

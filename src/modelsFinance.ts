@@ -100,3 +100,14 @@ export interface MasterRHData {
     candidatos?: CandidatoData[];
     ultimaAtualizacao: string;
 }
+
+export interface GastoData {
+    id?: string;
+    descricao: string;
+    valor: number;
+    categoria?: string;
+    data: string; // ISO string
+    formaPagto?: string;
+    observacao?: string;
+    createdAt?: string;
+}

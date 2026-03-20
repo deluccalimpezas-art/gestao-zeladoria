@@ -27,6 +27,7 @@ import { ContractGeneratorView } from './ContractGeneratorView';
 import { PaymentGeneratorView } from './PaymentGeneratorView';
 import NFDraftGenerator from './NFDraftGenerator';
 import { ScheduleView } from '@/components/ScheduleView';
+import { ExpenseTrackerView } from './ExpenseTrackerView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -49,7 +50,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites' | 'gastos'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -229,6 +230,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Receipt className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Gerador de Nota Fiscal</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('gastos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gastos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Wallet className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Controle de Gastos</span>}
                             </button>
                         </li>
                         <li>
@@ -432,6 +442,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <NFDraftGenerator condominios={masterRH.condominios} />
                     ) : activeTab === 'holerites' ? (
                         <PaymentGeneratorView employees={masterRH.funcionarios} />
+                    ) : activeTab === 'gastos' ? (
+                        <ExpenseTrackerView />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
