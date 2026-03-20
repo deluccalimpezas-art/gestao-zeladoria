@@ -14,7 +14,9 @@ import {
     Wallet,
     CalendarDays,
     ChevronDown,
-    ChevronRight
+    ChevronRight,
+    Calculator,
+    Trash2
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -28,6 +30,7 @@ import { PaymentGeneratorView } from './PaymentGeneratorView';
 import NFDraftGenerator from './NFDraftGenerator';
 import { ScheduleView } from '@/components/ScheduleView';
 import { ExpenseTrackerView } from './ExpenseTrackerView';
+import { CalculatorsView } from './CalculatorsView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -50,7 +53,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites' | 'gastos'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites' | 'gastos' | 'calculos'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -239,6 +242,24 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Wallet className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Controle de Gastos</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('calculos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Calculator className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('calculos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Calculator className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
                             </button>
                         </li>
                         <li>
@@ -444,6 +465,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <PaymentGeneratorView employees={masterRH.funcionarios} />
                     ) : activeTab === 'gastos' ? (
                         <ExpenseTrackerView />
+                    ) : activeTab === 'calculos' ? (
+                        <CalculatorsView />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
