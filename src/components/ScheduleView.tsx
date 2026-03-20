@@ -60,16 +60,16 @@ export function ScheduleView() {
 
     const loadData = async () => {
         setIsLoading(true);
-        if (activeTab === 'weekly') {
-            const tasks = await getWeeklyTasks(selectedUser);
-            setWeeklyTasks(tasks);
-        } else {
-            // Get first and last day of current month view
-            const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-            const events = await getCalendarEvents(start, end, selectedUser);
-            setCalendarEvents(events);
-        }
+        // Always load weekly tasks for the route check
+        const tasks = await getWeeklyTasks(selectedUser);
+        setWeeklyTasks(tasks);
+
+        // Always load calendar events for the selected month to show them in "Rotina de Hoje"
+        const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        const events = await getCalendarEvents(start, end, selectedUser);
+        setCalendarEvents(events);
+        
         setIsLoading(false);
     };
 
@@ -348,6 +348,18 @@ export function ScheduleView() {
                                 }
 
                                 const dayTasks = weeklyTasks.filter(t => t.dayOfWeek === todayObj.id);
+                                
+                                // Filter calendar events for today
+                                const todayDate = new Date();
+                                const dayEvents = calendarEvents.filter(e => {
+                                    if (e.isPermanent) {
+                                        return new Date(e.date).getDate() === todayDate.getDate();
+                                    }
+                                    return new Date(e.date).toDateString() === todayDate.toDateString();
+                                });
+
+                                const totalToday = dayTasks.length + dayEvents.length;
+
                                 return (
                                     <div className="bg-slate-800 rounded-2xl border-2 border-indigo-500/50 shadow-2xl shadow-indigo-500/10 overflow-hidden">
                                         <div className="p-6 bg-indigo-900/30 border-b border-indigo-500/30 flex items-center justify-between">
@@ -356,26 +368,48 @@ export function ScheduleView() {
                                                 <span className="text-[10px] px-3 py-1 rounded-full bg-indigo-500 font-bold text-white uppercase tracking-widest shadow-lg shadow-indigo-500/40">Hoje</span>
                                             </div>
                                             <span className="text-sm font-medium px-3 py-1 rounded-full bg-slate-900 border border-indigo-500/30 text-indigo-300">
-                                                {dayTasks.length} rotinas
+                                                {totalToday} tarefas/rotinas
                                             </span>
                                         </div>
                                         
                                         <div className="p-6 flex flex-col gap-3 min-h-[300px]">
-                                            {dayTasks.length === 0 ? (
+                                            {totalToday === 0 ? (
                                                 <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
                                                     <p>Nenhuma tarefa listada para hoje.</p>
                                                 </div>
                                             ) : (
-                                                dayTasks.map(task => (
-                                                    <div key={task.id} className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 flex justify-between items-center group hover:bg-indigo-500/20 transition-colors">
-                                                        <p className="text-lg font-medium text-indigo-100">{task.title}</p>
-                                                        {task.time && (
-                                                            <p className="text-sm text-indigo-300 flex items-center gap-2 font-mono bg-indigo-900/50 px-3 py-1.5 rounded-lg">
-                                                                <Clock className="w-4 h-4" /> {task.time}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                ))
+                                                <>
+                                                    {/* Weekly Tasks */}
+                                                    {dayTasks.map(task => (
+                                                        <div key={task.id} className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 flex justify-between items-center group hover:bg-indigo-500/20 transition-colors">
+                                                            <div className="flex items-center gap-3">
+                                                                <Clock className="w-5 h-5 text-indigo-400 opacity-50" />
+                                                                <p className="text-lg font-medium text-indigo-100">{task.title}</p>
+                                                            </div>
+                                                            {task.time && (
+                                                                <p className="text-sm text-indigo-300 flex items-center gap-2 font-mono bg-indigo-900/50 px-3 py-1.5 rounded-lg border border-indigo-500/20">
+                                                                    {task.time}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    ))}
+
+                                                    {/* Calendar Events */}
+                                                    {dayEvents.map(evt => (
+                                                        <div key={evt.id} className={`p-4 rounded-xl flex justify-between items-center group transition-colors border ${evt.isPermanent ? 'bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20' : 'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20'}`}>
+                                                            <div className="flex items-center gap-3">
+                                                                <CalendarIcon className={`w-5 h-5 ${evt.isPermanent ? 'text-amber-400' : 'text-emerald-400'}`} />
+                                                                <div>
+                                                                    <p className={`text-lg font-bold ${evt.isPermanent ? 'text-amber-100' : 'text-emerald-100'}`}>{evt.title}</p>
+                                                                    <p className={`text-[10px] uppercase tracking-wider font-bold ${evt.isPermanent ? 'text-amber-500/70' : 'text-emerald-500/70'}`}>
+                                                                        {evt.isPermanent ? 'Evento Recorrente Mensal' : 'Evento do Calendário'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            {evt.isPermanent && <Star className="w-4 h-4 text-amber-400" fill="currentColor" />}
+                                                        </div>
+                                                    ))}
+                                                </>
                                             )}
                                         </div>
                                     </div>
