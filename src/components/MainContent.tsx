@@ -16,7 +16,8 @@ import {
     ChevronDown,
     ChevronRight,
     Calculator,
-    Trash2
+    Trash2,
+    Zap
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -25,12 +26,8 @@ import { FinanceDashboard } from '@/components/FinanceDashboard';
 import { RHManagerView } from '@/components/RHManagerView';
 import { CompanyRHView } from '@/components/CompanyRHView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
-import { ContractGeneratorView } from './ContractGeneratorView';
-import { PaymentGeneratorView } from './PaymentGeneratorView';
-import NFDraftGenerator from './NFDraftGenerator';
 import { ScheduleView } from '@/components/ScheduleView';
-import { ExpenseTrackerView } from './ExpenseTrackerView';
-import { CalculatorsView } from './CalculatorsView';
+import { GeneratorsManagerView } from './GeneratorsManagerView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -53,7 +50,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'contratos' | 'nf_draft' | 'cronograma' | 'holerites' | 'gastos' | 'calculos'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -219,56 +216,11 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
-                                onClick={() => setActiveTab('contratos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'contratos' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                                onClick={() => setActiveTab('geradores')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'geradores' ? 'bg-amber-600/10 text-amber-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
-                                <PenTool className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Gerar Contratos</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('nf_draft')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'nf_draft' ? 'bg-amber-600/10 text-amber-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Receipt className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Gerador de Nota Fiscal</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('gastos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gastos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Wallet className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Controle de Gastos</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('calculos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Calculator className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('calculos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Calculator className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('holerites')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'holerites' ? 'bg-emerald-600/10 text-emerald-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Wallet className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Gerar Holerites</span>}
+                                <Zap className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Geradores</span>}
                             </button>
                         </li>
                         <li>
@@ -457,16 +409,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         />
                     ) : activeTab === 'cronograma' ? (
                         <ScheduleView />
-                    ) : activeTab === 'contratos' ? (
-                        <ContractGeneratorView />
-                    ) : activeTab === 'nf_draft' ? (
-                        <NFDraftGenerator condominios={masterRH.condominios} />
-                    ) : activeTab === 'holerites' ? (
-                        <PaymentGeneratorView employees={masterRH.funcionarios} />
-                    ) : activeTab === 'gastos' ? (
-                        <ExpenseTrackerView />
-                    ) : activeTab === 'calculos' ? (
-                        <CalculatorsView />
+                    ) : activeTab === 'geradores' ? (
+                        <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}

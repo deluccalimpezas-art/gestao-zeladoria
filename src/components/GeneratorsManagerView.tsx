@@ -1,0 +1,221 @@
+'use client'
+
+import React, { useState } from 'react';
+import { 
+    Zap, 
+    PenTool, 
+    Receipt, 
+    Wallet, 
+    Calculator, 
+    ChevronLeft,
+    ArrowRight,
+    Sparkles
+} from 'lucide-react';
+import { ContractGeneratorView } from './ContractGeneratorView';
+import { PaymentGeneratorView } from './PaymentGeneratorView';
+import NFDraftGenerator from './NFDraftGenerator';
+import { CalculatorsView } from './CalculatorsView';
+
+import { ExpenseTrackerView } from './ExpenseTrackerView';
+
+type GeneratorType = 'menu' | 'contracts' | 'nf' | 'holerites' | 'calculos' | 'gastos';
+
+interface GeneratorsManagerViewProps {
+    employees: any[];
+    condominios: any[];
+}
+
+export function GeneratorsManagerView({ employees, condominios }: GeneratorsManagerViewProps) {
+    const [view, setView] = useState<GeneratorType>('menu');
+
+    const renderBackButton = () => (
+        <button 
+            onClick={() => setView('menu')}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group mb-6 px-2"
+        >
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-black uppercase tracking-widest">Voltar aos Geradores</span>
+        </button>
+    );
+
+    if (view === 'contracts') {
+        return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderBackButton()}
+                <ContractGeneratorView />
+            </div>
+        );
+    }
+
+    if (view === 'nf') {
+        return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderBackButton()}
+                <NFDraftGenerator condominios={condominios} />
+            </div>
+        );
+    }
+
+    if (view === 'holerites') {
+        return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderBackButton()}
+                <PaymentGeneratorView employees={employees} />
+            </div>
+        );
+    }
+
+    if (view === 'calculos') {
+        return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderBackButton()}
+                <CalculatorsView />
+            </div>
+        );
+    }
+
+    if (view === 'gastos') {
+        return (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderBackButton()}
+                <ExpenseTrackerView />
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-5xl mx-auto py-12 px-6 space-y-12 animate-in fade-in duration-700">
+            <div className="text-center space-y-4">
+                <div className="inline-flex p-4 bg-amber-500/10 rounded-3xl border border-amber-500/20 mb-4">
+                    <Sparkles className="w-10 h-10 text-amber-400" />
+                </div>
+                <h1 className="text-4xl font-black text-white tracking-tight">Central de Geradores</h1>
+                <p className="text-slate-400 max-w-lg mx-auto font-medium">
+                    Acesse todas as ferramentas de automação e cálculo em um único lugar.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* 1. Contratos */}
+                <button 
+                    onClick={() => setView('contracts')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-rose-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center border border-rose-500/20 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                            <PenTool className="w-6 h-6 text-rose-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">Contratos</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Gerar documentos de admissão e demissão.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-rose-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+
+                {/* 2. Nota Fiscal */}
+                <button 
+                    onClick={() => setView('nf')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-amber-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                            <Receipt className="w-6 h-6 text-amber-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">Nota Fiscal</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Rascunhos e envio de NF para condomínios.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-amber-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+
+                {/* 3. Holerites */}
+                <button 
+                    onClick={() => setView('holerites')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-emerald-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                            <Wallet className="w-6 h-6 text-emerald-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">Holerites</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Geração de comprovantes de pagamento.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-emerald-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+
+                {/* 4. Cálculos */}
+                <button 
+                    onClick={() => setView('calculos')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-indigo-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                            <Calculator className="w-6 h-6 text-indigo-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">Cálculos</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Simuladores de custo e rescisão CLT.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-indigo-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+
+                {/* 5. Gastos */}
+                <button 
+                    onClick={() => setView('gastos')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-blue-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                            <Wallet className="w-6 h-6 text-blue-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">C. Gastos</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Controle mensal de despesas variáveis.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <div className="bg-slate-800/60 border border-slate-700/50 p-8 rounded-[2.5rem] flex items-center justify-between">
+                <div className="space-y-1">
+                    <h4 className="text-white font-black">Precisa de mais geradores?</h4>
+                    <p className="text-sm text-slate-500 font-medium">Novas ferramentas de automação são adicionadas mensalmente.</p>
+                </div>
+                <div className="bg-slate-900/50 px-4 py-2 rounded-xl border border-slate-700 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    v2.1 Stable
+                </div>
+            </div>
+        </div>
+    );
+}
