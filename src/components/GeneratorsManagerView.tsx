@@ -14,11 +14,9 @@ import {
 import { ContractGeneratorView } from './ContractGeneratorView';
 import { PaymentGeneratorView } from './PaymentGeneratorView';
 import NFDraftGenerator from './NFDraftGenerator';
-import { CalculatorsView } from './CalculatorsView';
 
-import { ExpenseTrackerView } from './ExpenseTrackerView';
 
-type GeneratorType = 'menu' | 'contracts' | 'nf' | 'holerites' | 'calculos' | 'gastos';
+type GeneratorType = 'menu' | 'contracts' | 'nf' | 'holerites';
 
 interface GeneratorsManagerViewProps {
     employees: any[];
@@ -65,24 +63,6 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
         );
     }
 
-    if (view === 'calculos') {
-        return (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {renderBackButton()}
-                <CalculatorsView />
-            </div>
-        );
-    }
-
-    if (view === 'gastos') {
-        return (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {renderBackButton()}
-                <ExpenseTrackerView />
-            </div>
-        );
-    }
-
     return (
         <div className="max-w-5xl mx-auto py-12 px-6 space-y-12 animate-in fade-in duration-700">
             <div className="text-center space-y-4">
@@ -95,7 +75,7 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* 1. Contratos */}
                 <button 
                     onClick={() => setView('contracts')}
@@ -156,50 +136,6 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                             </p>
                         </div>
                         <div className="flex items-center gap-2 text-emerald-400 font-black text-[10px] uppercase tracking-widest pt-2">
-                            <span>Abrir</span>
-                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
-                        </div>
-                    </div>
-                </button>
-
-                {/* 4. Cálculos */}
-                <button 
-                    onClick={() => setView('calculos')}
-                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-indigo-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
-                >
-                    <div className="relative z-10 space-y-4">
-                        <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                            <Calculator className="w-6 h-6 text-indigo-400 group-hover:text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black text-white mb-1">Cálculos</h3>
-                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
-                                Simuladores de custo e rescisão CLT.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-indigo-400 font-black text-[10px] uppercase tracking-widest pt-2">
-                            <span>Abrir</span>
-                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
-                        </div>
-                    </div>
-                </button>
-
-                {/* 5. Gastos */}
-                <button 
-                    onClick={() => setView('gastos')}
-                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-blue-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
-                >
-                    <div className="relative z-10 space-y-4">
-                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                            <Wallet className="w-6 h-6 text-blue-400 group-hover:text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black text-white mb-1">C. Gastos</h3>
-                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
-                                Controle mensal de despesas variáveis.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-blue-400 font-black text-[10px] uppercase tracking-widest pt-2">
                             <span>Abrir</span>
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
                         </div>

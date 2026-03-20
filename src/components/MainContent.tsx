@@ -27,6 +27,8 @@ import { RHManagerView } from '@/components/RHManagerView';
 import { CompanyRHView } from '@/components/CompanyRHView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
 import { ScheduleView } from '@/components/ScheduleView';
+import { ExpenseTrackerView } from './ExpenseTrackerView';
+import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
 import { Modal } from '@/components/Modal';
 import {
@@ -50,7 +52,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -221,6 +223,24 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Zap className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Geradores</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('gastos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gastos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Wallet className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Controle de Gastos</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('calculos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Calculator className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
                             </button>
                         </li>
                         <li>
@@ -411,6 +431,10 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <ScheduleView />
                     ) : activeTab === 'geradores' ? (
                         <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
+                    ) : activeTab === 'gastos' ? (
+                        <ExpenseTrackerView />
+                    ) : activeTab === 'calculos' ? (
+                        <CalculatorsView />
                     ) : (
                         <DocumentGenerator months={financeMonths} />
                     )}
