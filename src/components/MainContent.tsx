@@ -17,7 +17,8 @@ import {
     ChevronRight,
     Calculator,
     Trash2,
-    Zap
+    Zap,
+    LineChart
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -28,6 +29,7 @@ import { CompanyRHView } from '@/components/CompanyRHView';
 import { DocumentGenerator } from '@/components/DocumentGenerator';
 import { ScheduleView } from '@/components/ScheduleView';
 import { ExpenseTrackerView } from './ExpenseTrackerView';
+import { PersonalFinanceView } from './PersonalFinanceView';
 import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
 import { Modal } from '@/components/Modal';
@@ -52,7 +54,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -69,7 +71,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const [isNewMonthModalOpen, setIsNewMonthModalOpen] = useState(false);
     const [newMonthName, setNewMonthName] = useState("");
 
-    const [duplicateContext, setDuplicateContext] = useState<any>(null); // To store { sourceMonthId }
+    const [duplicateContext, setDuplicateContext] = useState<any>(null); 
     const [dupMonthName, setDupMonthName] = useState("");
 
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
@@ -148,8 +150,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     };
 
     const handleRenameMonth = async (oldName: string, newName: string) => {
-        // Implementação simples: poderíamos ter um action rename, 
-        // mas por enquanto vamos focar no que o usuário pediu: duplicar e mudar nome da cópia.
+        // ...
     };
 
     const handleDuplicateMonth = async () => {
@@ -236,6 +237,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
+                                onClick={() => setActiveTab('gestao_pessoal')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gestao_pessoal' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <LineChart className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Gestão Pessoal</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 onClick={() => setActiveTab('calculos')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
@@ -306,7 +316,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                         Alertas de Funcionários
                                     </h2>
                                     
-                                    {/* Pasta: Fazer Registro */}
                                     <div className="space-y-3">
                                         <button 
                                             onClick={() => toggleFolder('registro')}
@@ -320,14 +329,10 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                         {expandedFolders.registro && (
                                             <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
                                                 {allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).length === 0 && (
-                                                    <p className="text-xs text-slate-600 italic pl-2">Nenhum registro pendente.</p>
-                                                )}
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Pasta: Contrato de Experiência */}
                                     <div className="space-y-3">
                                         <button 
                                             onClick={() => toggleFolder('experiencia')}
@@ -341,14 +346,10 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                         {expandedFolders.experiencia && (
                                             <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
                                                 {allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).length === 0 && (
-                                                    <p className="text-xs text-slate-600 italic pl-2">Nenhum contrato vencendo.</p>
-                                                )}
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Pasta: Férias */}
                                     <div className="space-y-3">
                                         <button 
                                             onClick={() => toggleFolder('ferias')}
@@ -362,9 +363,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                         {expandedFolders.ferias && (
                                             <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
                                                 {allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).length === 0 && (
-                                                    <p className="text-xs text-slate-600 italic pl-2">Nenhuma férias vencendo.</p>
-                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -394,7 +392,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <RHManagerView
                             data={masterRH}
                             onSave={async (updated) => {
-                                // Sanitização: Resolve IDs de condomínios por nome se faltarem
                                 const sanitizedFuncs = updated.funcionarios.map(f => {
                                     if (!f.condominioId && f.condominio && f.condominio !== 'Sede' && f.condominio !== 'Gerente' && f.condominio !== 'Volante') {
                                         const condo = updated.condominios.find(c => c.nome === f.condominio);
@@ -433,6 +430,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
                     ) : activeTab === 'gastos' ? (
                         <ExpenseTrackerView />
+                    ) : activeTab === 'gestao_pessoal' ? (
+                        <PersonalFinanceView />
                     ) : activeTab === 'calculos' ? (
                         <CalculatorsView />
                     ) : (
@@ -514,5 +513,3 @@ function AlertCard({ alert }: { alert: Alert }) {
         </div>
     );
 }
-
-

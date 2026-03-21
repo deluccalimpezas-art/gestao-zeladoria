@@ -724,3 +724,155 @@ export async function deleteGasto(id: string) {
 }
 
 
+
+// ==========================================
+// MÓDULO GESTÃO FINANCEIRA PESSOAL
+// ==========================================
+
+export async function getPersonalFinanceData(month: number, year: number) {
+    try {
+        // Tenta encontrar ou criar o mês
+        let personalMonth = await (prisma as any).personalFinanceMonth.findFirst({
+            where: { month, year },
+            include: {
+                fixedExpenses: { orderBy: { name: 'asc' } },
+                cardExpenses: { orderBy: { description: 'asc' } }
+            }
+        });
+
+        if (!personalMonth) {
+            const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            personalMonth = await (prisma as any).personalFinanceMonth.create({
+                data: {
+                    month,
+                    year,
+                    monthName: `${months[month - 1]} ${year}`
+                },
+                include: {
+                    fixedExpenses: true,
+                    cardExpenses: true
+                }
+            });
+        }
+
+        return { success: true, data: personalMonth };
+    } catch (e: any) {
+        console.error("Erro getPersonalFinanceData:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function upsertPersonalFixedExpense(data: any) {
+    try {
+        const { id, name, value, dueDate, paid, monthId } = data;
+        const result = await (prisma as any).personalFixedExpense.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { name, value, dueDate, paid },
+            create: { name, value, dueDate, paid, monthId }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function upsertPersonalCreditCardExpense(data: any) {
+    try {
+        const { id, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId } = data;
+        const result = await (prisma as any).personalCreditCardExpense.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid },
+            create: { description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function addPersonalRecurringExpense(data: any) {
+    try {
+        const { description, value, totalInstallments, month, year, category } = data;
+        const installmentGroupId = crypto.randomUUID();
+        
+        const results = [];
+        for (let i = 0; i < totalInstallments; i++) {
+            let targetMonth = month + i;
+            let targetYear = year;
+            
+            while (targetMonth > 12) {
+                targetMonth -= 12;
+                targetYear += 1;
+            }
+
+            // Garante que o mês existe
+            let pMonth = await (prisma as any).personalFinanceMonth.findFirst({
+                where: { month: targetMonth, year: targetYear }
+            });
+
+            if (!pMonth) {
+                const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                pMonth = await (prisma as any).personalFinanceMonth.create({
+                    data: {
+                        month: targetMonth,
+                        year: targetYear,
+                        monthName: `${months[targetMonth - 1]} ${targetYear}`
+                    }
+                });
+            }
+
+            const exp = await (prisma as any).personalCreditCardExpense.create({
+                data: {
+                    description,
+                    value,
+                    isInstallment: true,
+                    currentInstallment: i + 1,
+                    totalInstallments,
+                    installmentGroupId,
+                    category: category || 'Outros',
+                    monthId: pMonth.id
+                }
+            });
+            results.push(exp);
+        }
+
+        revalidatePath('/');
+        return { success: true, data: results };
+    } catch (e: any) {
+        console.error("Erro addPersonalRecurringExpense:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deletePersonalFixedExpense(id: string) {
+    try {
+        await (prisma as any).personalFixedExpense.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deletePersonalCreditCardExpense(id: string, deleteAllGroup: boolean = false) {
+    try {
+        if (deleteAllGroup) {
+            const exp = await (prisma as any).personalCreditCardExpense.findUnique({ where: { id } });
+            if (exp?.installmentGroupId) {
+                await (prisma as any).personalCreditCardExpense.deleteMany({
+                    where: { installmentGroupId: exp.installmentGroupId }
+                });
+            } else {
+                await (prisma as any).personalCreditCardExpense.delete({ where: { id } });
+            }
+        } else {
+            await (prisma as any).personalCreditCardExpense.delete({ where: { id } });
+        }
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}

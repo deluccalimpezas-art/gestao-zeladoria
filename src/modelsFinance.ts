@@ -111,3 +111,34 @@ export interface GastoData {
     observacao?: string;
     createdAt?: string;
 }
+
+export interface PersonalFixedExpenseData {
+    id?: string;
+    name: string;
+    value: number;
+    dueDate?: number;
+    paid: boolean;
+    monthId: string;
+}
+
+export interface PersonalCreditCardExpenseData {
+    id?: string;
+    description: string;
+    value: number;
+    isInstallment: boolean;
+    currentInstallment?: number;
+    totalInstallments?: number;
+    installmentGroupId?: string;
+    category?: string;
+    paid: boolean;
+    monthId: string;
+}
+
+export interface PersonalFinanceMonthData {
+    id: string;
+    monthName: string;
+    year: number;
+    month: number;
+    fixedExpenses: PersonalFixedExpenseData[];
+    cardExpenses: PersonalCreditCardExpenseData[];
+}

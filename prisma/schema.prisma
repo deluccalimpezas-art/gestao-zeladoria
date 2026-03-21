@@ -123,3 +123,38 @@ model Gasto {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model PersonalFinanceMonth {
+  id            String                      @id @default(uuid())
+  monthName     String                      // Ex: "Março 2024"
+  year          Int
+  month         Int                         // 1-12
+  fixedExpenses PersonalFixedExpense[]
+  cardExpenses  PersonalCreditCardExpense[]
+
+  @@unique([month, year])
+}
+
+model PersonalFixedExpense {
+  id      String               @id @default(uuid())
+  name    String               // Luz, Agua, Aluguel, Seguro, Carro, Dentista, Seanet
+  value   Float
+  dueDate Int?                 // Dia de pagamento
+  paid    Boolean              @default(false)
+  monthId String
+  month   PersonalFinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+}
+
+model PersonalCreditCardExpense {
+  id                 String               @id @default(uuid())
+  description        String
+  value              Float
+  isInstallment      Boolean              @default(false)
+  currentInstallment Int?
+  totalInstallments  Int?
+  installmentGroupId String?
+  category           String?              // mercado, restaurante, gasolina, outros
+  paid               Boolean              @default(false)
+  monthId            String
+  month              PersonalFinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+}
