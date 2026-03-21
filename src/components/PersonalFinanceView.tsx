@@ -56,21 +56,21 @@ export function PersonalFinanceView() {
 
     const [fixedFormData, setFixedFormData] = useState({
         name: '',
-        value: 0,
+        value: '' as string | number,
         dueDate: 5,
         paid: false
     });
 
     const [cardFormData, setCardFormData] = useState({
         description: '',
-        value: 0,
+        value: '' as string | number,
         category: 'Outros',
         paid: false
     });
 
     const [recurringFormData, setRecurringFormData] = useState({
         description: '',
-        value: 0,
+        value: '' as string | number,
         totalInstallments: 1,
         category: 'Outros'
     });
@@ -143,9 +143,11 @@ export function PersonalFinanceView() {
     };
 
     const handleSaveFixed = async () => {
-        if (!fixedFormData.name || fixedFormData.value <= 0) return alert("Preencha nome e valor.");
+        const val = Number(fixedFormData.value);
+        if (!fixedFormData.name || val <= 0) return alert("Preencha nome e valor.");
         const res = await upsertPersonalFixedExpense({
             ...fixedFormData,
+            value: val,
             id: editingFixed?.id,
             monthId: data?.id
         });
@@ -156,9 +158,11 @@ export function PersonalFinanceView() {
     };
 
     const handleSaveCard = async () => {
-        if (!cardFormData.description || cardFormData.value <= 0) return alert("Preencha descrição e valor.");
+        const val = Number(cardFormData.value);
+        if (!cardFormData.description || val <= 0) return alert("Preencha descrição e valor.");
         const res = await upsertPersonalCreditCardExpense({
             ...cardFormData,
+            value: val,
             id: editingCard?.id,
             monthId: data?.id,
             isInstallment: false
@@ -170,11 +174,13 @@ export function PersonalFinanceView() {
     };
 
     const handleSaveRecurring = async () => {
-        if (!recurringFormData.description || recurringFormData.value <= 0 || recurringFormData.totalInstallments <= 0) {
+        const val = Number(recurringFormData.value);
+        if (!recurringFormData.description || val <= 0 || recurringFormData.totalInstallments <= 0) {
             return alert("Preencha todos os campos corretamente.");
         }
         const res = await addPersonalRecurringExpense({
             ...recurringFormData,
+            value: val,
             month: selectedMonth,
             year: selectedYear
         });
@@ -255,7 +261,7 @@ export function PersonalFinanceView() {
                             <button 
                                 onClick={() => {
                                     setEditingFixed(null);
-                                    setFixedFormData({ name: '', value: 0, dueDate: 5, paid: false });
+                                    setFixedFormData({ name: '', value: '', dueDate: 5, paid: false });
                                     setIsFixedModalOpen(true);
                                 }}
                                 className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-slate-600 shadow-lg"
@@ -265,7 +271,7 @@ export function PersonalFinanceView() {
                             <button 
                                 onClick={() => {
                                     setEditingCard(null);
-                                    setCardFormData({ description: '', value: 0, category: 'Outros', paid: false });
+                                    setCardFormData({ description: '', value: '', category: 'Outros', paid: false });
                                     setIsCardModalOpen(true);
                                 }}
                                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-indigo-400/30 shadow-lg shadow-indigo-600/20"
@@ -274,7 +280,7 @@ export function PersonalFinanceView() {
                             </button>
                             <button 
                                 onClick={() => {
-                                    setRecurringFormData({ description: '', value: 0, totalInstallments: 1, category: 'Outros' });
+                                    setRecurringFormData({ description: '', value: '', totalInstallments: 1, category: 'Outros' });
                                     setIsRecurringModalOpen(true);
                                 }}
                                 className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-emerald-400/30 shadow-lg shadow-emerald-600/20"
@@ -510,7 +516,7 @@ export function PersonalFinanceView() {
                             <input 
                                 type="number" 
                                 value={fixedFormData.value}
-                                onChange={e => setFixedFormData({...fixedFormData, value: Number(e.target.value)})}
+                                onChange={e => setFixedFormData({...fixedFormData, value: e.target.value})}
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
                             />
                         </div>
@@ -549,7 +555,7 @@ export function PersonalFinanceView() {
                             <input 
                                 type="number" 
                                 value={cardFormData.value}
-                                onChange={e => setCardFormData({...cardFormData, value: Number(e.target.value)})}
+                                onChange={e => setCardFormData({...cardFormData, value: e.target.value})}
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" 
                             />
                         </div>
@@ -588,7 +594,7 @@ export function PersonalFinanceView() {
                             <input 
                                 type="number" 
                                 value={recurringFormData.value}
-                                onChange={e => setRecurringFormData({...recurringFormData, value: Number(e.target.value)})}
+                                onChange={e => setRecurringFormData({...recurringFormData, value: e.target.value})}
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" 
                             />
                         </div>
