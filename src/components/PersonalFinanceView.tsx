@@ -35,7 +35,8 @@ import {
     ShoppingBag,
     Calculator,
     Zap,
-    Repeat
+    Repeat,
+    CopyPlus
 } from 'lucide-react';
 import { 
     PersonalFinanceMonthData, 
@@ -53,7 +54,8 @@ import {
     getPersonalCards,
     upsertPersonalCard,
     deletePersonalCard,
-    replicatePersonalFixedExpense
+    replicatePersonalFixedExpense,
+    propagateAllFixedExpenses
 } from '../../app/actions';
 import { Modal } from './Modal';
 
@@ -263,6 +265,15 @@ export function PersonalFinanceView() {
         fetchData();
     };
 
+    const handlePropagateAll = async () => {
+        if (!data) return;
+        if (!confirm("Isso irá REPETIR TODA A LISTA acima para os próximos 12 meses. Confirmar?")) return;
+        setLoading(true);
+        const res = await propagateAllFixedExpenses(data.id, selectedMonth, selectedYear);
+        setLoading(false);
+        if (res.success) alert(`Sucesso! Foram replicadas ${res.count} contas para os próximos 12 meses.`);
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Main Navigation */}
@@ -296,12 +307,21 @@ export function PersonalFinanceView() {
 
                 <div className="flex gap-2">
                     {activeTab === 'dashboard' ? (
-                        <button 
-                            onClick={() => { setEditingFixed(null); setFixedFormData({ name: '', value: '', dueDate: 5, paid: false, replicate12: false }); setIsFixedModalOpen(true); }}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-indigo-400/30 shadow-xl"
-                        >
-                            + ADICIONAR CONTA / CARTÃO
-                        </button>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={handlePropagateAll}
+                                title="Repetir TODA esta lista para os próximos 12 meses"
+                                className="bg-slate-900 hover:bg-slate-800 text-emerald-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-emerald-500/20 shadow-xl flex items-center gap-2"
+                            >
+                                <Repeat className="w-4 h-4" /> REPETIR TUDO (12 MESES)
+                            </button>
+                            <button 
+                                onClick={() => { setEditingFixed(null); setFixedFormData({ name: '', value: '', dueDate: 5, paid: false, replicate12: false }); setIsFixedModalOpen(true); }}
+                                className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-indigo-400/30 shadow-xl"
+                            >
+                                + ADICIONAR CONTA / CARTÃO
+                            </button>
+                        </div>
                     ) : !selectedCardId && (
                         <button 
                             onClick={() => { setNewCardName(''); setIsAddCardModalOpen(true); }}

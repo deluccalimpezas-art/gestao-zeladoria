@@ -963,3 +963,23 @@ export async function replicatePersonalFixedExpense(id: string, currentMonth: nu
         return { success: false, error: e.message };
     }
 }
+
+export async function propagateAllFixedExpenses(monthId: string, currentMonth: number, currentYear: number) {
+    try {
+        const items = await (prisma as any).personalFixedExpense.findMany({ where: { monthId } });
+        if (items.length === 0) return { success: false, error: "Nenhuma conta encontrada neste mês" };
+
+        let createdCount = 0;
+        for (const item of items) {
+            // Reutiliza a lógica unitária para cada item
+            const res = await replicatePersonalFixedExpense(item.id, currentMonth, currentYear);
+            if (res.success) createdCount++; 
+        }
+        
+        revalidatePath('/');
+        return { success: true, count: createdCount };
+    } catch (e: any) {
+        console.error("Erro propagateAllFixedExpenses:", e);
+        return { success: false, error: e.message };
+    }
+}
