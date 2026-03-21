@@ -150,7 +150,7 @@ export function PersonalFinanceView() {
             );
         }
 
-        return list.sort((a, b) => (a.paid === b.paid ? 0 : a.paid ? 1 : -1));
+        return list.sort((a, b) => (a.dueDate || 0) - (b.dueDate || 0));
     }, [data, searchTerm]);
 
     const stats = useMemo(() => {
