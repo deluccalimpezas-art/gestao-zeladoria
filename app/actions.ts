@@ -829,7 +829,7 @@ export async function addPersonalRecurringExpense(data: any) {
                 data: {
                     cardId,
                     cardName: cardName || 'Principal',
-                    description,
+                    description: `${description} - ${i + 1}/${totalInstallments} parcelas`,
                     value,
                     isInstallment: true,
                     currentInstallment: i + 1,
