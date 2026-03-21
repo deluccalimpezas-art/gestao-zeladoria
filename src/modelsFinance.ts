@@ -112,6 +112,13 @@ export interface GastoData {
     createdAt?: string;
 }
 
+export interface PersonalCreditCard {
+    id: string;
+    name: string;
+    bank?: string;
+    color?: string;
+}
+
 export interface PersonalFixedExpenseData {
     id?: string;
     name: string;
@@ -123,6 +130,7 @@ export interface PersonalFixedExpenseData {
 
 export interface PersonalCreditCardExpenseData {
     id?: string;
+    cardId?: string;
     cardName: string;
     description: string;
     value: number;

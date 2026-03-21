@@ -145,9 +145,19 @@ model PersonalFixedExpense {
   month   PersonalFinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
 
+model PersonalCreditCard {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  bank      String?
+  color     String?  // Para flair na UI
+  createdAt DateTime @default(now())
+  expenses  PersonalCreditCardExpense[]
+}
+
 model PersonalCreditCardExpense {
   id                 String               @id @default(uuid())
-  cardName           String               @default("Principal")
+  cardId             String?              // Novo link opcional por enquanto
+  cardName           String               @default("Principal") 
   description        String
   value              Float
   isInstallment      Boolean              @default(false)
@@ -158,4 +168,5 @@ model PersonalCreditCardExpense {
   paid               Boolean              @default(false)
   monthId            String
   month              PersonalFinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  card               PersonalCreditCard?  @relation(fields: [cardId], references: [id])
 }

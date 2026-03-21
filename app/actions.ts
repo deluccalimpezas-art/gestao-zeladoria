@@ -750,7 +750,9 @@ export async function getPersonalFinanceData(month: number, year: number) {
                 },
                 include: {
                     fixedExpenses: true,
-                    cardExpenses: true
+                    cardExpenses: {
+                        include: { card: true }
+                    }
                 }
             });
         }
@@ -779,11 +781,11 @@ export async function upsertPersonalFixedExpense(data: any) {
 
 export async function upsertPersonalCreditCardExpense(data: any) {
     try {
-        const { id, cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId } = data;
+        const { id, cardId, cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId } = data;
         const result = await (prisma as any).personalCreditCardExpense.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
-            update: { cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid },
-            create: { cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId }
+            update: { cardId, cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid },
+            create: { cardId, cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId }
         });
         revalidatePath('/');
         return { success: true, data: result };
@@ -794,7 +796,7 @@ export async function upsertPersonalCreditCardExpense(data: any) {
 
 export async function addPersonalRecurringExpense(data: any) {
     try {
-        const { cardName, description, value, totalInstallments, month, year, category } = data;
+        const { cardId, cardName, description, value, totalInstallments, month, year, category } = data;
         const installmentGroupId = crypto.randomUUID();
         
         const results = [];
@@ -825,6 +827,7 @@ export async function addPersonalRecurringExpense(data: any) {
 
             const exp = await (prisma as any).personalCreditCardExpense.create({
                 data: {
+                    cardId,
                     cardName: cardName || 'Principal',
                     description,
                     value,
@@ -871,6 +874,41 @@ export async function deletePersonalCreditCardExpense(id: string, deleteAllGroup
         } else {
             await (prisma as any).personalCreditCardExpense.delete({ where: { id } });
         }
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+export async function getPersonalCards() {
+    try {
+        const cards = await (prisma as any).personalCreditCard.findMany({
+            orderBy: { name: 'asc' }
+        });
+        return { success: true, data: cards };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function upsertPersonalCard(data: any) {
+    try {
+        const { id, name, bank, color } = data;
+        const result = await (prisma as any).personalCreditCard.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { name, bank, color },
+            create: { name, bank, color }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deletePersonalCard(id: string) {
+    try {
+        await (prisma as any).personalCreditCard.delete({ where: { id } });
         revalidatePath('/');
         return { success: true };
     } catch (e: any) {
