@@ -915,3 +915,51 @@ export async function deletePersonalCard(id: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function replicatePersonalFixedExpense(id: string, currentMonth: number, currentYear: number) {
+    try {
+        const item = await (prisma as any).personalFixedExpense.findUnique({ where: { id } });
+        if (!item) return { success: false, error: "Item não encontrado" };
+
+        const results = [];
+        for (let i = 1; i <= 12; i++) {
+            let targetMonth = currentMonth + i;
+            let targetYear = currentYear;
+            while (targetMonth > 12) {
+                targetMonth -= 12;
+                targetYear += 1;
+            }
+
+            let pMonth = await (prisma as any).personalFinanceMonth.findFirst({
+                where: { month: targetMonth, year: targetYear }
+            });
+
+            if (!pMonth) {
+                const monthsNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                pMonth = await (prisma as any).personalFinanceMonth.create({
+                    data: {
+                        month: targetMonth,
+                        year: targetYear,
+                        monthName: `${monthsNames[targetMonth - 1]} ${targetYear}`
+                    }
+                });
+            }
+
+            const newItem = await (prisma as any).personalFixedExpense.create({
+                data: {
+                    name: item.name,
+                    value: item.value,
+                    dueDate: item.dueDate,
+                    paid: false,
+                    monthId: pMonth.id
+                }
+            });
+            results.push(newItem);
+        }
+        revalidatePath('/');
+        return { success: true, count: results.length };
+    } catch (e: any) {
+        console.error("Erro replicatePersonalFixedExpense:", e);
+        return { success: false, error: e.message };
+    }
+}

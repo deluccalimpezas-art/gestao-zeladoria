@@ -33,7 +33,9 @@ import {
     Utensils,
     Fuel,
     ShoppingBag,
-    Calculator
+    Calculator,
+    Zap,
+    Repeat
 } from 'lucide-react';
 import { 
     PersonalFinanceMonthData, 
@@ -50,7 +52,8 @@ import {
     deletePersonalCreditCardExpense,
     getPersonalCards,
     upsertPersonalCard,
-    deletePersonalCard
+    deletePersonalCard,
+    replicatePersonalFixedExpense
 } from '../../app/actions';
 import { Modal } from './Modal';
 
@@ -81,7 +84,8 @@ export function PersonalFinanceView() {
         name: '',
         value: '' as string | number,
         dueDate: 5,
-        paid: false
+        paid: false,
+        replicate12: false
     });
 
     const [newCardName, setNewCardName] = useState('');
@@ -133,7 +137,7 @@ export function PersonalFinanceView() {
         setSelectedYear(ny);
     };
 
-    // Dashboard Data Calculation - ONLY FIXED/MANUAL ITEMS
+    // Dashboard Data Calculation
     const allExpenses = useMemo(() => {
         if (!data) return [];
         
@@ -155,7 +159,6 @@ export function PersonalFinanceView() {
 
     const stats = useMemo(() => {
         if (!data) return { total: 0, paid: 0, pending: 0 };
-        // Stats in Dashboard only reflect what's in the Dashboard list (Fixed + Manual Items)
         const total = data.fixedExpenses.reduce((acc, e) => acc + e.value, 0);
         const paid = data.fixedExpenses.filter(e => e.paid).reduce((acc, e) => acc + e.value, 0);
         return { total, paid, pending: total - paid };
@@ -170,12 +173,17 @@ export function PersonalFinanceView() {
         const val = Number(fixedFormData.value);
         if (!fixedFormData.name || val <= 0) return alert("Preencha nome e valor.");
         const res = await upsertPersonalFixedExpense({
-            ...fixedFormData,
+            name: fixedFormData.name,
             value: val,
+            dueDate: fixedFormData.dueDate,
+            paid: fixedFormData.paid,
             id: editingFixed?.id,
             monthId: data?.id
         });
         if (res.success) {
+            if (fixedFormData.replicate12) {
+                await replicatePersonalFixedExpense(res.data.id, selectedMonth, selectedYear);
+            }
             setIsFixedModalOpen(false);
             fetchData();
         }
@@ -248,6 +256,13 @@ export function PersonalFinanceView() {
         fetchData();
     };
 
+    const handleReplicate = async (exp: any) => {
+        if (!confirm(`Repetir "${exp.name}" por mais 12 meses?`)) return;
+        const res = await replicatePersonalFixedExpense(exp.id, selectedMonth, selectedYear);
+        if (res.success) alert(`Sucesso! Criado em mais ${res.count} meses.`);
+        fetchData();
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Main Navigation */}
@@ -282,7 +297,7 @@ export function PersonalFinanceView() {
                 <div className="flex gap-2">
                     {activeTab === 'dashboard' ? (
                         <button 
-                            onClick={() => { setEditingFixed(null); setFixedFormData({ name: '', value: '', dueDate: 5, paid: false }); setIsFixedModalOpen(true); }}
+                            onClick={() => { setEditingFixed(null); setFixedFormData({ name: '', value: '', dueDate: 5, paid: false, replicate12: false }); setIsFixedModalOpen(true); }}
                             className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-indigo-400/30 shadow-xl"
                         >
                             + ADICIONAR CONTA / CARTÃO
@@ -301,6 +316,22 @@ export function PersonalFinanceView() {
             {/* DASHBOARD VIEW */}
             {activeTab === 'dashboard' && (
                 <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                    {/* Stats Bar */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-slate-800/60 p-5 rounded-3xl border border-slate-700/50 shadow-xl">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total do Mês</p>
+                            <p className="text-2xl font-black text-white italic">R$ {stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div className="bg-emerald-500/10 p-5 rounded-3xl border border-emerald-500/20 shadow-xl">
+                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Pago</p>
+                            <p className="text-2xl font-black text-emerald-400 italic">R$ {stats.paid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div className="bg-rose-500/10 p-5 rounded-3xl border border-rose-500/20 shadow-xl border-t-4 border-t-rose-500">
+                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Falta Pagar (Pendente)</p>
+                            <p className="text-2xl font-black text-rose-400 italic">R$ {stats.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                    </div>
+
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input 
@@ -319,7 +350,7 @@ export function PersonalFinanceView() {
                                     <th className="px-6 py-4 w-16 text-center">Status</th>
                                     <th className="px-6 py-4">Nome da Conta / Lançamento</th>
                                     <th className="px-6 py-4 text-right">Valor Manual</th>
-                                    <th className="px-6 py-4 w-20 text-right">Ações</th>
+                                    <th className="px-6 py-4 w-32 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-700/20">
@@ -350,7 +381,14 @@ export function PersonalFinanceView() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button 
-                                                    onClick={() => { setEditingFixed(exp); setFixedFormData({ name: exp.name, value: exp.value, dueDate: exp.dueDate, paid: exp.paid }); setIsFixedModalOpen(true); }}
+                                                    onClick={() => handleReplicate(exp)}
+                                                    title="Repetir por 12 meses"
+                                                    className="p-2 hover:bg-emerald-500/20 rounded-xl text-slate-500 hover:text-emerald-400"
+                                                >
+                                                    <Repeat className="w-4 h-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => { setEditingFixed(exp); setFixedFormData({ name: exp.name, value: exp.value, dueDate: exp.dueDate, paid: exp.paid, replicate12: false }); setIsFixedModalOpen(true); }}
                                                     className="p-2 hover:bg-slate-700 rounded-xl text-slate-500 hover:text-white"
                                                 >
                                                     <Edit2 className="w-4 h-4" />
@@ -421,7 +459,7 @@ export function PersonalFinanceView() {
                                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Conferência de Fatura Manual</p>
                             </div>
                         </div>
-                        <div className="bg-slate-900/60 px-6 py-4 rounded-3xl border border-slate-800/50 flex flex-col items-end">
+                        <div className="bg-slate-900/60 px-6 py-4 rounded-3xl border border-slate-800/50 flex flex-col items-end shadow-xl">
                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subtotal Acumulado</p>
                              <p className="text-2xl font-black text-indigo-400 italic">R$ {activeCardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                         </div>
@@ -489,6 +527,18 @@ export function PersonalFinanceView() {
                             {[...Array(31)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
                         </select>
                     </div>
+                    {!editingFixed && (
+                        <div className="flex items-center gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <input 
+                                type="checkbox" 
+                                id="replicate"
+                                checked={fixedFormData.replicate12} 
+                                onChange={e => setFixedFormData({...fixedFormData, replicate12: e.target.checked})}
+                                className="w-5 h-5 rounded accent-emerald-500"
+                            />
+                            <label htmlFor="replicate" className="text-[10px] font-black uppercase text-emerald-500 tracking-wider cursor-pointer">Repetir automaticamente por 12 meses</label>
+                        </div>
+                    )}
                     <button onClick={handleSaveFixed} className="w-full bg-indigo-600 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Salvar na Lista Geral</button>
                 </div>
             </Modal>
