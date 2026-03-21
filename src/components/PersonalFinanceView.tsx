@@ -284,13 +284,13 @@ export function PersonalFinanceView() {
             {/* Dashboard Control Bar */}
             <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 backdrop-blur-md flex flex-wrap items-center justify-between gap-6 shadow-2xl">
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center bg-slate-950/80 rounded-2xl border border-slate-800 overflow-hidden shadow-inner">
-                        <button onClick={() => changeMonth(-1)} className="p-3 hover:bg-slate-900 text-slate-500 transition-colors"><ChevronLeft className="w-5 h-5"/></button>
+                    <div className={`flex items-center rounded-2xl border overflow-hidden shadow-inner transition-colors duration-500 ${stats.total > 0 && stats.pending === 0 ? 'bg-emerald-500 border-emerald-400' : 'bg-slate-950/80 border-slate-800'}`}>
+                        <button onClick={() => changeMonth(-1)} className={`p-3 hover:bg-slate-900/50 transition-colors ${stats.total > 0 && stats.pending === 0 ? 'text-white/70' : 'text-slate-500'}`}><ChevronLeft className="w-5 h-5"/></button>
                         <div className="px-6 py-2 text-center min-w-[140px]">
                             <span className="text-sm font-black text-white uppercase tracking-widest leading-none">{months[selectedMonth-1]}</span>
-                            <span className="block text-[10px] text-slate-500 font-bold leading-none mt-1">{selectedYear}</span>
+                            <span className={`block text-[10px] font-bold leading-none mt-1 ${stats.total > 0 && stats.pending === 0 ? 'text-emerald-100' : 'text-slate-500'}`}>{selectedYear}</span>
                         </div>
-                        <button onClick={() => changeMonth(1)} className="p-3 hover:bg-slate-900 text-slate-500 transition-colors"><ChevronRight className="w-5 h-5"/></button>
+                        <button onClick={() => changeMonth(1)} className={`p-3 hover:bg-slate-900/50 transition-colors ${stats.total > 0 && stats.pending === 0 ? 'text-white/70' : 'text-slate-500'}`}><ChevronRight className="w-5 h-5"/></button>
                     </div>
                 </div>
 
