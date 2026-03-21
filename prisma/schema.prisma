@@ -147,6 +147,7 @@ model PersonalFixedExpense {
 
 model PersonalCreditCardExpense {
   id                 String               @id @default(uuid())
+  cardName           String               @default("Principal")
   description        String
   value              Float
   isInstallment      Boolean              @default(false)

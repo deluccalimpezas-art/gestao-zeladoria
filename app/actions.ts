@@ -779,11 +779,11 @@ export async function upsertPersonalFixedExpense(data: any) {
 
 export async function upsertPersonalCreditCardExpense(data: any) {
     try {
-        const { id, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId } = data;
+        const { id, cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId } = data;
         const result = await (prisma as any).personalCreditCardExpense.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
-            update: { description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid },
-            create: { description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId }
+            update: { cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid },
+            create: { cardName, description, value, isInstallment, currentInstallment, totalInstallments, installmentGroupId, category, paid, monthId }
         });
         revalidatePath('/');
         return { success: true, data: result };
@@ -794,7 +794,7 @@ export async function upsertPersonalCreditCardExpense(data: any) {
 
 export async function addPersonalRecurringExpense(data: any) {
     try {
-        const { description, value, totalInstallments, month, year, category } = data;
+        const { cardName, description, value, totalInstallments, month, year, category } = data;
         const installmentGroupId = crypto.randomUUID();
         
         const results = [];
@@ -825,6 +825,7 @@ export async function addPersonalRecurringExpense(data: any) {
 
             const exp = await (prisma as any).personalCreditCardExpense.create({
                 data: {
+                    cardName: cardName || 'Principal',
                     description,
                     value,
                     isInstallment: true,
