@@ -123,6 +123,7 @@ export interface PersonalFixedExpenseData {
 
 export interface PersonalCreditCardExpenseData {
     id?: string;
+    cardName: string;
     description: string;
     value: number;
     isInstallment: boolean;
