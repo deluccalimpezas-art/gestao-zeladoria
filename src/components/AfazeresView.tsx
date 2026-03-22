@@ -9,7 +9,8 @@ import {
     StickyNote,
     History,
     RefreshCw,
-    X
+    X,
+    Pencil
 } from 'lucide-react';
 import { getTaskTodos, upsertTaskTodo, deleteTaskTodo } from '../../app/actions';
 
@@ -19,6 +20,7 @@ export function AfazeresView() {
     const [newTitle, setNewTitle] = useState('');
     const [newDesc, setNewDesc] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [editingTodo, setEditingTodo] = useState<any | null>(null);
 
     useEffect(() => {
         loadTodos();
@@ -34,14 +36,33 @@ export function AfazeresView() {
     const handleAddTodo = async () => {
         if (!newTitle.trim()) return;
         setIsLoading(true);
-        const res = await upsertTaskTodo({ title: newTitle, description: newDesc });
+        const res = await upsertTaskTodo({ 
+            id: editingTodo?.id, 
+            title: newTitle, 
+            description: newDesc 
+        });
         if (res.success) {
             setNewTitle('');
             setNewDesc('');
             setShowForm(false);
+            setEditingTodo(null);
             await loadTodos();
         }
         setIsLoading(false);
+    };
+
+    const handleEditClick = (todo: any) => {
+        setEditingTodo(todo);
+        setNewTitle(todo.title);
+        setNewDesc(todo.description || '');
+        setShowForm(true);
+    };
+
+    const handleCancel = () => {
+        setShowForm(false);
+        setEditingTodo(null);
+        setNewTitle('');
+        setNewDesc('');
     };
 
     const handleToggleComplete = async (todo: any) => {
@@ -88,13 +109,15 @@ export function AfazeresView() {
             {showForm && (
                 <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 shadow-xl animate-in zoom-in-95 duration-200 max-w-xl mx-auto relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-2">
-                         <button onClick={() => setShowForm(false)} className="p-1 text-amber-800/50 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors">
+                         <button onClick={handleCancel} className="p-1 text-amber-800/50 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors">
                             <X className="w-5 h-5" />
                          </button>
                     </div>
                     <div className="flex items-center gap-3 mb-4 text-amber-800">
-                        <Plus className="w-6 h-6" />
-                        <h3 className="text-lg font-black uppercase tracking-tight">Novo Post-it</h3>
+                        {editingTodo ? <Pencil className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+                        <h3 className="text-lg font-black uppercase tracking-tight">
+                            {editingTodo ? 'Editar Post-it' : 'Novo Post-it'}
+                        </h3>
                     </div>
                     <div className="space-y-4">
                         <input 
@@ -118,10 +141,10 @@ export function AfazeresView() {
                                 disabled={!newTitle.trim() || isLoading}
                                 className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-black py-3 rounded-xl shadow-lg transition-all active:scale-95"
                             >
-                                {isLoading ? 'Criando...' : 'ADICIONAR TAREFA'}
+                                {isLoading ? 'Salvando...' : editingTodo ? 'SALVAR ALTERAÇÕES' : 'ADICIONAR TAREFA'}
                             </button>
                             <button 
-                                onClick={() => setShowForm(false)}
+                                onClick={handleCancel}
                                 className="px-6 bg-amber-200 hover:bg-amber-300 text-amber-800 font-bold rounded-xl transition-all"
                             >
                                 CANCELAR
@@ -154,8 +177,16 @@ export function AfazeresView() {
                             >
                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button 
+                                        onClick={() => handleEditClick(todo)}
+                                        className="p-1.5 text-amber-800/30 hover:text-amber-800 hover:bg-amber-200 rounded-full transition-all"
+                                        title="Editar"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </button>
+                                    <button 
                                         onClick={() => handleDelete(todo.id)}
                                         className="p-1.5 text-amber-800/30 hover:text-red-600 hover:bg-red-100 rounded-full transition-all"
+                                        title="Excluir"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
