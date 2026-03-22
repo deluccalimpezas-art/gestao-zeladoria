@@ -25,6 +25,7 @@ model Condominio {
   deleted         Boolean             @default(false)
   contratoPdf     Bytes?
   contratoNome    String?
+  observacao      String?
   funcionarios    Funcionario[]
   financasMensais MonthlyCondominio[]
 }

@@ -35,7 +35,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
-        const { id, nome, administradora, cnpj, endereco, valorContrato, valorVerao, cargaHoraria, valorAtivo, inicio, termino, deleted, contratoPdf, contratoNome } = data;
+        const { id, nome, administradora, cnpj, endereco, valorContrato, cargaHoraria, inicio, termino, deleted, contratoPdf, contratoNome, observacao } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
         let cleanCnpj = null;
@@ -54,14 +54,13 @@ export async function upsertCondominio(data: any) {
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,
-                valorVerao,
                 cargaHoraria,
-                valorAtivo,
                 inicio,
                 termino,
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
-                contratoNome: contratoNome || undefined
+                contratoNome: contratoNome || undefined,
+                observacao
             },
             create: {
                 id: data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10 ? data.id : undefined,
@@ -70,14 +69,13 @@ export async function upsertCondominio(data: any) {
                 cnpj: cleanCnpj,
                 endereco,
                 valorContrato,
-                valorVerao,
                 cargaHoraria,
-                valorAtivo,
                 inicio,
                 termino,
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
-                contratoNome: contratoNome || undefined
+                contratoNome: contratoNome || undefined,
+                observacao
             },
         });
         return { success: true, data: result };
@@ -316,7 +314,7 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: c.nome,
                         cnpj: c.cnpj,
-                        valorCobrado: (c as any).valorAtivo === 'verao' ? ((c as any).valorVerao || (c as any).valorContrato || 0) : ((c as any).valorContrato || 0),
+                        valorCobrado: c.valorContrato || 0,
                         condominioId: c.id
                     }))
                 });

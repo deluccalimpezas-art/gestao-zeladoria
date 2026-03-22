@@ -70,8 +70,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     // Auto-fill values from condo
     useEffect(() => {
         if (currentCondo) {
-            const valorBase = currentCondo.receitaBruta ||
-                (currentCondo.valorAtivo === 'verao' ? currentCondo.valorVerao : currentCondo.valorContrato) || 0;
+            const valorBase = currentCondo.receitaBruta || currentCondo.valorContrato || 0;
             setValorBruto(valorBase);
         } else {
             setValorBruto(0);
