@@ -291,8 +291,8 @@ export default function PosObrasView() {
                                                                             <td className="px-4 py-2 text-right">
                                                                                 <input 
                                                                                     type="number"
-                                                                                    value={gasto.valor}
-                                                                                    onChange={e => updateGasto(obra.id!, realIdx, 'valor', Number(e.target.value))}
+                                                                                    value={gasto.valor || ''}
+                                                                                    onChange={e => updateGasto(obra.id!, realIdx, 'valor', e.target.value === '' ? 0 : Number(e.target.value))}
                                                                                     className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-24 text-right text-indigo-200"
                                                                                 />
                                                                             </td>
@@ -350,8 +350,8 @@ export default function PosObrasView() {
                                                                             <td className="px-4 py-2 text-right">
                                                                                 <input 
                                                                                     type="number"
-                                                                                    value={gasto.valor}
-                                                                                    onChange={e => updateGasto(obra.id!, realIdx, 'valor', Number(e.target.value))}
+                                                                                    value={gasto.valor || ''}
+                                                                                    onChange={e => updateGasto(obra.id!, realIdx, 'valor', e.target.value === '' ? 0 : Number(e.target.value))}
                                                                                     className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-24 text-right text-emerald-200"
                                                                                 />
                                                                             </td>
@@ -459,8 +459,8 @@ export default function PosObrasView() {
                                         <input 
                                             type="number" 
                                             placeholder="R$ 0,00"
-                                            value={newObra.valor}
-                                            onChange={e => setNewObra({...newObra, valor: Number(e.target.value)})}
+                                            value={newObra.valor || ''}
+                                            onChange={e => setNewObra({...newObra, valor: e.target.value === '' ? undefined : Number(e.target.value)})}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all"
                                         />
                                     </div>
