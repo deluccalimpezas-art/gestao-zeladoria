@@ -21,6 +21,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('value');
     const [expandedNoteRows, setExpandedNoteRows] = useState<Set<string>>(new Set());
+    const [isGastoModalOpen, setIsGastoModalOpen] = useState(false);
+    const [editingGastoIndex, setEditingGastoIndex] = useState<number | null>(null);
+    const [gastoFormData, setGastoFormData] = useState<Partial<MonthlyGastoData>>({
+        descricao: '',
+        valor: 0,
+        categoria: 'Outros',
+        data: new Date().toISOString().split('T')[0]
+    });
 
     const toggleNoteRow = (key: string) => {
         setExpandedNoteRows(prev => {
@@ -379,23 +387,49 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setHasChanges(true);
     };
 
-    const addGasto = () => {
-        const newList: MonthlyGastoData[] = [...(localMonth.gastos || []), {
-            id: crypto.randomUUID(),
-            descricao: 'Novo Gasto',
-            valor: 0,
-            pago: false,
-            categoria: 'Outros',
-            data: new Date().toISOString().split('T')[0]
-        }];
-        updateHistory({ ...localMonth, gastos: newList });
-        setHasChanges(true);
-    };
-
     const removeGasto = (index: number) => {
         const newList = (localMonth.gastos || []).filter((_, i) => i !== index);
         updateHistory({ ...localMonth, gastos: newList });
         setHasChanges(true);
+    };
+
+    const handleOpenGastoModal = (index: number | null = null) => {
+        if (index !== null) {
+            const g = (localMonth.gastos || [])[index];
+            setGastoFormData({ ...g });
+            setEditingGastoIndex(index);
+        } else {
+            setGastoFormData({
+                descricao: '',
+                valor: 0,
+                categoria: 'Outros',
+                data: new Date().toISOString().split('T')[0]
+            });
+            setEditingGastoIndex(null);
+        }
+        setIsGastoModalOpen(true);
+    };
+
+    const handleSaveGasto = () => {
+        const gastos = [...(localMonth.gastos || [])];
+        const newGasto: MonthlyGastoData = {
+            id: gastoFormData.id || crypto.randomUUID(),
+            descricao: gastoFormData.descricao || 'Novo Gasto',
+            valor: Number(gastoFormData.valor) || 0,
+            pago: gastoFormData.pago || false,
+            categoria: gastoFormData.categoria as any || 'Outros',
+            data: gastoFormData.data || new Date().toISOString().split('T')[0],
+            monthId: localMonth.id
+        };
+
+        if (editingGastoIndex !== null) {
+            gastos[editingGastoIndex] = newGasto;
+        } else {
+            gastos.push(newGasto);
+        }
+
+        updateHistory({ ...localMonth, gastos });
+        setIsGastoModalOpen(false);
     };
 
     const rhMetrics = useMemo(() => {
@@ -509,6 +543,24 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             totalCount: validCondos.length
         };
     }, [localMonth.condominios]);
+
+    const gastosByCategory = useMemo(() => {
+        const cats = {
+            Pagamentos: 0,
+            Vales: 0,
+            Restaurantes: 0,
+            Outros: 0
+        };
+        (localMonth.gastos || []).forEach(g => {
+            const cat = g.categoria || 'Outros';
+            if (cat in cats) {
+                cats[cat as keyof typeof cats] += Number(g.valor) || 0;
+            } else {
+                cats.Outros += Number(g.valor) || 0;
+            }
+        });
+        return cats;
+    }, [localMonth.gastos]);
 
     const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos);
 
@@ -1123,22 +1175,50 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         </div>
                     )}
                     {activeTab === 'gastos' && (
-                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500">
-                            <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 backdrop-blur-md flex flex-wrap items-center justify-between gap-6 mb-6 shadow-2xl">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-rose-500/20 rounded-2xl flex items-center justify-center border border-rose-500/30">
-                                        <TrendingDown className="w-6 h-6 text-rose-400" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-black text-white uppercase tracking-tight">Fluxo de Gastos Mensais</h2>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Controle de despesas extras e variáveis</p>
-                                    </div>
+                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500 p-6 space-y-6">
+                            {/* Header de Resumo de Gastos */}
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50 flex flex-col justify-center shadow-xl">
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total de Gastos</span>
+                                    <span className="text-2xl font-black text-white italic">{formatCurrency(currentTotals.gastos)}</span>
                                 </div>
-                                <button
-                                    onClick={addGasto}
-                                    className="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all border border-rose-400/30 shadow-xl flex items-center gap-2 active:scale-95"
+                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-indigo-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <DollarSign className="w-3 h-3 text-indigo-400" />
+                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Pagamentos</span>
+                                    </div>
+                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Pagamentos)}</span>
+                                </div>
+                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <HandCoins className="w-3 h-3 text-amber-400" />
+                                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Vales</span>
+                                    </div>
+                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Vales)}</span>
+                                </div>
+                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Utensils className="w-3 h-3 text-emerald-400" />
+                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Restaurantes</span>
+                                    </div>
+                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Restaurantes)}</span>
+                                </div>
+                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-slate-700 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Tag className="w-3 h-3 text-slate-400" />
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Outros</span>
+                                    </div>
+                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Outros)}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                 <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Detalhes dos Lançamentos</h2>
+                                 <button
+                                    onClick={() => handleOpenGastoModal()}
+                                    className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 active:scale-95"
                                 >
-                                    <Plus className="w-4 h-4" /> Adicionar Lançamento
+                                    <Plus className="w-4 h-4" /> Novo Gasto
                                 </button>
                             </div>
 
@@ -1147,9 +1227,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <thead>
                                         <tr className="bg-slate-950/50 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] border-b border-slate-700/50">
                                             <th className="px-6 py-4 w-16 text-center">Status</th>
-                                            <th className="px-6 py-4">Data</th>
-                                            <th className="px-6 py-4">Categoria</th>
                                             <th className="px-6 py-4">Descrição do Gasto</th>
+                                            <th className="px-6 py-4 w-28">Dia</th>
+                                            <th className="px-6 py-4">Categoria</th>
                                             <th className="px-6 py-4 text-right">Valor</th>
                                             <th className="px-6 py-4 w-16 text-center"></th>
                                         </tr>
@@ -1172,59 +1252,41 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     </button>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-1.5 focus-within:border-indigo-500/50 transition-all">
-                                                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                                                        <input 
-                                                            type="date"
-                                                            value={gasto.data || ''}
-                                                            onChange={(e) => updateGasto(idx, 'data', e.target.value)}
-                                                            className="bg-transparent border-none outline-none text-[10px] font-black text-slate-300 uppercase tracking-widest w-24"
-                                                        />
-                                                    </div>
+                                                    <span className="text-sm font-bold text-white uppercase tracking-tight">{gasto.descricao}</span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <select 
-                                                            value={gasto.categoria || 'Outros'}
-                                                            onChange={(e) => updateGasto(idx, 'categoria', e.target.value as any)}
-                                                            className={`bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-widest outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all ${
-                                                                gasto.categoria === 'Pagamentos' ? 'text-indigo-400' :
-                                                                gasto.categoria === 'Vales' ? 'text-amber-400' :
-                                                                gasto.categoria === 'Restaurantes' ? 'text-emerald-400' :
-                                                                'text-slate-400'
-                                                            }`}
-                                                        >
-                                                            <option value="Pagamentos">💰 Pagamentos</option>
-                                                            <option value="Vales">🎫 Vales</option>
-                                                            <option value="Restaurantes">🍽️ Restaurantes</option>
-                                                            <option value="Outros">🏷️ Outros</option>
-                                                        </select>
-                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3" /> Dia {gasto.data ? gasto.data.split('-')[2] : '--'}
+                                                    </span>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <input
-                                                        value={gasto.descricao}
-                                                        onChange={(e) => updateGasto(idx, 'descricao', e.target.value)}
-                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500/30 rounded px-2 w-full text-sm font-bold text-white uppercase tracking-tight placeholder:text-slate-600"
-                                                        placeholder="O que foi pago?"
-                                                    />
+                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                                                        gasto.categoria === 'Pagamentos' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
+                                                        gasto.categoria === 'Vales' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                                                        gasto.categoria === 'Restaurantes' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                                        'bg-slate-700 text-slate-400'
+                                                    }`}>
+                                                        {gasto.categoria || 'Outros'}
+                                                    </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <CurrencyField
-                                                        value={gasto.valor || 0}
-                                                        onChange={(val) => updateGasto(idx, 'valor', val)}
-                                                        textColor={gasto.pago ? "text-slate-500" : "text-rose-400"}
-                                                        width="w-32"
-                                                    />
+                                                <td className="px-6 py-4 text-right font-black text-slate-300">
+                                                    {formatCurrency(gasto.valor || 0)}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <button
-                                                        onClick={() => removeGasto(idx)}
-                                                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 rounded-xl text-slate-500 hover:text-rose-400 transition-all"
-                                                        title="Remover Gasto"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                                        <button
+                                                            onClick={() => handleOpenGastoModal(idx)}
+                                                            className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all"
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => removeGasto(idx)}
+                                                            className="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-500 hover:text-rose-400 transition-all"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -1233,23 +1295,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                 <td colSpan={6} className="px-6 py-20 text-center">
                                                     <div className="flex flex-col items-center gap-3 opacity-20">
                                                         <DollarSign className="w-12 h-12 text-slate-500" />
-                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Nenhum gasto registrado para este mês</p>
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Nenhum gasto registrado</p>
                                                     </div>
                                                 </td>
                                             </tr>
                                         )}
                                     </tbody>
-                                    <tfoot className="bg-slate-950/80 border-t border-slate-700/50">
-                                        <tr className="text-white font-bold">
-                                            <td colSpan={4} className="px-6 py-6 text-xs uppercase tracking-[0.3em] font-black text-slate-500">Total de Gastos Extras</td>
-                                            <td className="px-6 py-6 text-right">
-                                                <div className="px-5 py-2.5 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-2xl font-black italic inline-block min-w-[160px] shadow-xl">
-                                                    {formatCurrency(currentTotals.gastos)}
-                                                </div>
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
@@ -1372,6 +1423,88 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <Save className="w-4 h-4" /> Salvar Nota Fiscal
                         </button>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Modal de Lançamento de Gasto Business */}
+            <Modal
+                isOpen={isGastoModalOpen}
+                onClose={() => setIsGastoModalOpen(false)}
+                title={editingGastoIndex !== null ? "Editar Gasto" : "Novo Gasto Empresarial"}
+            >
+                <div className="space-y-6 p-2">
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Descrição do Gasto</label>
+                        <input 
+                            type="text" 
+                            placeholder="Ex: Refeição Equipe" 
+                            value={gastoFormData.descricao} 
+                            onChange={e => setGastoFormData({...gastoFormData, descricao: e.target.value})} 
+                            className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Dia</label>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max="31"
+                                placeholder="01"
+                                value={gastoFormData.data ? gastoFormData.data.split('-')[2] : '01'} 
+                                onChange={e => {
+                                    const day = e.target.value.padStart(2, '0');
+                                    const baseDate = gastoFormData.data || new Date().toISOString().split('T')[0];
+                                    const dateParts = baseDate.split('-');
+                                    setGastoFormData({...gastoFormData, data: `${dateParts[0]}-${dateParts[1]}-${day}`});
+                                }} 
+                                className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Valor (R$)</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0,00"
+                                value={gastoFormData.valor} 
+                                onChange={e => setGastoFormData({...gastoFormData, valor: Number(e.target.value)})} 
+                                className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 text-center block mb-2">Categoria</label>
+                        <div className="grid grid-cols-2 gap-2">
+                             {[
+                                { id: 'Pagamentos', icon: <DollarSign className="w-3 h-3"/>, color: 'indigo' },
+                                { id: 'Vales', icon: <HandCoins className="w-3 h-3"/>, color: 'amber' },
+                                { id: 'Restaurantes', icon: <Utensils className="w-3 h-3"/>, color: 'emerald' },
+                                { id: 'Outros', icon: <Tag className="w-3 h-3"/>, color: 'slate' }
+                             ].map(cat => (
+                                <button 
+                                    key={cat.id} 
+                                    onClick={() => setGastoFormData({...gastoFormData, categoria: cat.id as any})} 
+                                    className={`px-4 py-3 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                                        gastoFormData.categoria === cat.id 
+                                        ? `bg-${cat.color}-600 border-${cat.color}-400 text-white shadow-lg` 
+                                        : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'
+                                    }`}
+                                >
+                                    {cat.icon} {cat.id}
+                                </button>
+                             ))}
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handleSaveGasto} 
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 text-white transition-all active:scale-[0.98] mt-4"
+                    >
+                        {editingGastoIndex !== null ? "Atualizar Lançamento" : "Confirmar Lançamento"}
+                    </button>
                 </div>
             </Modal>
         </div>
