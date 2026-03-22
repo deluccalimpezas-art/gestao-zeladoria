@@ -19,7 +19,8 @@ import {
     Trash2,
     Zap,
     LineChart,
-    FileText
+    FileText,
+    HardHat
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -33,6 +34,7 @@ import { ExpenseTrackerView } from './ExpenseTrackerView';
 import { PersonalFinanceView } from './PersonalFinanceView';
 import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
+import PosObrasView from './PosObrasView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -55,7 +57,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras'>('visao_geral');
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -243,6 +245,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Building2 className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Condomínios</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('pos_obras')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'pos_obras' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <HardHat className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Pós-Obras</span>}
                             </button>
                         </li>
                         <li>
@@ -435,6 +446,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <PersonalFinanceView />
                     ) : activeTab === 'calculos' ? (
                         <CalculatorsView />
+                    ) : activeTab === 'pos_obras' ? (
+                        <PosObrasView />
                     ) : (
                         <div className="flex items-center justify-center h-full text-slate-500">
                             Selecione uma opção no menu lateral

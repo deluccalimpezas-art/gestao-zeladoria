@@ -182,3 +182,24 @@ model PersonalCreditCardExpense {
   month              PersonalFinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
   card               PersonalCreditCard?  @relation(fields: [cardId], references: [id])
 }
+
+model PosObra {
+  id              String         @id @default(uuid())
+  nome            String
+  cliente         String?
+  data            String?        // YYYY-MM-DD
+  status          String         @default("Em Andamento") // Em Andamento, Concluído
+  gastos          PosObraGasto[]
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+}
+
+model PosObraGasto {
+  id          String   @id @default(uuid())
+  descricao   String
+  valor       Float
+  tipo        String   // Salário, Produto
+  data        String?  // YYYY-MM-DD
+  posObraId   String
+  posObra     PosObra  @relation(fields: [posObraId], references: [id], onDelete: Cascade)
+}

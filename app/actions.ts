@@ -553,6 +553,80 @@ export async function deleteFinanceMonth(monthName: string) {
     }
 }
 
+// --- PÓS-OBRAS ---
+
+export async function getPosObras() {
+    try {
+        const obras = await (prisma as any).posObra.findMany({
+            include: { gastos: true },
+            orderBy: { created_at: 'desc' }
+        });
+        return obras;
+    } catch (e) {
+        console.error("Erro getPosObras:", e);
+        return [];
+    }
+}
+
+export async function savePosObra(data: any) {
+    try {
+        const { id, nome, cliente, data: dataObra, status, gastos } = data;
+
+        const obra = await (prisma as any).posObra.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { nome, cliente, data: dataObra, status },
+            create: { nome, cliente, data: dataObra, status }
+        });
+
+        // Sincronizar Gastos
+        if (gastos) {
+            const incomingGastoIds = gastos.map((g: any) => g.id).filter((id: any) => id && id.length > 20);
+            await (prisma as any).posObraGasto.deleteMany({
+                where: {
+                    posObraId: obra.id,
+                    id: { notIn: incomingGastoIds }
+                }
+            });
+
+            for (const g of gastos) {
+                await (prisma as any).posObraGasto.upsert({
+                    where: { id: (g.id && g.id.length > 20) ? g.id : '00000000-0000-0000-0000-000000000000' },
+                    update: {
+                        descricao: g.descricao,
+                        valor: g.valor || 0,
+                        tipo: g.tipo,
+                        data: g.data
+                    },
+                    create: {
+                        posObraId: obra.id,
+                        descricao: g.descricao,
+                        valor: g.valor || 0,
+                        tipo: g.tipo,
+                        data: g.data
+                    }
+                });
+            }
+        }
+
+        revalidatePath('/');
+        return { success: true, id: obra.id };
+    } catch (e: any) {
+        console.error("Erro savePosObra:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deletePosObra(id: string) {
+    try {
+        await (prisma as any).posObra.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deletePosObra:", e);
+        return { success: false, error: e.message };
+    }
+}
+
 export async function saveMasterRH(data: { condominios: any[], funcionarios: any[] }) {
     try {
         console.log("Iniciando saveMasterRH...");
