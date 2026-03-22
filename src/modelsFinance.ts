@@ -73,18 +73,29 @@ export interface MonthlyFinanceData {
     // Detalhamento Opcional (se vier nas planilhas)
     totalSalarios?: number;
     totalImpostos?: number;
+    totalGastos?: number;
     lucroEstimado?: number;
-
+ 
     // Lista dos prédios atendidos
     condominios?: CondominioData[];
-
+ 
     // Lista de funcionários e obrigações
     inssRate?: number;
     funcionarios?: FuncionarioData[];
     impostos?: ImpostoData[];
+    gastos?: MonthlyGastoData[];
+
     // Observações livres por seção
     observacoesCondominios?: string;
     observacoesFuncionarios?: string;
+}
+
+export interface MonthlyGastoData {
+    id: string;
+    descricao: string;
+    valor: number;
+    pago: boolean;
+    monthId?: string;
 }
 export interface CandidatoData {
     id: string;

@@ -214,6 +214,7 @@ export async function getFinanceMonths() {
                 condominios: true,
                 funcionarios: true,
                 impostos: true,
+                gastos: true,
             },
             orderBy: [
                 { created_at: 'desc' }
@@ -250,7 +251,8 @@ export async function getFinanceMonths() {
             const totalLiquida = totalBruto - totalInss;
             const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
             const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
-            const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos);
+            const totalGastos = m.gastos.reduce((acc: number, g: any) => acc + g.valor, 0);
+            const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos + totalGastos);
 
             return {
                 id: m.id,
@@ -260,6 +262,7 @@ export async function getFinanceMonths() {
                 receitaLiquida: totalLiquida,
                 totalSalarios,
                 totalImpostos,
+                totalGastos,
                 lucroEstimado,
                 condominios: mappedCondos,
                 funcionarios: mappedFuncs,
@@ -268,6 +271,12 @@ export async function getFinanceMonths() {
                     nome: mi.nome,
                     valor: mi.valor,
                     pago: mi.pago
+                })),
+                gastos: m.gastos.map((mg: any) => ({
+                    id: mg.id,
+                    descricao: mg.descricao,
+                    valor: mg.valor,
+                    pago: mg.pago
                 }))
             };
         });
@@ -348,7 +357,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
 
         const source = await prisma.financeMonth.findUnique({
             where: { id: sourceId },
-            include: { condominios: true, funcionarios: true, impostos: true }
+            include: { condominios: true, funcionarios: true, impostos: true, gastos: true }
         });
         if (!source) return { success: false, error: "Mês de origem não encontrado." };
 
@@ -388,6 +397,15 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
             }))
         });
 
+        await prisma.monthlyGasto.createMany({
+            data: source.gastos.map(g => ({
+                monthId: newMonth.id,
+                descricao: g.descricao,
+                valor: g.valor,
+                pago: false
+            }))
+        });
+
         revalidatePath('/');
         return { success: true, data: newMonth };
     } catch (e: any) {
@@ -397,7 +415,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
 
 export async function saveFinanceMonth(data: any) {
     try {
-        const { id, condominios, funcionarios, impostos } = data;
+        const { id, condominios, funcionarios, impostos, gastos } = data;
 
         // Upsert Condos
         for (const c of condominios) {
@@ -464,6 +482,36 @@ export async function saveFinanceMonth(data: any) {
                     pago: i.pago || false
                 }
             });
+        }
+
+        // Upsert Gastos
+        if (gastos && Array.isArray(gastos)) {
+            // Deletar os que não vieram
+            const incomingGastoIds = gastos.map((g: any) => g.id).filter((id: string) => id && id.length > 20);
+            await prisma.monthlyGasto.deleteMany({
+                where: {
+                    monthId: id,
+                    id: { notIn: incomingGastoIds }
+                }
+            });
+
+            for (const g of gastos) {
+                await prisma.monthlyGasto.upsert({
+                    where: { id: (g.id && g.id.length > 20) ? g.id : '00000000-0000-0000-0000-000000000000' },
+                    update: {
+                        descricao: g.descricao,
+                        valor: g.valor || 0,
+                        pago: g.pago || false
+                    },
+                    create: {
+                        id: (g.id && g.id.length > 20) ? g.id : undefined,
+                        monthId: id,
+                        descricao: g.descricao,
+                        valor: g.valor || 0,
+                        pago: g.pago || false
+                    }
+                });
+            }
         }
 
         revalidatePath('/');

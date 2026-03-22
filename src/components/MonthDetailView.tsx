@@ -10,7 +10,7 @@ interface MonthDetailViewProps {
     onSave: (updated: MonthlyFinanceData) => void;
 }
 
-type TabType = 'visao_geral' | 'condominios' | 'folha' | 'impostos';
+type TabType = 'visao_geral' | 'condominios' | 'folha' | 'impostos' | 'gastos';
 
 export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
@@ -59,12 +59,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             currInss = (validCondos.length === 0 || (validCondos.length === 1 && !validCondos[0].nome)) && (localMonth.inssRetido || 0) > 0 ? (localMonth.inssRetido || 0) : validCondos.reduce((acc, c) => acc + (Number(c.inssRetido) || 0), 0);
             currSalarios = validFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
             currImpostos = validImpostos.reduce((acc, i) => acc + (Number(i.valor) || 0), 0);
+            const currGastos = (localMonth.gastos || []).reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
 
-            const lucroEstimado = (currBruto - currInss) - (currSalarios + currImpostos);
+            const lucroEstimado = (currBruto - currInss) - (currSalarios + currImpostos + currGastos);
 
             onSaveRef.current({
                 ...localMonth,
-                lucroEstimado
+                lucroEstimado,
+                totalGastos: currGastos
             });
 
             setHasChanges(false);
@@ -307,6 +309,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         setHasChanges(true);
     };
 
+    const updateGasto = (index: number, field: string, value: string | number | boolean) => {
+        const list = [...(localMonth.gastos || [])];
+        list[index] = { ...list[index], [field]: value };
+
+        const totalGastos = list.reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+
+        updateHistory({ ...localMonth, gastos: list, totalGastos });
+        setHasChanges(true);
+    };
+
     const addCondo = () => {
         const newList = [...(localMonth.condominios || []), {
             id: crypto.randomUUID(),
@@ -354,7 +366,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             id: crypto.randomUUID(),
             nome: 'Novo Imposto',
             vencimento: '',
-            valor: 0
+            valor: 0,
+            pago: false
         }];
         updateHistory({ ...localMonth, impostos: newList });
         setHasChanges(true);
@@ -363,6 +376,23 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const removeImposto = (index: number) => {
         const newList = (localMonth.impostos || []).filter((_, i) => i !== index);
         updateHistory({ ...localMonth, impostos: newList });
+        setHasChanges(true);
+    };
+
+    const addGasto = () => {
+        const newList = [...(localMonth.gastos || []), {
+            id: crypto.randomUUID(),
+            descricao: 'Novo Gasto',
+            valor: 0,
+            pago: false
+        }];
+        updateHistory({ ...localMonth, gastos: newList });
+        setHasChanges(true);
+    };
+
+    const removeGasto = (index: number) => {
+        const newList = (localMonth.gastos || []).filter((_, i) => i !== index);
+        updateHistory({ ...localMonth, gastos: newList });
         setHasChanges(true);
     };
 
@@ -455,8 +485,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
         const salarios = validFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
         const impostos = validImpostos.reduce((acc, i) => acc + (Number(i.valor) || 0), 0);
+        const gastos = (localMonth.gastos || []).reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
 
-        return { bruto, liquida, inss, salarios, impostos };
+        return { bruto, liquida, inss, salarios, impostos, gastos };
     }, [localMonth]);
 
     const paymentStats = useMemo(() => {
@@ -477,7 +508,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         };
     }, [localMonth.condominios]);
 
-    const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos);
+    const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos);
 
     const openPdfPreview = () => {
         if (!tempNfData.arquivoBase64) return;
@@ -575,6 +606,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
                     <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
                     <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos" />
+                    <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
                 </div>
 
                 <div className="flex-1 bg-slate-800 min-h-[500px]">
@@ -585,7 +617,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <SummaryCard label="Receita Bruta" value={formatCurrency(currentTotals.bruto)} />
+                                    <SummaryCard label="Gastos do Mês" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
                                     <SummaryCard label="Receita Líquida" value={formatCurrency(currentTotals.liquida)} color="text-emerald-400" />
                                     <SummaryCard label="Total Salários" value={formatCurrency(currentTotals.salarios)} color="text-red-400" />
                                     <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
@@ -1082,6 +1114,85 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     {formatCurrency(currentTotals.impostos)}
                                                 </div>
                                             </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 'gastos' && (
+                        <div className="flex flex-col animate-in fade-in duration-300">
+                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
+                                <button
+                                    onClick={addGasto}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-red-600/20"
+                                >
+                                    <Plus className="w-4 h-4" /> Adicionar Gasto
+                                </button>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-slate-300">
+                                    <thead className="bg-slate-900/50 text-xs uppercase text-slate-400 font-semibold border-b border-slate-700">
+                                        <tr>
+                                            <th className="px-6 py-4">Descrição do Gasto</th>
+                                            <th className={`px-2 py-4 text-center w-10`}>Pago</th>
+                                            <th className="px-6 py-4 text-right">Valor</th>
+                                            <th className="px-6 py-4 w-10"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-700/50">
+                                        {(localMonth.gastos || []).map((gasto, idx) => (
+                                            <tr key={gasto.id || idx} className="hover:bg-slate-700/10">
+                                                <td className="px-6 py-3 text-white font-medium">
+                                                    <input
+                                                        value={gasto.descricao}
+                                                        onChange={(e) => updateGasto(idx, 'descricao', e.target.value)}
+                                                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-red-500 rounded px-1 w-full"
+                                                        placeholder="Ex: Aluguel, Luz, Internet..."
+                                                    />
+                                                </td>
+                                                <td className="px-2 py-3 text-center">
+                                                    <button
+                                                        onClick={() => updateGasto(idx, 'pago', !gasto.pago)}
+                                                        className={`w-4 h-4 rounded-full transition-all mx-auto ${gasto.pago ? 'bg-emerald-400 shadow-sm' : 'bg-slate-700/40'}`}
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-3 text-right">
+                                                    <CurrencyField
+                                                        value={gasto.valor || 0}
+                                                        onChange={(val) => updateGasto(idx, 'valor', val)}
+                                                        textColor="text-red-400"
+                                                        width="w-32"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-3 text-center">
+                                                    <button
+                                                        onClick={() => removeGasto(idx)}
+                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
+                                                        title="Remover Gasto"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {(!localMonth.gastos || localMonth.gastos.length === 0) && (
+                                            <tr>
+                                                <td colSpan={4} className="px-6 py-10 text-center text-slate-500 italic">
+                                                    Nenhum gasto adicional registrado para este mês.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                    <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
+                                        <tr className="text-white font-bold">
+                                            <td colSpan={2} className="px-6 py-4 text-sm uppercase tracking-wider text-slate-400">Total de Gastos Adicionais</td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xl inline-block min-w-[140px]">
+                                                    {formatCurrency(currentTotals.gastos)}
+                                                </div>
+                                            </td>
+                                            <td></td>
                                         </tr>
                                     </tfoot>
                                 </table>

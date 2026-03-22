@@ -57,6 +57,7 @@ model FinanceMonth {
   condominios  MonthlyCondominio[]
   funcionarios MonthlyFuncionario[]
   impostos     MonthlyImposto[]
+  gastos       MonthlyGasto[]
 }
 
 model MonthlyCondominio {
@@ -92,6 +93,15 @@ model MonthlyImposto {
   pago    Boolean      @default(false)
   monthId String
   month   FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+}
+
+model MonthlyGasto {
+  id        String       @id @default(uuid())
+  descricao String
+  valor     Float
+  pago      Boolean      @default(false)
+  monthId   String
+  month     FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
 
 model WeeklyTask {
