@@ -570,12 +570,12 @@ export async function getPosObras() {
 
 export async function savePosObra(data: any) {
     try {
-        const { id, nome, cliente, data: dataObra, status, gastos } = data;
+        const { id, nome, cliente, data: dataObra, valor, status, gastos } = data;
 
         const obra = await (prisma as any).posObra.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
-            update: { nome, cliente, data: dataObra, status },
-            create: { nome, cliente, data: dataObra, status }
+            update: { nome, cliente, data: dataObra, valor: Number(valor) || 0, status },
+            create: { nome, cliente, data: dataObra, valor: Number(valor) || 0, status }
         });
 
         // Sincronizar Gastos

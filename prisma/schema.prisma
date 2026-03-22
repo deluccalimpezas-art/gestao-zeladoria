@@ -187,7 +187,8 @@ model PosObra {
   id              String         @id @default(uuid())
   nome            String
   cliente         String?
-  data            String?        // YYYY-MM-DD
+  data            String?        // Mês de Recebimento (YYYY-MM ou string)
+  valor           Float?         // Preço
   status          String         @default("Em Andamento") // Em Andamento, Concluído
   gastos          PosObraGasto[]
   created_at      DateTime       @default(now())

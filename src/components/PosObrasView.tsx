@@ -20,7 +20,8 @@ interface PosObra {
     id?: string;
     nome: string;
     cliente?: string;
-    data?: string;
+    data?: string; // Mês de Recebimento
+    valor?: number; // Preço
     status: 'Em Andamento' | 'Concluído';
     gastos: PosObraGasto[];
 }
@@ -197,7 +198,7 @@ export default function PosObrasView() {
                                                     {obra.status}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-slate-500 font-medium">Cliente: <span className="text-slate-300">{obra.cliente || '--'}</span> • Data: <span className="text-slate-300">{obra.data || '--'}</span></p>
+                                            <p className="text-xs text-slate-500 font-medium">Cliente: <span className="text-slate-300">{obra.cliente || '--'}</span> • Mês: <span className="text-slate-300">{obra.data || '--'}</span></p>
                                         </div>
                                     </div>
 
@@ -238,8 +239,16 @@ export default function PosObrasView() {
                                                     <span className="text-lg font-black text-white">{formatCurrency(totalProdutos)}</span>
                                                 </div>
                                                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-indigo-500/20 flex flex-col justify-center">
-                                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Subtotal Geral</span>
-                                                    <span className="text-lg font-black text-indigo-400">{formatCurrency(totalGeral)}</span>
+                                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Preço do Projeto</span>
+                                                    <span className="text-lg font-black text-indigo-400">{formatCurrency(obra.valor || 0)}</span>
+                                                </div>
+                                                <div className="bg-slate-900/80 p-4 rounded-2xl border border-rose-500/20 flex flex-col justify-center">
+                                                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Custo Acumulado</span>
+                                                    <span className="text-lg font-black text-rose-400">{formatCurrency(totalGeral)}</span>
+                                                </div>
+                                                <div className={`bg-slate-900/80 p-4 rounded-2xl border flex flex-col justify-center ${ (obra.valor || 0) - totalGeral >= 0 ? 'border-emerald-500/20' : 'border-rose-500/20'}`}>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest mb-1 ${ (obra.valor || 0) - totalGeral >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>Saldo (Preço - Custo)</span>
+                                                    <span className={`text-lg font-black ${ (obra.valor || 0) - totalGeral >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{formatCurrency((obra.valor || 0) - totalGeral)}</span>
                                                 </div>
                                             </div>
 
@@ -436,19 +445,22 @@ export default function PosObrasView() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Data Início</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Mês de Recebimento</label>
                                         <input 
-                                            type="date" 
+                                            type="text" 
+                                            placeholder="ex: Março 2026"
                                             value={newObra.data}
                                             onChange={e => setNewObra({...newObra, data: e.target.value})}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Custo Inicial (opcional)</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Preço</label>
                                         <input 
                                             type="number" 
                                             placeholder="R$ 0,00"
+                                            value={newObra.valor}
+                                            onChange={e => setNewObra({...newObra, valor: Number(e.target.value)})}
                                             className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/30 outline-none transition-all"
                                         />
                                     </div>
