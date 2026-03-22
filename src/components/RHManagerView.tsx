@@ -110,22 +110,28 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                             />
                         </div>
                         
-                        <div className="md:col-span-1 flex items-center justify-end">
-                            <div className="w-full max-w-[120px]">
-                                <label className="text-[9px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Valor Mensal</label>
-                                <div className="relative flex items-center shadow-sm">
-                                    <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={condo.valorContrato || ''}
-                                        onClick={(e) => e.stopPropagation()}
-                                        onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                        className="bg-slate-800 border-none outline-none focus:ring-2 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-1 w-full text-indigo-400 font-bold text-xs cursor-text"
-                                        placeholder="0.00"
-                                    />
+                        <div className="md:col-span-1 flex items-center justify-end px-2">
+                            {isExpanded ? (
+                                <div className="w-full max-w-[120px]">
+                                    <label className="text-[9px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Valor Mensal</label>
+                                    <div className="relative flex items-center">
+                                        <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={condo.valorContrato || ''}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
+                                            className="bg-slate-800/50 border border-slate-700/50 outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-1 w-full text-indigo-400 font-bold text-xs cursor-text transition-all"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <span className="text-sm font-black text-indigo-400 tracking-tight">
+                                    {formatCurrency(condo.valorContrato || 0)}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
