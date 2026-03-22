@@ -262,20 +262,21 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                     </div>
                                 )}
                             </div>
+                            
+                            <div className="mt-6 pt-6 border-t border-slate-700/30">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                    <FileText className="w-3 h-3" /> Observações do Condomínio
+                                </label>
+                                <textarea
+                                    value={condo.observacao || ''}
+                                    onChange={(e) => onUpdate('observacao', e.target.value)}
+                                    className="w-full bg-slate-800/30 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all min-h-[100px] resize-none"
+                                    placeholder="Adicione observações importantes sobre este condomínio aqui..."
+                                />
+                            </div>
                         </div>
                     </div>
                     
-                    <div className="mt-6 pt-6 border-t border-slate-700/30">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-3">
-                            <FileText className="w-3 h-3" /> Observações do Condomínio
-                        </label>
-                        <textarea
-                            value={condo.observacao || ''}
-                            onChange={(e) => onUpdate('observacao', e.target.value)}
-                            className="w-full bg-slate-800/30 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all min-h-[100px] resize-none"
-                            placeholder="Adicione observações importantes sobre este condomínio aqui..."
-                        />
-                    </div>
                 </div>
             )}
         </div>
