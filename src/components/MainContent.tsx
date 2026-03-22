@@ -229,11 +229,11 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
-                                onClick={() => setActiveTab('documentos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'documentos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                                onClick={() => setActiveTab('calculos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
-                                <FileText className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Documentos</span>}
+                                <Calculator className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
                             </button>
                         </li>
                         <li>
@@ -256,20 +256,20 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
+                                onClick={() => setActiveTab('documentos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'documentos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <FileText className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Documentos</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 onClick={() => setActiveTab('gestao_pessoal')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gestao_pessoal' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
                                 <LineChart className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Gestão Pessoal</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('calculos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Calculator className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
                             </button>
                         </li>
                     </ul>
