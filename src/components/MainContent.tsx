@@ -222,6 +222,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
+                                onClick={() => setActiveTab('pos_obras')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'pos_obras' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <HardHat className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Pós-Obras</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 onClick={() => setActiveTab('geradores')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'geradores' ? 'bg-amber-600/10 text-amber-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
@@ -245,15 +254,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Building2 className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">Condomínios</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('pos_obras')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'pos_obras' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <HardHat className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Pós-Obras</span>}
                             </button>
                         </li>
                         <li>
