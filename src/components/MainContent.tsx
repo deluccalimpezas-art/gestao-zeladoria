@@ -18,7 +18,8 @@ import {
     Calculator,
     Trash2,
     Zap,
-    LineChart
+    LineChart,
+    FileText
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -228,29 +229,11 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
-                                onClick={() => setActiveTab('gastos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gastos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                                onClick={() => setActiveTab('documentos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'documentos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
-                                <Wallet className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Controle de Gastos</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('gestao_pessoal')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gestao_pessoal' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <LineChart className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Gestão Pessoal</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => setActiveTab('calculos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <Calculator className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
+                                <FileText className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Documentos</span>}
                             </button>
                         </li>
                         <li>
@@ -269,6 +252,24 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             >
                                 <Users className="w-5 h-5 flex-shrink-0" />
                                 {sidebarOpen && <span className="font-medium">RH da Empresa</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('gestao_pessoal')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gestao_pessoal' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <LineChart className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Gestão Pessoal</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('calculos')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'calculos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Calculator className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Cálculos Trabalhistas</span>}
                             </button>
                         </li>
                     </ul>
@@ -428,14 +429,16 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <ScheduleView />
                     ) : activeTab === 'geradores' ? (
                         <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
-                    ) : activeTab === 'gastos' ? (
-                        <ExpenseTrackerView />
+                    ) : activeTab === 'documentos' ? (
+                        <DocumentGenerator months={financeMonths} />
                     ) : activeTab === 'gestao_pessoal' ? (
                         <PersonalFinanceView />
                     ) : activeTab === 'calculos' ? (
                         <CalculatorsView />
                     ) : (
-                        <DocumentGenerator months={financeMonths} />
+                        <div className="flex items-center justify-center h-full text-slate-500">
+                            Selecione uma opção no menu lateral
+                        </div>
                     )}
                 </div>
 
