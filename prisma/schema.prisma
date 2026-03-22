@@ -100,6 +100,8 @@ model MonthlyGasto {
   descricao String
   valor     Float
   pago      Boolean      @default(false)
+  categoria String?      // Pagamentos, Vales, Restaurantes, Outros
+  data      String?      // YYYY-MM-DD
   monthId   String
   month     FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }

@@ -95,6 +95,8 @@ export interface MonthlyGastoData {
     descricao: string;
     valor: number;
     pago: boolean;
+    categoria?: 'Pagamentos' | 'Vales' | 'Restaurantes' | 'Outros';
+    data?: string; // YYYY-MM-DD
     monthId?: string;
 }
 export interface CandidatoData {

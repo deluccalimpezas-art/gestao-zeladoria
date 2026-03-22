@@ -209,7 +209,7 @@ export async function deleteFuncionarioPermanent(id: string) {
 // Financeiro Standalone
 export async function getFinanceMonths() {
     try {
-        const months = await prisma.financeMonth.findMany({
+        const months = await (prisma as any).financeMonth.findMany({
             include: {
                 condominios: true,
                 funcionarios: true,
@@ -246,12 +246,21 @@ export async function getFinanceMonths() {
                 funcionarioId: mf.funcionarioId || undefined
             }));
 
+            const mappedGastos = m.gastos.map((mg: any) => ({
+                id: mg.id,
+                descricao: mg.descricao,
+                valor: mg.valor,
+                pago: mg.pago,
+                categoria: mg.categoria || 'Outros',
+                data: mg.data || ''
+            }));
+
             const totalBruto = mappedCondos.reduce((acc: number, c: any) => acc + c.receitaBruta, 0);
             const totalInss = totalBruto * 0.11;
             const totalLiquida = totalBruto - totalInss;
             const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
             const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
-            const totalGastos = m.gastos.reduce((acc: number, g: any) => acc + g.valor, 0);
+            const totalGastos = mappedGastos.reduce((acc: number, g: any) => acc + g.valor, 0);
             const lucroEstimado = totalLiquida - (totalSalarios + totalImpostos + totalGastos);
 
             return {
@@ -266,18 +275,8 @@ export async function getFinanceMonths() {
                 lucroEstimado,
                 condominios: mappedCondos,
                 funcionarios: mappedFuncs,
-                impostos: m.impostos.map((mi: any) => ({
-                    id: mi.id,
-                    nome: mi.nome,
-                    valor: mi.valor,
-                    pago: mi.pago
-                })),
-                gastos: m.gastos.map((mg: any) => ({
-                    id: mg.id,
-                    descricao: mg.descricao,
-                    valor: mg.valor,
-                    pago: mg.pago
-                }))
+                impostos: m.impostos,
+                gastos: mappedGastos
             };
         });
     } catch (e) {
@@ -355,7 +354,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
         const existing = await prisma.financeMonth.findUnique({ where: { nome: novoNome } });
         if (existing) return { success: false, error: "Nome de mês já existe." };
 
-        const source = await prisma.financeMonth.findUnique({
+        const source = await (prisma as any).financeMonth.findUnique({
             where: { id: sourceId },
             include: { condominios: true, funcionarios: true, impostos: true, gastos: true }
         });
@@ -364,47 +363,57 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
         const newMonth = await prisma.financeMonth.create({ data: { nome: novoNome } });
 
         // Deep copy of all records
-        await prisma.monthlyCondominio.createMany({
-            data: source.condominios.map(c => ({
-                monthId: newMonth.id,
-                nome: c.nome,
-                cnpj: c.cnpj,
-                valorCobrado: c.valorCobrado,
-                pago: false,
-                condominioId: c.condominioId
-            }))
-        });
+        if (source.condominios.length > 0) {
+            await prisma.monthlyCondominio.createMany({
+                data: source.condominios.map((c: any) => ({
+                    monthId: newMonth.id,
+                    nome: c.nome,
+                    cnpj: c.cnpj,
+                    valorCobrado: c.valorCobrado,
+                    pago: false,
+                    condominioId: c.condominioId
+                }))
+            });
+        }
 
-        await prisma.monthlyFuncionario.createMany({
-            data: source.funcionarios.map(f => ({
-                monthId: newMonth.id,
-                nome: f.nome,
-                condominio: f.condominio,
-                salarioBase: f.salarioBase,
-                valorPago: f.valorPago,
-                horasExtras: f.horasExtras,
-                statusClt: f.statusClt,
-                funcionarioId: f.funcionarioId
-            }))
-        });
+        if (source.funcionarios.length > 0) {
+            await prisma.monthlyFuncionario.createMany({
+                data: source.funcionarios.map((f: any) => ({
+                    monthId: newMonth.id,
+                    nome: f.nome,
+                    condominio: f.condominio,
+                    salarioBase: f.salarioBase,
+                    valorPago: f.valorPago,
+                    horasExtras: f.horasExtras,
+                    statusClt: f.statusClt,
+                    funcionarioId: f.funcionarioId
+                }))
+            });
+        }
 
-        await prisma.monthlyImposto.createMany({
-            data: source.impostos.map(i => ({
-                monthId: newMonth.id,
-                nome: i.nome,
-                valor: i.valor,
-                pago: false
-            }))
-        });
+        if (source.impostos.length > 0) {
+            await prisma.monthlyImposto.createMany({
+                data: source.impostos.map((i: any) => ({
+                    monthId: newMonth.id,
+                    nome: i.nome,
+                    valor: i.valor,
+                    pago: false
+                }))
+            });
+        }
 
-        await prisma.monthlyGasto.createMany({
-            data: source.gastos.map(g => ({
-                monthId: newMonth.id,
-                descricao: g.descricao,
-                valor: g.valor,
-                pago: false
-            }))
-        });
+        if (source.gastos.length > 0) {
+            await (prisma as any).monthlyGasto.createMany({
+                data: source.gastos.map((g: any) => ({
+                    monthId: newMonth.id,
+                    descricao: g.descricao,
+                    valor: g.valor,
+                    pago: false,
+                    categoria: g.categoria,
+                    data: g.data
+                }))
+            });
+        }
 
         revalidatePath('/');
         return { success: true, data: newMonth };
@@ -488,7 +497,7 @@ export async function saveFinanceMonth(data: any) {
         if (gastos && Array.isArray(gastos)) {
             // Deletar os que não vieram
             const incomingGastoIds = gastos.map((g: any) => g.id).filter((id: string) => id && id.length > 20);
-            await prisma.monthlyGasto.deleteMany({
+            await (prisma as any).monthlyGasto.deleteMany({
                 where: {
                     monthId: id,
                     id: { notIn: incomingGastoIds }
@@ -496,19 +505,23 @@ export async function saveFinanceMonth(data: any) {
             });
 
             for (const g of gastos) {
-                await prisma.monthlyGasto.upsert({
+                await (prisma as any).monthlyGasto.upsert({
                     where: { id: (g.id && g.id.length > 20) ? g.id : '00000000-0000-0000-0000-000000000000' },
                     update: {
                         descricao: g.descricao,
                         valor: g.valor || 0,
-                        pago: g.pago || false
+                        pago: g.pago || false,
+                        categoria: g.categoria || 'Outros',
+                        data: g.data || ''
                     },
                     create: {
                         id: (g.id && g.id.length > 20) ? g.id : undefined,
                         monthId: id,
                         descricao: g.descricao,
                         valor: g.valor || 0,
-                        pago: g.pago || false
+                        pago: g.pago || false,
+                        categoria: g.categoria || 'Outros',
+                        data: g.data || ''
                     }
                 });
             }
