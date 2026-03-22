@@ -11,8 +11,11 @@ import {
     Star, 
     ChevronLeft, 
     ChevronRight,
-    RefreshCw
+    RefreshCw,
+    X,
+    StickyNote
 } from 'lucide-react';
+import { AfazeresView } from './AfazeresView';
 import { 
     getWeeklyTasks, 
     addWeeklyTask, 
@@ -33,7 +36,7 @@ const DAYS_OF_WEEK = [
 ];
 
 export function ScheduleView() {
-    const [activeTab, setActiveTab] = useState<'weekly' | 'calendar'>('weekly');
+    const [activeTab, setActiveTab] = useState<'weekly' | 'calendar' | 'afazeres'>('weekly');
     const [isEditingWeekly, setIsEditingWeekly] = useState(false);
     
     // Weekly State
@@ -298,6 +301,12 @@ export function ScheduleView() {
                         >
                             <CalendarIcon className="w-4 h-4" /> Calendário Mensal
                         </button>
+                        <button
+                            onClick={() => setActiveTab('afazeres')}
+                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === 'afazeres' ? 'bg-amber-500 text-slate-900 shadow-lg shadow-amber-500/25 scale-100' : 'text-slate-400 hover:text-slate-200 focus:bg-slate-800'}`}
+                        >
+                            <StickyNote className="w-4 h-4" /> Afazeres
+                        </button>
                     </div>
                 </div>
             </div>
@@ -538,6 +547,11 @@ export function ScheduleView() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* TAB: AFAZERES (POST-ITS) */}
+            {activeTab === 'afazeres' && (
+                <AfazeresView />
             )}
 
             {/* EVENT MODAL */}

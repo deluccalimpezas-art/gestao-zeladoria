@@ -1116,3 +1116,45 @@ export async function propagateAllFixedExpenses(monthId: string, currentMonth: n
         return { success: false, error: e.message };
     }
 }
+
+// ==========================================
+// MÓDULO AFAZERES (POST-ITS)
+// ==========================================
+
+export async function getTaskTodos() {
+    try {
+        return await prisma.taskTodo.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+    } catch (e) {
+        console.error("Erro getTaskTodos:", e);
+        return [];
+    }
+}
+
+export async function upsertTaskTodo(data: any) {
+    try {
+        const { id, title, description, completed } = data;
+        const result = await prisma.taskTodo.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { title, description, completed },
+            create: { title, description, completed: completed || false }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        console.error("Erro upsertTaskTodo:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteTaskTodo(id: string) {
+    try {
+        await prisma.taskTodo.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deleteTaskTodo:", e);
+        return { success: false, error: e.message };
+    }
+}
