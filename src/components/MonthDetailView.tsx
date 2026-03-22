@@ -671,10 +671,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <SummaryCard label="Gastos do Mês" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
                                     <SummaryCard label="Receita Líquida" value={formatCurrency(currentTotals.liquida)} color="text-emerald-400" />
                                     <SummaryCard label="Total Salários" value={formatCurrency(currentTotals.salarios)} color="text-red-400" />
                                     <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
+                                    <SummaryCard label="Gastos do Mês" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
                                     <SummaryCard label="Resultado (Lucro)" value={formatCurrency(lucroCalculado)} color="text-indigo-400" special />
                                 </div>
                             </section>
