@@ -136,6 +136,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
     const alertas: Alert[] = [];
 
     funcionarios.forEach((func) => {
+        if (func.deleted) return;
+
         // 1. Alerta de Férias
         if (func.vencimentoFerias) {
             const dias = calcularDiasRestantes(func.vencimentoFerias);

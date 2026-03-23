@@ -170,6 +170,8 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             condominio: newEmployee.condominio || 'Sede',
             condominioId: newEmployee.condominioId,
             dataAdmissao: newEmployee.dataAdmissao || '',
+            vencimentoFerias: newEmployee.vencimentoFerias || '',
+            fimContratoExperiencia: newEmployee.fimContratoExperiencia || '',
             deleted: false
         };
         const res = await onSave({ ...data, funcionarios: [fresh, ...data.funcionarios] });
@@ -526,6 +528,34 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Venc. Férias</label>
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="DD/MM/YYYY"
+                                                            value={inlineEditingData[employee.id!].vencimentoFerias || ''}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], vencimentoFerias: e.target.value }
+                                                            })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { vencimentoFerias: e.target.value })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Fim Experiência</label>
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="DD/MM/YYYY"
+                                                            value={inlineEditingData[employee.id!].fimContratoExperiencia || ''}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], fimContratoExperiencia: e.target.value }
+                                                            })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { fimContratoExperiencia: e.target.value })}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -714,6 +744,24 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                             .map(c => <option key={c.id} value={c.nome}>{c.nome}</option>)
                                         }
                                     </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Vencimento Férias</label>
+                                    <input 
+                                        type="text" placeholder="DD/MM/YYYY"
+                                        value={newEmployee.vencimentoFerias || ''} 
+                                        onChange={e => setNewEmployee({...newEmployee, vencimentoFerias: e.target.value})}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Término Experiência</label>
+                                    <input 
+                                        type="text" placeholder="DD/MM/YYYY"
+                                        value={newEmployee.fimContratoExperiencia || ''} 
+                                        onChange={e => setNewEmployee({...newEmployee, fimContratoExperiencia: e.target.value})}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                    />
                                 </div>
                             </div>
                         </div>
