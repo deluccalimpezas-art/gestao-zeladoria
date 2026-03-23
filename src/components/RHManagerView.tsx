@@ -302,8 +302,14 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     }, [onSave]);
 
     useEffect(() => {
-        setLocalData(data);
-    }, [data]);
+        // Só sincroniza se não estiver salvando e se houver mudança Real no timestamp/id
+        const incomingHash = JSON.stringify(data.condominios.map(c => ({ id: c.id, obs: c.observacao, val: c.valorContrato })));
+        const localHash = JSON.stringify(localData.condominios.map(c => ({ id: c.id, obs: c.observacao, val: c.valorContrato })));
+        
+        if (saveStatus === 'idle' && incomingHash !== localHash) {
+            setLocalData(data);
+        }
+    }, [data, saveStatus]);
 
     useEffect(() => {
         setSaveStatus('saving');
@@ -315,7 +321,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             } else {
                 setSaveStatus('idle');
             }
-        }, 1500);
+        }, 2500); // Aumentado para 2.5s para maior estabilidade
         return () => clearTimeout(timer);
     }, [localData]);
 
