@@ -40,9 +40,9 @@ interface CompanyRHViewProps {
 }
 
 type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar' | 'afastada_inss' | 'ferias';
-type RegistrationCategory = 'Todos' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Lixeira';
+type RegistrationCategory = 'Todos' | 'Gestão' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Lixeira';
 
-const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todos' | 'Lixeira' | 'Candidatos'>> = {
+const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todos' | 'Lixeira' | 'Candidatos' | 'Gestão'>> = {
     'registrada': 'Registradas',
     'precisa_registrar': 'Precisa Registrar',
     'em_processo': 'Em Processo',
@@ -99,11 +99,10 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const getCategory = (status: string | undefined): RegistrationCategory => {
         if (!status) return 'Precisa Registrar';
         const s = status.toLowerCase();
-        if (s === 'afastada_inss' || s.includes('afastada') || s.includes('inss')) return 'Afastadas INSS';
-        if (s === 'ferias' || s === 'férias' || s.includes('feria')) return 'Férias';
+        if (s.includes('afastada') || s.includes('inss')) return 'Afastadas INSS';
+        if (s.includes('feri')) return 'Férias';
         if (s.includes('registrada') || s === 'clt') return 'Registradas';
-        if (s.includes('nao') || s.includes('não') || s.includes('vai')) return 'Não vai Registrar';
-        if (s.includes('precisa') || s.includes('registrar')) return 'Precisa Registrar';
+        if (s.includes('nao') || s.includes('não')) return 'Não vai Registrar';
         if (s.includes('processo')) return 'Em Processo';
         return 'Precisa Registrar';
     };
@@ -209,6 +208,10 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             if (activeCategory === 'Lixeira') return f.deleted && matchesSearch;
             if (f.deleted) return false;
             
+            if (activeCategory === 'Gestão') {
+                return matchesSearch && ['Gerente', 'Volante', 'RH'].includes(f.condominio);
+            }
+
             const matchesCategory = activeCategory === 'Todos' || getCategory(f.statusClt) === activeCategory;
             return matchesSearch && matchesCategory;
         }).sort((a, b) => a.nome.localeCompare(b.nome));
@@ -216,6 +219,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
 
     const categories: { label: RegistrationCategory; icon: any; color: string }[] = [
         { label: 'Todos', icon: Folder, color: 'text-slate-400' },
+        { label: 'Gestão', icon: ShieldCheck, color: 'text-indigo-400' },
         { label: 'Registradas', icon: CheckCircle2, color: 'text-emerald-400' },
         { label: 'Precisa Registrar', icon: Clock, color: 'text-amber-400' },
         { label: 'Em Processo', icon: Briefcase, color: 'text-blue-400' },
@@ -227,15 +231,18 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     ];
 
     const statsByCategory = useMemo(() => {
-        const counts: Record<RegistrationCategory, number> = {
-            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Afastadas INSS': 0, 'Férias': 0, 'Candidatos': 0, 'Lixeira': 0
+        const counts: Record<string, number> = {
+            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Afastadas INSS': 0, 'Férias': 0, 'Candidatos': 0, 'Lixeira': 0, 'Gestão': 0
         };
         data.funcionarios.forEach(f => {
             if (f.deleted) {
                 counts['Lixeira']++;
             } else {
                 counts['Todos']++;
-                counts[getCategory(f.statusClt) as RegistrationCategory]++;
+                counts[getCategory(f.statusClt)]++;
+                if (['Gerente', 'Volante', 'RH'].includes(f.condominio)) {
+                    counts['Gestão']++;
+                }
             }
         });
         counts['Candidatos'] = (data.candidatos || []).length;
@@ -556,6 +563,20 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                             className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500/30 outline-none"
                                                         />
                                                     </div>
+                                                    <div className="space-y-1.5 md:col-span-2">
+                                                        <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Observações</label>
+                                                        <textarea 
+                                                            value={inlineEditingData[employee.id!].observacao || ''}
+                                                            onChange={(e) => setInlineEditingData({
+                                                                ...inlineEditingData,
+                                                                [employee.id!]: { ...inlineEditingData[employee.id!], observacao: e.target.value }
+                                                            })}
+                                                            onBlur={(e) => handleAutoSave(employee.id!, { observacao: e.target.value })}
+                                                            rows={2}
+                                                            className="w-full bg-slate-900/60 border border-slate-700/50 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500/30 outline-none resize-none"
+                                                            placeholder="Adicione observações..."
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -580,6 +601,18 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                         </button>
                                                     ))}
                                                 </div>
+                                                {inlineEditingData[employee.id!].statusClt === 'nao_vai_registrar' && (
+                                                    <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-slate-900/60 rounded-lg border border-amber-500/20 animate-in fade-in slide-in-from-top-1 duration-200">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id={`pode-reg-${employee.id}`}
+                                                            checked={inlineEditingData[employee.id!].podeRegistrar || false}
+                                                            onChange={(e) => handleAutoSave(employee.id!, { podeRegistrar: e.target.checked })}
+                                                            className="w-3.5 h-3.5 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500/30 outline-none transition-all cursor-pointer"
+                                                        />
+                                                        <label htmlFor={`pode-reg-${employee.id}`} className="text-[10px] font-bold text-amber-500 uppercase tracking-tight cursor-pointer select-none">Pode Registrar?</label>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Column 3: Contracts */}
@@ -738,6 +771,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         <option value="">Selecione um Condomínio</option>
                                         <option value="Gerente">👔 Gerente</option>
                                         <option value="Volante">🚗 Volante</option>
+                                        <option value="RH">🏢 Equipe RH</option>
                                         {data.condominios
                                             .filter(c => c.nome !== 'Sede')
                                             .sort((a, b) => a.nome.localeCompare(b.nome))
@@ -760,9 +794,30 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         type="text" placeholder="DD/MM/YYYY"
                                         value={newEmployee.fimContratoExperiencia || ''} 
                                         onChange={e => setNewEmployee({...newEmployee, fimContratoExperiencia: e.target.value})}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none"
                                     />
                                 </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Observações</label>
+                                    <textarea 
+                                        value={newEmployee.observacao || ''} 
+                                        onChange={e => setNewEmployee({...newEmployee, observacao: e.target.value})}
+                                        rows={2}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none resize-none"
+                                        placeholder="Observações importantes..."
+                                    />
+                                </div>
+                                {newEmployee.statusClt === 'nao_vai_registrar' && (
+                                    <div className="md:col-span-2 flex items-center gap-3 px-4 py-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                                        <input 
+                                            type="checkbox" 
+                                            id="new-pode-registrar"
+                                            checked={newEmployee.podeRegistrar || false}
+                                            onChange={e => setNewEmployee({...newEmployee, podeRegistrar: e.target.checked})}
+                                            className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500/30 outline-none cursor-pointer"
+                                        />
+                                        <label htmlFor="new-pode-registrar" className="text-xs font-bold text-emerald-500 uppercase tracking-tight cursor-pointer">Pode Registrar futuramente?</label>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="p-8 bg-slate-800/50 flex gap-4">
@@ -783,9 +838,9 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                             </div>
                             <div>
                                 <h2 className="text-xl font-black text-white uppercase tracking-tighter">
-                                    {printingContract.type === 'trabalho' ? 'Contrato de Trabalho' : 'Contrato de Demissão'}
+                                    {printingContract?.type === 'trabalho' ? 'Contrato de Trabalho' : 'Contrato de Demissão'}
                                 </h2>
-                                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{printingContract.employee.nome}</p>
+                                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{printingContract?.employee.nome}</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -818,20 +873,20 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
 
                         <div className="space-y-8 text-sm leading-relaxed text-justify">
                             <h1 className="text-lg font-black text-center uppercase border-b-2 border-slate-900 pb-2">
-                                {printingContract.type === 'trabalho' ? 'Contrato Individual de Trabalho' : 'Termo de Rescisão de Contrato'}
+                                {printingContract?.type === 'trabalho' ? 'Contrato Individual de Trabalho' : 'Termo de Rescisão de Contrato'}
                             </h1>
 
                             <div className="space-y-4">
                                 <p><strong>EMPREGADOR:</strong> <span className="uppercase font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, inscrita no CNPJ sob o nº <span className="font-bold">49.909.068/0001-87</span>, com sede na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC.</p>
-                                <p><strong>EMPREGADO(A):</strong> <span className="uppercase font-bold">{printingContract.employee.nome}</span>, residente e domiciliado(a) em [ENDEREÇO], portador(a) do CPF nº [CPF].</p>
+                                <p><strong>EMPREGADO(A):</strong> <span className="uppercase font-bold">{printingContract?.employee.nome}</span>, residente e domiciliado(a) em [ENDEREÇO], portador(a) do CPF nº [CPF].</p>
                             </div>
 
-                            {printingContract.type === 'trabalho' ? (
+                            {printingContract?.type === 'trabalho' ? (
                                 <div className="space-y-6">
-                                    <p><strong>Cláusula 1ª:</strong> O(A) EMPREGADO(A) é contratado(a) para exercer a função de <span className="font-bold uppercase">{printingContract.employee.cargo || 'Auxiliar de Limpeza'}</span>, devendo realizar todas as atividades inerentes ao cargo.</p>
-                                    <p><strong>Cláusula 2ª:</strong> A jornada de trabalho será de acordo com as normas da categoria, sendo inicialmente alocada no condomínio <span className="font-bold uppercase">{printingContract.employee.condominio || 'Sede'}</span>.</p>
-                                    <p><strong>Cláusula 3ª:</strong> Pela prestação dos serviços, o(a) EMPREGADO(A) receberá o salário bruto mensal de <span className="font-bold">{formatCurrency(printingContract.employee.salario)}</span>.</p>
-                                    <p><strong>Cláusula 4ª:</strong> O presente contrato tem início em <span className="font-bold">{printingContract.employee.dataAdmissao || new Date().toLocaleDateString('pt-BR')}</span>.</p>
+                                    <p><strong>Cláusula 1ª:</strong> O(A) EMPREGADO(A) é contratado(a) para exercer a função de <span className="font-bold uppercase">{printingContract?.employee.cargo || 'Auxiliar de Limpeza'}</span>, devendo realizar todas as atividades inerentes ao cargo.</p>
+                                    <p><strong>Cláusula 2ª:</strong> A jornada de trabalho será de acordo com as normas da categoria, sendo inicialmente alocada no condomínio <span className="font-bold uppercase">{printingContract?.employee.condominio || 'Sede'}</span>.</p>
+                                    <p><strong>Cláusula 3ª:</strong> Pela prestação dos serviços, o(a) EMPREGADO(A) receberá o salário bruto mensal de <span className="font-bold">{formatCurrency(printingContract?.employee.salario || 0)}</span>.</p>
+                                    <p><strong>Cláusula 4ª:</strong> O presente contrato tem início em <span className="font-bold">{printingContract?.employee.dataAdmissao || new Date().toLocaleDateString('pt-BR')}</span>.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-6">
@@ -852,7 +907,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         <p className="text-[9px]">Empregador</p>
                                     </div>
                                     <div className="border-t border-slate-900 pt-2 text-center">
-                                        <p className="font-bold uppercase text-[10px]">{printingContract.employee.nome}</p>
+                                        <p className="font-bold uppercase text-[10px]">{printingContract?.employee.nome}</p>
                                         <p className="text-[9px]">Empregado(a)</p>
                                     </div>
                                 </div>

@@ -474,6 +474,20 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             .sort((a, b) => (Number(b.totalReceber) || 0) - (Number(a.totalReceber) || 0));
     }, [localMonth.funcionarios]);
 
+    const gestaoFuncs = useMemo(() => sortedFuncs.filter(f => ['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
+    const operacionalFuncs = useMemo(() => sortedFuncs.filter(f => !['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
+
+    const teamStats = useMemo(() => {
+        const gestaoTotal = gestaoFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+        const operacionalTotal = operacionalFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+        return {
+            gestaoCount: gestaoFuncs.length,
+            gestaoTotal,
+            operacionalCount: operacionalFuncs.length,
+            operacionalTotal
+        };
+    }, [gestaoFuncs, operacionalFuncs]);
+
     const sortedImpostos = useMemo(() => {
         const parseDate = (dStr?: string) => {
             if (!dStr || dStr.trim() === '') return Infinity;
@@ -590,6 +604,103 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }
     };
 
+    const renderFuncRow = (func: any) => (
+        <React.Fragment key={func.originalIndex}>
+            <tr className="hover:bg-slate-700/10 h-14">
+                <td className="px-2 py-2">
+                    <input
+                        value={func.nome}
+                        onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
+                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium text-xs"
+                    />
+                </td>
+                <td className="px-2 py-2 text-slate-400">
+                    <input
+                        value={func.condominio}
+                        onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
+                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
+                    />
+                </td>
+                <td className="px-2 py-2 text-right">
+                    <CurrencyField
+                        value={func.salario || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
+                        textColor="text-white"
+                    />
+                </td>
+                <td className="px-3 py-3 text-right">
+                    <CurrencyField
+                        value={func.horasExtras || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
+                        textColor="text-emerald-400"
+                        width="w-28"
+                    />
+                </td>
+                <td className="px-2 py-2 text-right">
+                    <CurrencyField
+                        value={func.vales || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
+                        textColor="text-red-400"
+                        width="w-24"
+                    />
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <input
+                        type="number"
+                        value={func.faltas || 0}
+                        onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
+                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
+                    />
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
+                    />
+                </td>
+                <td className="px-2 py-2 text-right">
+                    <CurrencyField
+                        value={func.totalReceber || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
+                        textColor="text-blue-400"
+                        width="w-28"
+                    />
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => toggleNoteRow(`func-${func.originalIndex}`)}
+                        className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`func-${func.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (func.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
+                        title="Observação"
+                    >
+                        <StickyNote className="w-3.5 h-3.5" />
+                    </button>
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => removeFuncionario(func.originalIndex)}
+                        className="p-1 text-slate-600 hover:text-red-500 transition-colors"
+                        title="Remover"
+                    >
+                        <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                </td>
+            </tr>
+            {expandedNoteRows.has(`func-${func.originalIndex}`) && (
+                <tr className="bg-slate-900/40">
+                    <td colSpan={10} className="px-4 py-2">
+                        <textarea
+                            value={func.observacao || ''}
+                            onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
+                            rows={2}
+                            placeholder={`Observação sobre ${func.nome || 'este funcionário'}...`}
+                            className="w-full bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none transition-all"
+                        />
+                    </td>
+                </tr>
+            )}
+        </React.Fragment>
+    );
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex items-center justify-between mb-6">
@@ -671,11 +782,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <SummaryCard label="Receita Líquida" value={formatCurrency(currentTotals.liquida)} color="text-emerald-400" />
-                                    <SummaryCard label="Total Salários" value={formatCurrency(currentTotals.salarios)} color="text-red-400" />
+                                    <SummaryCard label="Folha Operacional" value={formatCurrency(teamStats.operacionalTotal)} color="text-blue-400" />
+                                    <SummaryCard label="Folha Gestão" value={formatCurrency(teamStats.gestaoTotal)} color="text-indigo-400" />
                                     <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
-                                    <SummaryCard label="Gastos do Mês" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
-                                    <SummaryCard label="Resultado (Lucro)" value={formatCurrency(lucroCalculado)} color="text-indigo-400" special />
+                                    <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
+                                    <SummaryCard label="Lucro Estimado" value={formatCurrency(lucroCalculado)} color="text-emerald-400" special />
                                 </div>
                             </section>
 
@@ -686,12 +797,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </h3>
                                     <div className="grid grid-cols-2 gap-4 text-center">
                                         <div className="p-4 bg-slate-800 rounded-lg">
-                                            <h4 className="text-4xl font-black text-white mb-2">{localMonth.condominios?.length || 0}</h4>
+                                            <h4 className="text-3xl font-black text-white mb-2">{localMonth.condominios?.length || 0}</h4>
                                             <span className="text-xs uppercase font-medium text-slate-400">Condomínios</span>
                                         </div>
-                                        <div className="p-4 bg-slate-800 rounded-lg">
-                                            <h4 className="text-4xl font-black text-white mb-2">{localMonth.funcionarios?.length || 0}</h4>
-                                            <span className="text-xs uppercase font-medium text-slate-400">Funcionários</span>
+                                        <div className="p-4 bg-slate-800 rounded-lg border border-indigo-500/30">
+                                            <div className="flex justify-center gap-1 mb-1">
+                                                <span className="text-2xl font-black text-white">{teamStats.gestaoCount}</span>
+                                                <span className="text-2xl font-black text-slate-600">/</span>
+                                                <span className="text-2xl font-black text-slate-400">{teamStats.operacionalCount}</span>
+                                            </div>
+                                            <span className="text-[10px] uppercase font-bold text-indigo-400">Gestão / Operacional</span>
                                         </div>
                                     </div>
                                 </section>
@@ -983,102 +1098,26 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
-                                        {sortedFuncs?.map((func) => (
-                                            <React.Fragment key={func.originalIndex}>
-                                                <tr className="hover:bg-slate-700/10">
-                                                    <td className="px-2 py-2">
-                                                        <input
-                                                            value={func.nome}
-                                                            onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium text-xs"
-                                                        />
-                                                    </td>
-                                                    <td className="px-2 py-2 text-slate-400">
-                                                        <input
-                                                            value={func.condominio}
-                                                            onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
-                                                        />
-                                                    </td>
-                                                    <td className="px-2 py-2 text-right">
-                                                        <CurrencyField
-                                                            value={func.salario || 0}
-                                                            onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
-                                                            textColor="text-white"
-                                                        />
-                                                    </td>
-                                                    <td className="px-3 py-3 text-right">
-                                                        <CurrencyField
-                                                            value={func.horasExtras || 0}
-                                                            onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
-                                                            textColor="text-emerald-400"
-                                                            width="w-28"
-                                                        />
-                                                    </td>
-                                                    <td className="px-2 py-2 text-right">
-                                                        <CurrencyField
-                                                            value={func.vales || 0}
-                                                            onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
-                                                            textColor="text-red-400"
-                                                            width="w-24"
-                                                        />
-                                                    </td>
-                                                    <td className="px-1 py-2 text-center">
-                                                        <input
-                                                            type="number"
-                                                            value={func.faltas || 0}
-                                                            onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
-                                                            className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
-                                                        />
-                                                    </td>
-                                                    <td className="px-1 py-2 text-center">
-                                                        <button
-                                                            onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                                            className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
-                                                        />
-                                                    </td>
-                                                    <td className="px-2 py-2 text-right">
-                                                        <CurrencyField
-                                                            value={func.totalReceber || 0}
-                                                            onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
-                                                            textColor="text-blue-400"
-                                                            width="w-28"
-                                                        />
-                                                    </td>
-                                                    <td className="px-1 py-2 text-center">
-                                                        <button
-                                                            onClick={() => toggleNoteRow(`func-${func.originalIndex}`)}
-                                                            className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`func-${func.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (func.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
-                                                            title="Observação"
-                                                        >
-                                                            <StickyNote className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </td>
-                                                    <td className="px-1 py-2 text-center">
-                                                        <button
-                                                            onClick={() => removeFuncionario(func.originalIndex)}
-                                                            className="p-1 text-slate-600 hover:text-red-500 transition-colors"
-                                                            title="Remover"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                        </button>
+                                        {gestaoFuncs.length > 0 && (
+                                            <>
+                                                <tr className="bg-indigo-900/10">
+                                                    <td colSpan={10} className="px-4 py-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest border-y border-indigo-500/20">
+                                                        Equipe de Gestão
                                                     </td>
                                                 </tr>
-                                                {expandedNoteRows.has(`func-${func.originalIndex}`) && (
-                                                    <tr className="bg-slate-900/40">
-                                                        <td colSpan={10} className="px-4 py-2">
-                                                            <textarea
-                                                                value={func.observacao || ''}
-                                                                onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
-                                                                rows={2}
-                                                                placeholder={`Observação sobre ${func.nome || 'este funcionário'}...`}
-                                                                className="w-full bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none transition-all"
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </React.Fragment>
-                                        ))}
+                                                {gestaoFuncs.map(renderFuncRow)}
+                                            </>
+                                        )}
+                                        {operacionalFuncs.length > 0 && (
+                                            <>
+                                                <tr className="bg-slate-900/20">
+                                                    <td colSpan={10} className="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-y border-slate-700/30">
+                                                        Equipe Operacional
+                                                    </td>
+                                                </tr>
+                                                {operacionalFuncs.map(renderFuncRow)}
+                                            </>
+                                        )}
                                     </tbody>
                                     <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
                                         <tr className="text-white font-bold">

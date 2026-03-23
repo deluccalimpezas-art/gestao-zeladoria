@@ -109,6 +109,16 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 placeholder="00.000.000/0000-00"
                             />
                         </div>
+                        <div className="flex items-center md:col-span-1">
+                            <input
+                                value={condo.endereco || ''}
+                                readOnly={!isExpanded}
+                                onClick={(e) => isExpanded && e.stopPropagation()}
+                                onChange={(e) => onUpdate('endereco', e.target.value)}
+                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-400 text-[10px] ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
+                                placeholder="Endereço do Condomínio"
+                            />
+                        </div>
                         
                         <div className="md:col-span-1 flex items-center justify-end px-2">
                             {isExpanded ? (
