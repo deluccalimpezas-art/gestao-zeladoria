@@ -75,8 +75,8 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                     <div className={`p-2 rounded-lg ${isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'} transition-colors`}>
                         <Building2 className="w-5 h-5" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 flex-1">
-                        <div className="relative md:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1">
+                        <div className="relative md:col-span-3">
                             <input
                                 value={condo.nome}
                                 readOnly={!isExpanded}
@@ -89,7 +89,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 {String(index + 1).padStart(2, '0')}.
                             </span>
                         </div>
-                        <div className="flex items-center md:col-span-1">
+                        <div className="flex items-center md:col-span-2">
                             <input
                                 value={condo.administradora || ''}
                                 readOnly={!isExpanded}
@@ -99,7 +99,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 placeholder="Administradora"
                             />
                         </div>
-                        <div className="flex items-center md:col-span-1">
+                        <div className="flex items-center md:col-span-2">
                             <input
                                 value={maskCNPJ(condo.cnpj)}
                                 readOnly={!isExpanded}
@@ -109,7 +109,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                 placeholder="00.000.000/0000-00"
                             />
                         </div>
-                        <div className="flex items-center md:col-span-1">
+                        <div className="flex items-center md:col-span-3">
                             <input
                                 value={condo.endereco || ''}
                                 readOnly={!isExpanded}
@@ -120,7 +120,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                             />
                         </div>
                         
-                        <div className="md:col-span-1 flex items-center justify-end px-2">
+                        <div className="md:col-span-2 flex items-center justify-end px-2">
                             {isExpanded ? (
                                 <div className="w-full max-w-[120px]">
                                     <label className="text-[9px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Valor Mensal</label>
