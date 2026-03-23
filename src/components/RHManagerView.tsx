@@ -488,7 +488,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                 key={condo.id}
                                 condo={condo}
                                 index={idx}
-                                employees={data.funcionarios.filter(f => f.condominioId === condo.id)}
+                                employees={data.funcionarios.filter(f => f.condominioId === condo.id && !f.deleted)}
                                 onUpdate={(field, val) => {
                                     const idx = localData.condominios.findIndex(c => c.id === condo.id);
                                     updateCondo(idx, field, val);
