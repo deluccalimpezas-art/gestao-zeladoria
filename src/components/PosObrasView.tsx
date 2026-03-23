@@ -203,10 +203,10 @@ export default function PosObrasView() {
                                     </div>
 
                                     <div className="flex items-center gap-8">
-                                        <div className="hidden lg:flex flex-col items-end">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Custo Total</span>
-                                            <span className="text-xl font-black text-white italic">{formatCurrency(totalGeral)}</span>
-                                        </div>
+                                         <div className="hidden lg:flex flex-col items-end">
+                                             <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Valor do Projeto</span>
+                                             <span className="text-xl font-black text-white italic">{formatCurrency(obra.valor || 0)}</span>
+                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button 
                                                 onClick={(e) => {
