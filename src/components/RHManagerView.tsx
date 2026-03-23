@@ -295,6 +295,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const [searchTerm, setSearchTerm] = useState('');
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showTrash, setShowTrash] = useState(false);
+    const [lastSavedData, setLastSavedData] = useState<string>(JSON.stringify(data));
 
     const onSaveRef = useRef(onSave);
     useEffect(() => {
@@ -302,26 +303,30 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     }, [onSave]);
 
     useEffect(() => {
-        // Só sincroniza se não estiver salvando e se houver mudança Real no timestamp/id
-        const incomingHash = JSON.stringify(data.condominios.map(c => ({ id: c.id, obs: c.observacao, val: c.valorContrato })));
-        const localHash = JSON.stringify(localData.condominios.map(c => ({ id: c.id, obs: c.observacao, val: c.valorContrato })));
-        
-        if (saveStatus === 'idle' && incomingHash !== localHash) {
+        // Sincroniza props -> local apenas se os dados recebidos forem 
+        // significativamente diferentes do que acabamos de salvar.
+        // Isso evita que a revalidação do servidor (que pode vir atrasada) 
+        // sobrescreva o que o usuário ainda está digitando localmente.
+        const incoming = JSON.stringify(data);
+        if (incoming !== lastSavedData) {
             setLocalData(data);
+            setLastSavedData(incoming);
         }
-    }, [data, saveStatus]);
+    }, [data, lastSavedData]);
 
     useEffect(() => {
         setSaveStatus('saving');
         const timer = setTimeout(async () => {
-            const result = await onSaveRef.current({ ...localData, ultimaAtualizacao: new Date().toISOString() });
+            const newData = { ...localData, ultimaAtualizacao: new Date().toISOString() };
+            const result = await onSaveRef.current(newData);
             if (result && result.success) {
+                setLastSavedData(JSON.stringify(newData));
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 2000);
             } else {
                 setSaveStatus('idle');
             }
-        }, 2500); // Aumentado para 2.5s para maior estabilidade
+        }, 2500); 
         return () => clearTimeout(timer);
     }, [localData]);
 
