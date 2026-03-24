@@ -195,7 +195,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <Menu className="w-5 h-5" />
                     </button>
                 </div>
-                <nav className="flex-1 overflow-y-auto py-4">
+                <nav className="flex-1 overflow-y-auto py-4 hide-scrollbar">
                     <ul className="space-y-1 px-2">
                         <li>
                             <button
