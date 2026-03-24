@@ -934,15 +934,17 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     Pagamento
                                                 </button>
                                             </div>
-                                            <button
-                                                onClick={addCondo}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/90 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/10"
-                                            >
-                                                <Plus className="w-3 h-3" /> Condomínio
-                                            </button>
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
+                                <button
+                                    onClick={addCondo}
+                                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-purple-600/20"
+                                >
+                                    <Plus className="w-4 h-4" /> Adicionar Condomínio
+                                </button>
+                            </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm text-slate-300 border-collapse">
                                         <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
