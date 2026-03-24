@@ -54,9 +54,10 @@ interface MainContentProps {
     initialFinanceMonths: any[];
     initialFuncs: any[];
     initialNotes: any[];
+    initialRHImpostos: any[];
 }
 
-export default function MainContent({ initialCondos, initialFinanceMonths, initialFuncs, initialNotes }: MainContentProps) {
+export default function MainContent({ initialCondos, initialFinanceMonths, initialFuncs, initialNotes, initialRHImpostos }: MainContentProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -66,6 +67,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
         funcionarios: initialFuncs || [],
+        impostos: initialRHImpostos || [],
         ultimaAtualizacao: new Date().toISOString()
     });
 

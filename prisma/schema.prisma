@@ -77,6 +77,7 @@ model MonthlyFuncionario {
   id            String       @id @default(uuid())
   valorPago     Float
   horasExtras   Float        @default(0)
+  rescisaoFerias Float?      @default(0)
   monthId       String
   funcionarioId String?
   condominio    String?
@@ -85,6 +86,15 @@ model MonthlyFuncionario {
   statusClt     String?
   funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
   month         FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+}
+
+model RHImposto {
+  id         String   @id @default(uuid())
+  nome       String
+  valor      Float    @default(0)
+  vencimento String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model MonthlyImposto {

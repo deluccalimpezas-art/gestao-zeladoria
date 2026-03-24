@@ -55,14 +55,23 @@ export interface FuncionarioData {
     pagamentoFeito?: boolean;
     observacao?: string;
     podeRegistrar?: boolean;
+    rescisaoFerias?: number;
 }
 
 export interface ImpostoData {
+    id?: string;
     nome: string;
     vencimento?: string;
     valor: number;
     observacao?: string;
     pagamentoFeito?: boolean;
+}
+
+export interface RHImpostoData {
+    id: string;
+    nome: string;
+    valor: number;
+    vencimento?: string;
 }
 
 export interface MonthlyFinanceData {
@@ -112,6 +121,7 @@ export interface CandidatoData {
 export interface MasterRHData {
     condominios: CondominioData[];
     funcionarios: FuncionarioData[];
+    impostos: RHImpostoData[];
     candidatos?: CandidatoData[];
     ultimaAtualizacao: string;
 }

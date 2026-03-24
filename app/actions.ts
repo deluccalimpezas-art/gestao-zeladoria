@@ -238,9 +238,10 @@ export async function getFinanceMonths() {
                 condominio: mf.condominio || '',
                 salario: mf.valorPago,
                 horasExtras: mf.horasExtras || 0,
-                totalReceber: (mf.valorPago || 0) + (mf.horasExtras || 0),
+                totalReceber: (mf.valorPago || 0) + (mf.horasExtras || 0) + (mf.rescisaoFerias || 0),
                 statusClt: mf.statusClt,
                 salarioBase: mf.salarioBase || 0,
+                rescisaoFerias: mf.rescisaoFerias || 0,
                 funcionarioId: mf.funcionarioId || undefined
             }));
 
@@ -331,7 +332,20 @@ export async function createFinanceMonth(nome: string) {
                         salarioBase: (f as any).salarioBase || 0,
                         valorPago: (f as any).salarioBase || 0,
                         statusClt: (f as any).statusClt,
+                        rescisaoFerias: 0,
                         funcionarioId: f.id
+                    }))
+                });
+            }
+
+            const rhImpostos = await (tx as any).rHImposto.findMany();
+            if (rhImpostos.length > 0) {
+                await tx.monthlyImposto.createMany({
+                    data: rhImpostos.map((i: any) => ({
+                        monthId: newMonth.id,
+                        nome: i.nome,
+                        valor: i.valor || 0,
+                        pago: false
                     }))
                 });
             }
@@ -456,6 +470,7 @@ export async function saveFinanceMonth(data: any) {
                     condominio: f.condominio,
                     valorPago: f.salario || 0,
                     horasExtras: f.horasExtras || 0,
+                    rescisaoFerias: f.rescisaoFerias || 0,
                     statusClt: f.statusClt,
                     funcionarioId: f.funcionarioId
                 },
@@ -466,6 +481,7 @@ export async function saveFinanceMonth(data: any) {
                     condominio: f.condominio,
                     valorPago: f.salario || 0,
                     horasExtras: f.horasExtras || 0,
+                    rescisaoFerias: f.rescisaoFerias || 0,
                     statusClt: f.statusClt,
                     funcionarioId: f.funcionarioId
                 }
@@ -625,7 +641,7 @@ export async function deletePosObra(id: string) {
     }
 }
 
-export async function saveMasterRH(data: { condominios: any[], funcionarios: any[] }) {
+export async function saveMasterRH(data: { condominios: any[], funcionarios: any[], impostos?: any[] }) {
     try {
         console.log("Iniciando saveMasterRH...");
         let errors: string[] = [];
@@ -689,6 +705,20 @@ export async function saveMasterRH(data: { condominios: any[], funcionarios: any
         revalidatePath('/');
         revalidatePath('/financeiro');
         revalidatePath('/rh');
+
+        // 5. Processar Impostos (Novo)
+        if (data.impostos && Array.isArray(data.impostos)) {
+            for (const imp of data.impostos) {
+                await upsertRHImposto(imp);
+            }
+            // Deleção de impostos que não vieram
+            const incomingImpIds = data.impostos.map(i => i.id).filter(id => id && id.length > 20);
+            await (prisma as any).rHImposto.deleteMany({
+                where: {
+                    id: { notIn: incomingImpIds }
+                }
+            });
+        }
         
         if (errors.length > 0) {
             console.error("Erros durante salvamento:", errors);
@@ -1195,6 +1225,45 @@ export async function deleteNote(id: string) {
         return { success: true };
     } catch (e: any) {
         console.error("Erro deleteNote:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+// --- RH IMPOSTOS (BASE) ---
+
+export async function getRHImpostos() {
+    try {
+        return await (prisma as any).rHImposto.findMany({
+            orderBy: { nome: 'asc' }
+        });
+    } catch (e) {
+        console.error("Erro getRHImpostos:", e);
+        return [];
+    }
+}
+
+export async function upsertRHImposto(data: any) {
+    try {
+        const { id, nome, valor, vencimento } = data;
+        const result = await (prisma as any).rHImposto.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { nome, valor: parseFloat(valor) || 0, vencimento },
+            create: { nome, valor: parseFloat(valor) || 0, vencimento }
+        });
+        return { success: true, data: result };
+    } catch (e: any) {
+        console.error("Erro upsertRHImposto:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteRHImposto(id: string) {
+    try {
+        await (prisma as any).rHImposto.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deleteRHImposto:", e);
         return { success: false, error: e.message };
     }
 }

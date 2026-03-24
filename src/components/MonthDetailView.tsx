@@ -290,14 +290,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const list = [...(localMonth.funcionarios || [])];
         const updated = { ...list[index], [field]: value };
 
-        // Auto-calculate: Total = Salário + Horas Extras - Vales - (Faltas × Salário/30)
-        if (field === 'salario' || field === 'horasExtras' || field === 'vales' || field === 'faltas') {
+        // Auto-calculate: Total = Salário + Horas Extras + Rescisão - Vales - (Faltas × Salário/30)
+        if (field === 'salario' || field === 'horasExtras' || field === 'vales' || field === 'faltas' || field === 'rescisaoFerias') {
             const sal = Number(field === 'salario' ? value : updated.salario) || 0;
             const extras = Number(field === 'horasExtras' ? value : updated.horasExtras) || 0;
+            const rescisao = Number(field === 'rescisaoFerias' ? value : updated.rescisaoFerias) || 0;
             const vales = Number(field === 'vales' ? value : updated.vales) || 0;
             const faltas = Number(field === 'faltas' ? value : updated.faltas) || 0;
             const descontoFaltas = (sal / 30) * faltas;
-            updated.totalReceber = Math.max(0, sal + extras - vales - descontoFaltas);
+            updated.totalReceber = Math.max(0, sal + extras + rescisao - vales - descontoFaltas);
         }
 
         list[index] = updated;
@@ -633,6 +634,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         value={func.horasExtras || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
                         textColor="text-emerald-400"
+                        width="w-28"
+                    />
+                </td>
+                <td className="px-2 py-2 text-right">
+                    <CurrencyField
+                        value={func.rescisaoFerias || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'rescisaoFerias', val)}
+                        textColor="text-indigo-400"
                         width="w-28"
                     />
                 </td>
@@ -1089,6 +1098,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-2 py-3">Condomínio</th>
                                             <th className="px-2 py-3 text-right">Salário</th>
                                             <th className="px-2 py-3 text-right text-emerald-400">Extras</th>
+                                            <th className="px-2 py-3 text-right text-indigo-400">Rescisão</th>
                                             <th className="px-2 py-3 text-right text-red-400">Vales</th>
                                             <th className="px-1 py-3 text-center">Faltas</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
@@ -1101,7 +1111,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         {gestaoFuncs.length > 0 && (
                                             <>
                                                 <tr className="bg-indigo-900/10">
-                                                    <td colSpan={10} className="px-4 py-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest border-y border-indigo-500/20">
+                                                    <td colSpan={11} className="px-4 py-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest border-y border-indigo-500/20">
                                                         Equipe de Gestão
                                                     </td>
                                                 </tr>
@@ -1111,7 +1121,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         {operacionalFuncs.length > 0 && (
                                             <>
                                                 <tr className="bg-slate-900/20">
-                                                    <td colSpan={10} className="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-y border-slate-700/30">
+                                                    <td colSpan={11} className="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-y border-slate-700/30">
                                                         Equipe Operacional
                                                     </td>
                                                 </tr>
@@ -1121,7 +1131,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </tbody>
                                     <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
                                         <tr className="text-white font-bold">
-                                            <td colSpan={6} className="px-4 py-4 text-sm uppercase tracking-wider text-slate-400">Total da Folha</td>
+                                            <td colSpan={7} className="px-4 py-4 text-sm uppercase tracking-wider text-slate-400">Total da Folha</td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xl inline-block min-w-[140px]">
                                                     {formatCurrency(currentTotals.salarios)}
