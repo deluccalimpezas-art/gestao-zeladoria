@@ -1158,3 +1158,44 @@ export async function deleteTaskTodo(id: string) {
         return { success: false, error: e.message };
     }
 }
+
+// --- NOTAS ---
+
+export async function getNotes() {
+    try {
+        return await (prisma as any).note.findMany({
+            orderBy: { updatedAt: 'desc' }
+        });
+    } catch (e) {
+        console.error("Erro getNotes:", e);
+        return [];
+    }
+}
+
+export async function saveNote(data: { id?: string, title: string, content?: string, color?: string }) {
+    try {
+        const { id, title, content, color } = data;
+        const result = await (prisma as any).note.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { title, content, color, updatedAt: new Date() },
+            create: { title, content, color }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        console.error("Erro saveNote:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteNote(id: string) {
+    try {
+        await (prisma as any).note.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deleteNote:", e);
+        return { success: false, error: e.message };
+    }
+}
+

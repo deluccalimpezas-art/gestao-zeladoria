@@ -20,7 +20,8 @@ import {
     Zap,
     LineChart,
     FileText,
-    HardHat
+    HardHat,
+    StickyNote
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -35,6 +36,7 @@ import { PersonalFinanceView } from './PersonalFinanceView';
 import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
 import PosObrasView from './PosObrasView';
+import { NotesView } from './NotesView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -51,13 +53,15 @@ interface MainContentProps {
     initialCondos: any[];
     initialFinanceMonths: any[];
     initialFuncs: any[];
+    initialNotes: any[];
 }
 
-export default function MainContent({ initialCondos, initialFinanceMonths, initialFuncs }: MainContentProps) {
+export default function MainContent({ initialCondos, initialFinanceMonths, initialFuncs, initialNotes }: MainContentProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('visao_geral');
+
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
         condominios: initialCondos || [],
@@ -283,6 +287,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                 {sidebarOpen && <span className="font-medium">Gestão Pessoal</span>}
                             </button>
                         </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('notas')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'notas' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <StickyNote className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Notas / Quadro</span>}
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -448,6 +461,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <CalculatorsView />
                     ) : activeTab === 'pos_obras' ? (
                         <PosObrasView />
+                    ) : activeTab === 'notas' ? (
+                        <NotesView initialNotes={initialNotes} />
                     ) : (
                         <div className="flex items-center justify-center h-full text-slate-500">
                             Selecione uma opção no menu lateral
