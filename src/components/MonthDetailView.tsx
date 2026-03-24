@@ -12,6 +12,13 @@ interface MonthDetailViewProps {
 
 type TabType = 'visao_geral' | 'condominios' | 'folha' | 'impostos' | 'gastos';
 
+const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    }).format(value).replace(/\s/g, '');
+};
+
 export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
     const [localMonth, setLocalMonth] = useState<MonthlyFinanceData>(month);
@@ -134,14 +141,69 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         descricao: ''
     });
 
-    const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-        }).format(value).replace(/\s/g, '');
+    // Modais de Adição
+    const [isAddCondoModalOpen, setIsAddCondoModalOpen] = useState(false);
+    const [newCondoData, setNewCondoData] = useState({ nome: '', receitaBruta: 0, inssRetido: 0 });
+
+    const [isAddFuncModalOpen, setIsAddFuncModalOpen] = useState(false);
+    const [newFuncData, setNewFuncData] = useState({ nome: '', condominio: '', salario: 0 });
+
+    const [isAddImpModalOpen, setIsAddImpModalOpen] = useState(false);
+    const [newImpData, setNewImpData] = useState({ nome: '', valor: 0, vencimento: '' });
+
+    const handleSaveNewCondo = () => {
+        if (!newCondoData.nome) return alert("Nome é obrigatório");
+        const fresh: CondominioData = {
+            id: crypto.randomUUID(),
+            nome: newCondoData.nome,
+            cnpj: '',
+            receitaBruta: newCondoData.receitaBruta,
+            inssRetido: newCondoData.inssRetido,
+            receitaLiquida: newCondoData.receitaBruta - newCondoData.inssRetido,
+            nfFeita: false,
+            nfEnviada: false,
+            pagamentoFeito: false
+        };
+        const newList = [...(localMonth.condominios || []), fresh];
+        updateHistory({ ...localMonth, condominios: newList });
+        setIsAddCondoModalOpen(false);
+        setNewCondoData({ nome: '', receitaBruta: 0, inssRetido: 0 });
     };
 
-    // Função handleSave antiga removida pois agora usamos o useEffect para autosave
+    const handleSaveNewFunc = () => {
+        if (!newFuncData.nome) return alert("Nome é obrigatório");
+        const fresh: FuncionarioData = {
+            id: crypto.randomUUID(),
+            nome: newFuncData.nome,
+            condominio: newFuncData.condominio,
+            salario: newFuncData.salario,
+            horasExtras: 0,
+            vales: 0,
+            faltas: 0,
+            rescisaoFerias: 0,
+            totalReceber: newFuncData.salario,
+            pagamentoFeito: false
+        };
+        const newList = [...(localMonth.funcionarios || []), fresh];
+        updateHistory({ ...localMonth, funcionarios: newList });
+        setIsAddFuncModalOpen(false);
+        setNewFuncData({ nome: '', condominio: '', salario: 0 });
+    };
+
+    const handleSaveNewImp = () => {
+        if (!newImpData.nome) return alert("Nome é obrigatório");
+        const fresh: ImpostoData = {
+            id: crypto.randomUUID(),
+            nome: newImpData.nome,
+            valor: newImpData.valor,
+            vencimento: newImpData.vencimento,
+            pagamentoFeito: false
+        };
+        const newList = [...(localMonth.impostos || []), fresh];
+        updateHistory({ ...localMonth, impostos: newList });
+        setIsAddImpModalOpen(false);
+        setNewImpData({ nome: '', valor: 0, vencimento: '' });
+    };
 
     const updateCondo = (index: number, field: keyof CondominioData, value: string | number | boolean) => {
         const list = [...(localMonth.condominios || [])];
@@ -329,19 +391,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     };
 
     const addCondo = () => {
-        const newList = [...(localMonth.condominios || []), {
-            id: crypto.randomUUID(),
-            nome: 'Novo Condomínio',
-            cnpj: '',
-            receitaBruta: 0,
-            inssRetido: 0,
-            receitaLiquida: 0,
-            nfFeita: false,
-            nfEnviada: false,
-            pagamentoFeito: false
-        }];
-        updateHistory({ ...localMonth, condominios: newList });
-        setHasChanges(true);
+        setIsAddCondoModalOpen(true);
     };
 
     const removeCondo = (index: number) => {
@@ -351,17 +401,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     };
 
     const addFuncionario = () => {
-        const newList = [...(localMonth.funcionarios || []), {
-            id: crypto.randomUUID(),
-            nome: 'Novo Funcionário',
-            condominio: '',
-            salario: 0,
-            horasExtras: 0,
-            vales: 0,
-            totalReceber: 0
-        }];
-        updateHistory({ ...localMonth, funcionarios: newList });
-        setHasChanges(true);
+        setIsAddFuncModalOpen(true);
     };
 
     const removeFuncionario = (index: number) => {
@@ -371,15 +411,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     };
 
     const addImposto = () => {
-        const newList = [...(localMonth.impostos || []), {
-            id: crypto.randomUUID(),
-            nome: 'Novo Imposto',
-            vencimento: '',
-            valor: 0,
-            pago: false
-        }];
-        updateHistory({ ...localMonth, impostos: newList });
-        setHasChanges(true);
+        setIsAddImpModalOpen(true);
     };
 
     const removeImposto = (index: number) => {
@@ -1356,6 +1388,129 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     )}
                 </div>
             </div>
+
+            <Modal
+                isOpen={isAddCondoModalOpen}
+                onClose={() => setIsAddCondoModalOpen(false)}
+                title="Novo Condomínio no Mês"
+            >
+                <div className="space-y-6">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome do Condomínio</label>
+                        <input 
+                            type="text" value={newCondoData.nome} 
+                            onChange={e => setNewCondoData({...newCondoData, nome: e.target.value})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                            placeholder="Ex: Condomínio Solar"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Receita Bruta (R$)</label>
+                            <input 
+                                type="number" value={newCondoData.receitaBruta} 
+                                onChange={e => setNewCondoData({...newCondoData, receitaBruta: parseFloat(e.target.value) || 0})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">INSS Retido (R$)</label>
+                            <input 
+                                type="number" value={newCondoData.inssRetido} 
+                                onChange={e => setNewCondoData({...newCondoData, inssRetido: parseFloat(e.target.value) || 0})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                            />
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleSaveNewCondo}
+                        className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-600/20 transition-all"
+                    >
+                        Cadastrar Condomínio
+                    </button>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={isAddFuncModalOpen}
+                onClose={() => setIsAddFuncModalOpen(false)}
+                title="Novo Colaborador no Mês"
+            >
+                <div className="space-y-6">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome Completo</label>
+                        <input 
+                            type="text" value={newFuncData.nome} 
+                            onChange={e => setNewFuncData({...newFuncData, nome: e.target.value})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Condomínio Principal</label>
+                        <input 
+                            type="text" value={newFuncData.condominio} 
+                            onChange={e => setNewFuncData({...newFuncData, condominio: e.target.value})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Salário Base (R$)</label>
+                        <input 
+                            type="number" value={newFuncData.salario} 
+                            onChange={e => setNewFuncData({...newFuncData, salario: parseFloat(e.target.value) || 0})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none font-bold"
+                        />
+                    </div>
+                    <button 
+                        onClick={handleSaveNewFunc}
+                        className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-blue-600/20 transition-all"
+                    >
+                        Cadastrar Colaborador
+                    </button>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={isAddImpModalOpen}
+                onClose={() => setIsAddImpModalOpen(false)}
+                title="Novo Imposto/Obrigação"
+            >
+                <div className="space-y-6">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Descrição</label>
+                        <input 
+                            type="text" value={newImpData.nome} 
+                            onChange={e => setNewImpData({...newImpData, nome: e.target.value})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Valor (R$)</label>
+                            <input 
+                                type="number" value={newImpData.valor} 
+                                onChange={e => setNewImpData({...newImpData, valor: parseFloat(e.target.value) || 0})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Vencimento</label>
+                            <input 
+                                type="text" value={newImpData.vencimento} 
+                                onChange={e => setNewImpData({...newImpData, vencimento: e.target.value})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                                placeholder="DD/MM"
+                            />
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleSaveNewImp}
+                        className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-600/20 transition-all"
+                    >
+                        Cadastrar Imposto
+                    </button>
+                </div>
+            </Modal>
 
             {/* Modal de Nota Fiscal */}
             <Modal

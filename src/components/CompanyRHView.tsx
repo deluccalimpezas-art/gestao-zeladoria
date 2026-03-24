@@ -74,6 +74,10 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [isAddCandidatoOpen, setIsAddCandidatoOpen] = useState(false);
     const [newCandidato, setNewCandidato] = useState({ nome: '', telefone: '', observacao: '' });
 
+    // Impostos state
+    const [isAddImpostoOpen, setIsAddImpostoOpen] = useState(false);
+    const [newRHImposto, setNewRHImposto] = useState({ nome: '', valor: 0 });
+
     // Printing state
     const [printingContract, setPrintingContract] = useState<{ employee: FuncionarioData, type: 'trabalho' | 'demissao' } | null>(null);
 
@@ -196,6 +200,19 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
 
     const handleDeleteCandidato = async (id: string) => {
         await onSave({ ...data, candidatos: (data.candidatos || []).filter(c => c.id !== id) });
+    };
+
+    const handleAddRHImposto = async () => {
+        if (!newRHImposto.nome) return alert("Nome é obrigatório");
+        const fresh = { 
+            id: crypto.randomUUID(), 
+            nome: newRHImposto.nome, 
+            valor: newRHImposto.valor, 
+            vencimento: "" 
+        };
+        await onSave({ ...data, impostos: [...(data.impostos || []), fresh] });
+        setIsAddImpostoOpen(false);
+        setNewRHImposto({ nome: '', valor: 0 });
     };
 
     const employees = useMemo(() => {
@@ -708,13 +725,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
                             <button 
-                                onClick={async () => {
-                                    const nome = prompt("Nome do Imposto:");
-                                    if (!nome) return;
-                                    const valor = parseFloat(prompt("Valor (R$):") || "0");
-                                    const fresh = { id: crypto.randomUUID(), nome, valor, vencimento: "" };
-                                    await onSave({ ...data, impostos: [...(data.impostos || []), fresh] });
-                                }}
+                                onClick={() => setIsAddImpostoOpen(true)}
                                 className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20"
                             >
                                 <Plus className="w-4 h-4" /> Adicionar Imposto
@@ -792,6 +803,49 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 )}
             </div>
 
+
+            {/* Add RH Imposto Modal */}
+            {isAddImpostoOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col">
+                        <div className="p-8 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-500/10 to-transparent">
+                            <div>
+                                <h2 className="text-2xl font-black text-white tracking-tighter flex items-center gap-3">
+                                    <Plus className="w-6 h-6 text-amber-400" /> Novo Imposto (Base)
+                                </h2>
+                                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1">Template Mensal</p>
+                            </div>
+                            <button onClick={() => setIsAddImpostoOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                                <X className="w-6 h-6 text-slate-400" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nome do Imposto</label>
+                                <input 
+                                    type="text" value={newRHImposto.nome} 
+                                    onChange={e => setNewRHImposto({...newRHImposto, nome: e.target.value})}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-amber-500/50 outline-none"
+                                    placeholder="Ex: INSS, FGTS..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Valor Padrão (R$)</label>
+                                <input 
+                                    type="number" value={newRHImposto.valor} 
+                                    onChange={e => setNewRHImposto({...newRHImposto, valor: parseFloat(e.target.value) || 0})}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-amber-500/50 outline-none font-bold"
+                                />
+                            </div>
+                        </div>
+                        <div className="p-8 bg-slate-800/50 flex gap-4">
+                            <button onClick={handleAddRHImposto} className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-black uppercase text-xs tracking-widest py-4 rounded-3xl transition-all shadow-xl shadow-amber-600/20">
+                                Cadastrar Imposto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Add Modal */}
             {isAddModalOpen && (
