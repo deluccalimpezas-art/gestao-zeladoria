@@ -10,7 +10,7 @@ interface MonthDetailViewProps {
     onSave: (updated: MonthlyFinanceData) => void;
 }
 
-type TabType = 'visao_geral' | 'condominios' | 'folha' | 'impostos' | 'gastos';
+type TabType = 'visao_geral' | 'condominios' | 'folha' | 'rescisoes' | 'impostos' | 'gastos';
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -814,7 +814,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     <TabButton active={activeTab === 'visao_geral'} onClick={() => setActiveTab('visao_geral')} icon={<Activity className="w-4 h-4" />} label="Visão Geral" />
                     <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
                     <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
-                    <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos" />
+                    <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
+                    <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos e Taxas" />
                     <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
                 </div>
 
@@ -1188,6 +1189,84 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             </div>
 
                     </div>
+                    )}
+
+                    {activeTab === 'rescisoes' && (
+                        <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-6 shadow-2xl backdrop-blur-sm -mt-2">
+                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                                <div>
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <Calendar className="w-6 h-6 text-indigo-400" /> Rescisões e Férias
+                                    </h3>
+                                    <p className="text-sm text-slate-400 mt-1">Gestão de pagamentos extras de desligamento ou férias.</p>
+                                </div>
+                                <div className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total deste Mês</p>
+                                    <p className="text-2xl font-black text-white">{formatCurrency(currentTotals.rescisoes)}</p>
+                                </div>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-slate-700">
+                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Colaborador</th>
+                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Condomínio</th>
+                                            <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 w-44">Valor Rescisão/Férias</th>
+                                            <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-500 w-24">Status Pgto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-700/50">
+                                        {sortedFuncs.length > 0 ? (
+                                            sortedFuncs.map((func) => (
+                                                <tr key={func.originalIndex} className="hover:bg-slate-700/10 h-16 group">
+                                                    <td className="px-4 py-2">
+                                                        <div className="text-sm font-bold text-white mb-0.5">{func.nome}</div>
+                                                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">{func.cargo || 'Operacional'}</div>
+                                                    </td>
+                                                    <td className="px-4 py-2">
+                                                        <span className="px-2 py-1 bg-slate-900 rounded-lg text-xs text-slate-400 border border-slate-700">{func.condominio}</span>
+                                                    </td>
+                                                    <td className="px-4 py-2 text-right">
+                                                        <CurrencyField
+                                                            value={func.rescisaoFerias || 0}
+                                                            onChange={(val) => updateFunc(func.originalIndex, 'rescisaoFerias', val)}
+                                                            textColor="text-indigo-400"
+                                                            width="w-36"
+                                                        />
+                                                    </td>
+                                                    <td className="px-4 py-2 text-center">
+                                                        <button
+                                                            onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                                                            className={`w-5 h-5 rounded-full transition-all mx-auto border-2 ${func.pagamentoFeito ? 'bg-indigo-500 border-indigo-400 shadow-lg shadow-indigo-500/20' : 'bg-slate-900 border-slate-700 hover:border-indigo-500/50'}`}
+                                                        >
+                                                            {func.pagamentoFeito && <Check className="w-3 h-3 text-white m-auto" />}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={4} className="px-4 py-12 text-center text-slate-500 font-medium italic">
+                                                    Nenhum colaborador encontrado para este mês.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                    {sortedFuncs.length > 0 && (
+                                        <tfoot className="bg-slate-900/40 border-t border-slate-700">
+                                            <tr>
+                                                <td colSpan={2} className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Soma das Rescisões/Férias</td>
+                                                <td className="px-4 py-4 text-right">
+                                                    <span className="text-lg font-black text-indigo-400">{formatCurrency(currentTotals.rescisoes)}</span>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    )}
+                                </table>
+                            </div>
+                        </div>
                     )}
 
                     {activeTab === 'impostos' && (
