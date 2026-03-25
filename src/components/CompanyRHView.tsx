@@ -274,7 +274,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     }, [employees]);
 
     const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
     };
 
     return (

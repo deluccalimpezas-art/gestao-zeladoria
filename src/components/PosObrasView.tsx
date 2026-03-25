@@ -86,7 +86,7 @@ export default function PosObrasView() {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
-        }).format(val);
+        }).format(val).replace(/\s/g, '');
     };
 
     const addGastoToObra = (obraId: string, tipo: 'Salário' | 'Produto') => {

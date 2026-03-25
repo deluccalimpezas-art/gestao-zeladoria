@@ -96,7 +96,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
-        }).format(value);
+        }).format(value).replace(/\s/g, '');
     };
 
     const handlePrint = () => {

@@ -23,7 +23,7 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
     const summary = calculateFinanceSummary(monthsData);
 
     const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
     };
 
     // Contar condominios unicos na carteira baseado no ultimo mes ou soma geral

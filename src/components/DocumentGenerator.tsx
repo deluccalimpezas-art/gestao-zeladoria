@@ -13,7 +13,7 @@ export function DocumentGenerator({ months }: DocumentGeneratorProps) {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
-        }).format(value);
+        }).format(value).replace(/\s/g, '');
     };
 
     const handlePrint = () => {

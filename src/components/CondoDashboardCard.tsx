@@ -16,7 +16,7 @@ export function CondoDashboardCard({ condo, employees }: CondoDashboardCardProps
             currency: 'BRL',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-        }).format(value);
+        }).format(value).replace(/\s/g, '');
     };
 
     return (

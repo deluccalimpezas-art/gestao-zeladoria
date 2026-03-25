@@ -39,7 +39,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
             currency: 'BRL',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-        }).format(value);
+        }).format(value).replace(/\s/g, '');
     };
 
     const maskCNPJ = (value: string | null) => {

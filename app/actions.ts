@@ -307,7 +307,7 @@ export async function createFinanceMonth(nome: string) {
             const newMonth = await tx.financeMonth.create({ data: { nome } });
             console.log("Mês criado:", newMonth.id);
 
-            const condos = await tx.condominio.findMany();
+            const condos = await tx.condominio.findMany({ where: { deleted: false } });
             console.log("Condomínios encontrados na base:", condos.length);
             if (condos.length > 0) {
                 await tx.monthlyCondominio.createMany({
@@ -321,7 +321,10 @@ export async function createFinanceMonth(nome: string) {
                 });
             }
 
-            const funcs = await tx.funcionario.findMany({ include: { condominio: true } });
+            const funcs = await tx.funcionario.findMany({ 
+                where: { deleted: false },
+                include: { condominio: true } 
+            });
             console.log("Funcionários encontrados na base:", funcs.length);
             if (funcs.length > 0) {
                 await tx.monthlyFuncionario.createMany({

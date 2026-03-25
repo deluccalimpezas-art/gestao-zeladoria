@@ -85,6 +85,7 @@ export interface MonthlyFinanceData {
     totalSalarios?: number;
     totalImpostos?: number;
     totalGastos?: number;
+    totalRescisao?: number;
     lucroEstimado?: number;
  
     // Lista dos prédios atendidos

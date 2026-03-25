@@ -25,7 +25,7 @@ const getAdminEmail = (administradora?: string): string | null => {
 };
 
 const formatCurrency = (value: number): string =>
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
 
 const parseCurrency = (str: string): number => {
     const cleaned = str.replace(/[^\d,]/g, '').replace(',', '.');

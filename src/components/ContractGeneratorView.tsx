@@ -26,7 +26,7 @@ export function ContractGeneratorView() {
     const [signatureDateRaw, setSignatureDateRaw] = useState(today);
 
     // Helpers
-    const formatCurrency = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+    const formatCurrency = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val).replace(/\s/g, '');
 
     const startDateObj = new Date(startDateRaw + "T12:00:00");
     const signatureDateObj = new Date(signatureDateRaw + "T12:00:00");

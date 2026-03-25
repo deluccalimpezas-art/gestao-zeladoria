@@ -81,7 +81,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             onSaveRef.current({
                 ...localMonth,
                 lucroEstimado,
-                totalGastos: currGastos
+                totalGastos: currGastos,
+                totalSalarios: currSalarios,
+                totalRescisao: currSalarios - (validFuncs.reduce((acc, f) => acc + (Number(f.salario) || 0) + (Number(f.horasExtras) || 0) - (Number(f.vales) || 0) - ((Number(f.salario) / 30) * (Number(f.faltas) || 0)), 0))
             });
 
             setHasChanges(false);
@@ -569,8 +571,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const salarios = validFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
         const impostos = validImpostos.reduce((acc, i) => acc + (Number(i.valor) || 0), 0);
         const gastos = (localMonth.gastos || []).reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+        const rescisoes = validFuncs.reduce((acc, f) => acc + (Number(f.rescisaoFerias) || 0), 0);
 
-        return { bruto, liquida, inss, salarios, impostos, gastos };
+        return { bruto, liquida, inss, salarios, impostos, gastos, rescisoes };
     }, [localMonth]);
 
     const paymentStats = useMemo(() => {
@@ -822,9 +825,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    <SummaryCard label="Folha Operacional" value={formatCurrency(teamStats.operacionalTotal)} color="text-blue-400" />
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                    <SummaryCard label="Folha Base" value={formatCurrency(currentTotals.salarios - currentTotals.rescisoes)} color="text-blue-400" />
                                     <SummaryCard label="Folha Gestão" value={formatCurrency(teamStats.gestaoTotal)} color="text-indigo-400" />
+                                    <SummaryCard label="Rescisões/Férias" value={formatCurrency(currentTotals.rescisoes)} color="text-indigo-300" />
                                     <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
                                     <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
                                     <SummaryCard label="Lucro Estimado" value={formatCurrency(lucroCalculado)} color="text-emerald-400" special />
@@ -1165,12 +1169,19 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </tbody>
                                     <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
                                         <tr className="text-white font-bold">
-                                            <td colSpan={7} className="px-4 py-4 text-sm uppercase tracking-wider text-slate-400">Total da Folha</td>
+                                            <td colSpan={4} className="px-4 py-4 text-[10px] uppercase tracking-[0.2em] text-slate-500">Somas da Folha</td>
+                                            <td className="px-2 py-4 text-right">
+                                                <div className="text-[10px] text-indigo-400 mb-1 uppercase font-bold tracking-widest">Total Rescisões</div>
+                                                <span className="text-lg font-black text-white">{formatCurrency(currentTotals.rescisoes)}</span>
+                                            </td>
+                                            <td colSpan={3}></td>
                                             <td className="px-6 py-4 text-right">
+                                                <div className="text-[10px] text-blue-400 mb-1 uppercase font-bold tracking-widest">Custo Total Folha</div>
                                                 <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xl inline-block min-w-[140px]">
                                                     {formatCurrency(currentTotals.salarios)}
                                                 </div>
                                             </td>
+                                            <td colSpan={2}></td>
                                         </tr>
                                     </tfoot>
                                 </table>
