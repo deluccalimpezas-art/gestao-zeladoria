@@ -40,7 +40,7 @@ interface CompanyRHViewProps {
 }
 
 type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar' | 'afastada_inss' | 'ferias';
-type RegistrationCategory = 'Todos' | 'Gestão' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Lixeira';
+type RegistrationCategory = 'Todos' | 'Gestão' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Lixeira';
 
 const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todos' | 'Lixeira' | 'Candidatos' | 'Gestão'>> = {
     'registrada': 'Registradas',
@@ -53,7 +53,7 @@ const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todo
 
 export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState<'funcionarios' | 'impostos'>('funcionarios');
+    const [activeTab, setActiveTab] = useState<'funcionarios' | 'impostos' | 'candidatos'>('funcionarios');
     const [activeCategory, setActiveCategory] = useState<RegistrationCategory>('Todos');
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [isSaving, setIsSaving] = useState<string | null>(null);
@@ -217,7 +217,6 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     };
 
     const employees = useMemo(() => {
-        if (activeCategory === 'Candidatos') return [];
         return data.funcionarios.filter(f => {
             const matchesSearch = f.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
                                  (f.cargo && f.cargo.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -244,13 +243,12 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         { label: 'Não vai Registrar', icon: UserMinus, color: 'text-rose-400' },
         { label: 'Afastadas INSS', icon: AlertCircle, color: 'text-orange-400' },
         { label: 'Férias', icon: Calendar, color: 'text-indigo-400' },
-        { label: 'Candidatos', icon: Users, color: 'text-violet-400' },
         { label: 'Lixeira', icon: Trash2, color: 'text-red-400' },
     ];
 
     const statsByCategory = useMemo(() => {
         const counts: Record<string, number> = {
-            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Afastadas INSS': 0, 'Férias': 0, 'Candidatos': 0, 'Lixeira': 0, 'Gestão': 0
+            'Todos': 0, 'Registradas': 0, 'Precisa Registrar': 0, 'Em Processo': 0, 'Não vai Registrar': 0, 'Afastadas INSS': 0, 'Férias': 0, 'Lixeira': 0, 'Gestão': 0
         };
         data.funcionarios.forEach(f => {
             if (f.deleted) {
@@ -263,8 +261,6 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 }
             }
         });
-        counts['Candidatos'] = (data.candidatos || []).length;
-        counts['Impostos'] = (data.impostos || []).length;
         return counts;
     }, [data.funcionarios, data.candidatos, data.impostos]);
 
@@ -315,7 +311,13 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                     onClick={() => setActiveTab('funcionarios')}
                     className={`flex items-center gap-2 px-6 py-4 font-black uppercase tracking-widest text-xs border-b-2 transition-all ${activeTab === 'funcionarios' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
                 >
-                    <Users className="w-4 h-4" /> Funcionários e Candidatos
+                    <Briefcase className="w-4 h-4" /> Equipe / Funcionários
+                </button>
+                <button
+                    onClick={() => setActiveTab('candidatos')}
+                    className={`flex items-center gap-2 px-6 py-4 font-black uppercase tracking-widest text-xs border-b-2 transition-all ${activeTab === 'candidatos' ? 'border-violet-500 text-violet-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                >
+                    <Users className="w-4 h-4" /> Banco de Candidatos
                 </button>
                 <button
                     onClick={() => setActiveTab('impostos')}
@@ -356,99 +358,16 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                         className="w-full bg-slate-800/30 border border-slate-700/50 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-600"
                     />
                 </div>
-                {activeCategory === 'Candidatos' ? (
-                    <button 
-                        onClick={() => setIsAddCandidatoOpen(true)}
-                        className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-violet-600/20 transition-all active:scale-95"
-                    >
-                        <Plus className="w-5 h-5" /> Novo Candidato
-                    </button>
-                ) : (
-                    <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-600/20 transition-all active:scale-95"
-                    >
-                        <Plus className="w-5 h-5 shadow-sm" /> Novo Cadastro
-                    </button>
-                )}
+                <button 
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-600/20 transition-all active:scale-95"
+                >
+                    <Plus className="w-5 h-5 shadow-sm" /> Novo Cadastro
+                </button>
             </div>
 
-            {/* Candidatos Panel */}
-            {activeCategory === 'Candidatos' && (
-                <div className="space-y-3 pb-12">
-                    {(data.candidatos || []).filter(c => c.nome.toLowerCase().includes(searchTerm.toLowerCase()) || c.telefone.includes(searchTerm)).length > 0 ? (
-                        (data.candidatos || [])
-                            .filter(c => c.nome.toLowerCase().includes(searchTerm.toLowerCase()) || c.telefone.includes(searchTerm))
-                            .sort((a, b) => a.nome.localeCompare(b.nome))
-                            .map((candidato) => (
-                                <div key={candidato.id} className="flex items-center gap-4 p-4 bg-slate-800/30 border border-slate-700/50 rounded-3xl">
-                                    <div className="p-2.5 rounded-xl bg-violet-900/40 border border-violet-700/30 text-violet-400">
-                                        <User className="w-5 h-5" />
-                                    </div>
-                                    <div className="grid grid-cols-[2fr_1.5fr] gap-4 flex-1 min-w-0">
-                                        <h3 className="font-black text-white uppercase tracking-tight truncate">{candidato.nome}</h3>
-                                        <div className="flex items-center gap-1.5 text-violet-400/70 text-[11px] font-bold">
-                                            <Phone className="w-3.5 h-3.5 shrink-0" />
-                                            <span>{candidato.telefone || 'Sem telefone'}</span>
-                                        </div>
-                                    </div>
-                                    {candidato.observacao && (
-                                        <span className="hidden md:block text-[10px] text-slate-500 italic truncate max-w-[200px]">{candidato.observacao}</span>
-                                    )}
-                                    <span className="text-[10px] text-slate-600 shrink-0">{candidato.dataRegistro}</span>
-                                    <button
-                                        onClick={() => handleDeleteCandidato(candidato.id)}
-                                        className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            ))
-                    ) : (
-                        <div className="py-20 bg-slate-800/20 border border-slate-700/50 border-dashed rounded-3xl text-center">
-                            <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tighter">Nenhum candidato</h3>
-                            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Adicione candidatos para futuras contratações.</p>
-                        </div>
-                    )}
-
-                    {/* Add Candidato Modal */}
-                    {isAddCandidatoOpen && (
-                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsAddCandidatoOpen(false)}>
-                            <div className="bg-slate-900 border border-slate-700 rounded-3xl p-8 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-lg font-black text-white uppercase tracking-wider">Novo Candidato</h2>
-                                    <button onClick={() => setIsAddCandidatoOpen(false)} className="text-slate-500 hover:text-white"><X className="w-5 h-5" /></button>
-                                </div>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Nome Completo *</label>
-                                        <input type="text" value={newCandidato.nome} onChange={(e) => setNewCandidato(prev => ({ ...prev, nome: e.target.value }))}
-                                            className="w-full mt-1.5 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-violet-500/30 outline-none" placeholder="Nome do candidato" />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Telefone / WhatsApp</label>
-                                        <input type="tel" value={newCandidato.telefone} onChange={(e) => setNewCandidato(prev => ({ ...prev, telefone: e.target.value }))}
-                                            className="w-full mt-1.5 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-violet-500/30 outline-none" placeholder="(11) 99999-9999" />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Observação</label>
-                                        <textarea value={newCandidato.observacao} onChange={(e) => setNewCandidato(prev => ({ ...prev, observacao: e.target.value }))}
-                                            className="w-full mt-1.5 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-2 focus:ring-violet-500/30 outline-none resize-none" rows={2} placeholder="Ex: Boa referência, disponível imediatamente..." />
-                                    </div>
-                                    <button onClick={handleAddCandidato}
-                                        className="w-full bg-violet-600 hover:bg-violet-500 text-white py-3 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-violet-600/20">
-                                        Adicionar Candidato
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
             {/* Employee List */}
-            <div className="space-y-3 pb-12" style={{ display: activeCategory === 'Candidatos' ? 'none' : undefined }}>
+            <div className="space-y-3 pb-12">
                 {employees.length > 0 ? (
                     employees.map((employee: FuncionarioData) => {
                         const isExpanded = employee.id ? expandedRows.has(employee.id) : false;
@@ -747,6 +666,68 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 )}
             </div>
             </>
+            )}
+
+            {activeTab === 'candidatos' && (
+                <div className="space-y-4 pb-12 animate-in fade-in block">
+                    {/* Candiates Toolbar */}
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+                        <div className="relative w-full md:w-96 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-violet-400 transition-colors" />
+                            <input 
+                                type="text" 
+                                placeholder={`Buscar candidato...`}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-slate-800/30 border border-slate-700/50 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all placeholder:text-slate-600"
+                            />
+                        </div>
+                        <button 
+                            onClick={() => setIsAddCandidatoOpen(true)}
+                            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-violet-600/20 transition-all active:scale-95"
+                        >
+                            <Plus className="w-5 h-5" /> Novo Candidato
+                        </button>
+                    </div>
+
+                    <div className="space-y-3">
+                        {(data.candidatos || []).filter(c => c.nome.toLowerCase().includes(searchTerm.toLowerCase()) || c.telefone.includes(searchTerm)).length > 0 ? (
+                            (data.candidatos || [])
+                                .filter(c => c.nome.toLowerCase().includes(searchTerm.toLowerCase()) || c.telefone.includes(searchTerm))
+                                .sort((a, b) => a.nome.localeCompare(b.nome))
+                                .map((candidato) => (
+                                    <div key={candidato.id} className="flex items-center gap-4 p-4 bg-slate-800/30 border border-slate-700/50 rounded-3xl">
+                                        <div className="p-2.5 rounded-xl bg-violet-900/40 border border-violet-700/30 text-violet-400">
+                                            <User className="w-5 h-5" />
+                                        </div>
+                                        <div className="grid grid-cols-[2fr_1.5fr] gap-4 flex-1 min-w-0">
+                                            <h3 className="font-black text-white uppercase tracking-tight truncate">{candidato.nome}</h3>
+                                            <div className="flex items-center gap-1.5 text-violet-400/70 text-[11px] font-bold">
+                                                <Phone className="w-3.5 h-3.5 shrink-0" />
+                                                <span>{candidato.telefone || 'Sem telefone'}</span>
+                                            </div>
+                                        </div>
+                                        {candidato.observacao && (
+                                            <span className="hidden md:block text-[10px] text-slate-500 italic truncate max-w-[200px]">{candidato.observacao}</span>
+                                        )}
+                                        <span className="text-[10px] text-slate-600 shrink-0">{candidato.dataRegistro}</span>
+                                        <button
+                                            onClick={() => handleDeleteCandidato(candidato.id)}
+                                            className="p-2 text-slate-600 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))
+                        ) : (
+                            <div className="py-20 bg-slate-800/20 border border-slate-700/50 border-dashed rounded-3xl text-center">
+                                <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                                <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tighter">Nenhum candidato</h3>
+                                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Adicione candidatos para futuras contratações.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
 
             {activeTab === 'impostos' && (
