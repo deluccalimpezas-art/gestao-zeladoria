@@ -21,7 +21,8 @@ import {
     LineChart,
     FileText,
     HardHat,
-    StickyNote
+    StickyNote,
+    TrendingUp
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -105,6 +106,45 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const condoAlerts = useMemo(() => {
         return gerarAlertasCondominios(masterRH.condominios || []);
     }, [masterRH.condominios]);
+
+    const financialTotals = useMemo(() => {
+        const activeCondos = (masterRH.condominios || []).filter(c => !c.deleted);
+        const activeFuncs = (masterRH.funcionarios || []).filter(f => !f.deleted);
+
+        let totalIncome = 0;
+        let totalExpenses = 0;
+
+        activeCondos.forEach(condo => {
+            const baseValue = condo.valorContrato || 0;
+            const inssDeduction = baseValue * 0.13;
+            
+            const condoEmployees = activeFuncs.filter(f => f.condominioId === condo.id);
+            const totalSalaries = condoEmployees.reduce((acc, emp) => acc + (emp.salario || 0), 0);
+            const totalEncargos = condoEmployees.reduce((acc, emp) => {
+                if (emp.statusClt === 'registrada') {
+                    const is22h = condo.cargaHoraria === '22h';
+                    return acc + (is22h ? 859 : 1431);
+                }
+                return acc;
+            }, 0);
+
+            totalIncome += baseValue;
+            totalExpenses += (inssDeduction + totalSalaries + totalEncargos);
+        });
+
+        return {
+            income: totalIncome,
+            expenses: totalExpenses,
+            profit: totalIncome - totalExpenses
+        };
+    }, [masterRH.condominios, masterRH.funcionarios]);
+
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    };
 
     const onUpdateCondo = async (data: any) => {
         await upsertCondominio(data);
@@ -313,26 +353,65 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                 <div className="flex-1 overflow-auto p-6">
                     {activeTab === 'visao_geral' ? (
                         <div className="max-w-7xl mx-auto space-y-8">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <h1 className="text-3xl font-bold text-white tracking-tight">Olá, Eduardo</h1>
-                                <div className="flex gap-4">
-                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
-                                        <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                            <Briefcase className="w-5 h-5 text-blue-400" />
+                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                <div className="space-y-1">
+                                    <h1 className="text-3xl font-bold text-white tracking-tight">Olá, Eduardo</h1>
+                                    <p className="text-slate-400 text-sm font-medium">Aqui está o resumo financeiro da sua operação de RH.</p>
+                                </div>
+                                <div className="flex flex-wrap gap-4">
+                                    {/* Entrada */}
+                                    <div className="bg-slate-800/40 border border-emerald-500/20 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-xl backdrop-blur-md">
+                                        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+                                            <TrendingUp className="w-5 h-5 text-emerald-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Condomínios</p>
-                                            <p className="text-xl font-black text-white">{masterRH.condominios.length}</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Entradas (Total)</p>
+                                            <p className="text-lg font-black text-emerald-400">{formatCurrency(financialTotals.income)}</p>
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
-                                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                                            <Users className="w-5 h-5 text-indigo-400" />
+                                    {/* Saída */}
+                                    <div className="bg-slate-800/40 border border-rose-500/20 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-xl backdrop-blur-md">
+                                        <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center border border-rose-500/20">
+                                            <Receipt className="w-5 h-5 text-rose-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Funcionários</p>
-                                            <p className="text-xl font-black text-white">{employeesCount}</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Saídas (Folha+Enc)</p>
+                                            <p className="text-lg font-black text-rose-400">{formatCurrency(financialTotals.expenses)}</p>
                                         </div>
+                                    </div>
+                                    {/* Lucro */}
+                                    <div className="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-2xl backdrop-blur-md relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
+                                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-500/30">
+                                            <Zap className="w-5 h-5 text-indigo-400" />
+                                        </div>
+                                        <div className="relative z-10">
+                                            <p className="text-[10px] uppercase font-black text-indigo-400 tracking-widest">Lucro Projetado</p>
+                                            <p className={`text-xl font-black ${financialTotals.profit >= 0 ? 'text-white' : 'text-rose-400'}`}>
+                                                {formatCurrency(financialTotals.profit)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
+                                    <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                        <Briefcase className="w-5 h-5 text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Condomínios</p>
+                                        <p className="text-xl font-black text-white">{masterRH.condominios.filter(c => !c.deleted).length}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
+                                    <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                                        <Users className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Funcionários</p>
+                                        <p className="text-xl font-black text-white">{masterRH.funcionarios.filter(f => !f.deleted).length}</p>
                                     </div>
                                 </div>
                             </div>
