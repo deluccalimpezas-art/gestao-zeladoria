@@ -1248,10 +1248,17 @@ export async function getRHImpostos() {
 export async function upsertRHImposto(data: any) {
     try {
         const { id, nome, valor, vencimento } = data;
+        const validId = (id && id !== '00000000-0000-0000-0000-000000000000' && id.length > 10) ? id : undefined;
+        
         const result = await (prisma as any).rHImposto.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
             update: { nome, valor: parseFloat(valor) || 0, vencimento },
-            create: { nome, valor: parseFloat(valor) || 0, vencimento }
+            create: { 
+                id: validId,
+                nome, 
+                valor: parseFloat(valor) || 0, 
+                vencimento 
+            }
         });
         return { success: true, data: result };
     } catch (e: any) {
