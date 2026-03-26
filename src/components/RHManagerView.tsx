@@ -373,7 +373,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showTrash, setShowTrash] = useState(false);
     const [lastSavedData, setLastSavedData] = useState<string>(JSON.stringify(data));
-    const [sortBy, setSortBy] = useState<'alfabetica' | 'valor' | 'lucro' | 'administradora'>('alfabetica');
+    const [sortBy, setSortBy] = useState<'alfabetica' | 'valor' | 'lucro' | 'margem' | 'administradora'>('alfabetica');
     const [sortAsc, setSortAsc] = useState(true);
     const [isSortOpen, setIsSortOpen] = useState(false);
 
@@ -481,11 +481,18 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         return base - inss - salaries - encargos;
     };
 
+    const calcCondoMargin = (condo: CondominioData) => {
+        const base = condo.valorContrato || 0;
+        if (base === 0) return 0;
+        return (calcCondoProfit(condo) / base) * 100;
+    };
+
     const sortFn = (a: CondominioData, b: CondominioData) => {
         let res = 0;
         switch (sortBy) {
             case 'valor': res = (a.valorContrato || 0) - (b.valorContrato || 0); break;
             case 'lucro': res = calcCondoProfit(a) - calcCondoProfit(b); break;
+            case 'margem': res = calcCondoMargin(a) - calcCondoMargin(b); break;
             case 'administradora': res = (a.administradora || '').localeCompare(b.administradora || ''); break;
             case 'alfabetica':
             default:
@@ -618,7 +625,8 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                     {[
                                         { id: 'alfabetica', label: 'Ordem Alfabética' },
                                         { id: 'valor', label: 'Por Valor Mensal' },
-                                        { id: 'lucro', label: 'Por Lucratividade' },
+                                        { id: 'lucro', label: 'Por Lucratividade (R$)' },
+                                        { id: 'margem', label: 'Por Margem de Lucro (%)' },
                                         { id: 'administradora', label: 'Por Administradora' }
                                     ].map(opt => (
                                         <button
@@ -652,7 +660,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                 key={condo.id}
                                 condo={condo}
                                 index={idx}
-                                isSortedByProfit={sortBy === 'lucro'}
+                                isSortedByProfit={sortBy === 'lucro' || sortBy === 'margem'}
                                 employees={data.funcionarios.filter(f => f.condominioId === condo.id && !f.deleted)}
                                 onUpdate={(field, val) => {
                                     const idx = localData.condominios.findIndex(c => c.id === condo.id);
