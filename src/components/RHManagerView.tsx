@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users } from 'lucide-react';
+import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
 
 interface CondoCardProps {
@@ -64,6 +64,18 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
             default: return 'bg-slate-600';
         }
     };
+
+    const baseValue = condo.valorContrato || 0;
+    const inssDeduction = baseValue * 0.13;
+    const totalSalaries = employees.reduce((acc, emp) => acc + (emp.salario || 0), 0);
+    const totalEncargos = employees.reduce((acc, emp) => {
+        if (emp.statusClt === 'registrada') {
+            const is22h = condo.cargaHoraria === '22h';
+            return acc + (is22h ? 859 : 1431);
+        }
+        return acc;
+    }, 0);
+    const projProfit = baseValue - inssDeduction - totalSalaries - totalEncargos;
 
     return (
         <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'}`}>
@@ -271,6 +283,41 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
                                         <p className="text-xs text-slate-600 italic">Nenhuma funcionária vinculada.</p>
                                     </div>
                                 )}
+                            </div>
+                            
+                            {/* Projeção de Rentabilidade */}
+                            <div className="mt-6 pt-6 border-t border-slate-700/30">
+                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                    <TrendingUp className="w-3 h-3 text-emerald-400" /> Projeção de Rentabilidade
+                                </h4>
+                                <div className="bg-slate-900/40 rounded-xl border border-slate-700/30 p-4">
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-slate-400 font-medium tracking-tight">Valor Mensal Base:</span>
+                                            <span className="text-white font-bold">{formatCurrency(baseValue)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-slate-400 font-medium tracking-tight">Dedução Impostos (13%):</span>
+                                            <span className="text-red-400 font-bold">- {formatCurrency(inssDeduction)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-slate-400 font-medium tracking-tight">Custos de Folha:</span>
+                                            <span className="text-red-400 font-bold">- {formatCurrency(totalSalaries)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-slate-400 font-medium tracking-tight" title={employees.filter(e => e.statusClt === 'registrada').length > 0 ? `Encargos calculados para funcionárias registradas (${condo.cargaHoraria === '22h' ? '22h' : '44h'})` : 'Nenhuma funcionária registrada.'}>
+                                                Custos de Encargos:
+                                            </span>
+                                            <span className="text-red-400 font-bold">- {formatCurrency(totalEncargos)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="pt-3 border-t border-slate-700/50 flex justify-between items-center">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Lucro Estimado</span>
+                                        <span className={`text-lg font-black ${projProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                            {formatCurrency(projProfit)}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div className="mt-6 pt-6 border-t border-slate-700/30">

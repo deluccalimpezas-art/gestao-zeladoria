@@ -54,6 +54,7 @@ const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todo
 export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'funcionarios' | 'impostos' | 'candidatos'>('funcionarios');
+    const [editingImpostoId, setEditingImpostoId] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<RegistrationCategory>('Todos');
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [isSaving, setIsSaving] = useState<string | null>(null);
@@ -732,11 +733,19 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
 
             {activeTab === 'impostos' && (
                 <div className="space-y-4 pb-12 animate-in fade-in block">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
+                            <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/30">
+                                <span className="text-[10px] text-amber-500 uppercase font-black tracking-wider">Total Acumulado:</span>
+                                <span className="text-lg font-black text-amber-400">
+                                    {formatCurrency((data.impostos || []).reduce((a, b) => a + b.valor, 0))}
+                                </span>
+                            </div>
+                        </div>
                         <button 
                             onClick={() => setIsAddImpostoOpen(true)}
-                            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20"
+                            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20 shrink-0"
                         >
                             <Plus className="w-4 h-4" /> Adicionar Imposto
                         </button>
@@ -767,17 +776,32 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                             />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <input 
-                                                type="number" 
-                                                defaultValue={imp.valor}
-                                                onBlur={async (e) => {
-                                                    const val = parseFloat(e.target.value);
-                                                    if (val === imp.valor) return;
-                                                    const updated = data.impostos.map(i => i.id === imp.id ? { ...i, valor: val } : i);
-                                                    await onSave({ ...data, impostos: updated });
-                                                }}
-                                                className="bg-transparent border-none text-white font-bold focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-32"
-                                            />
+                                            {editingImpostoId === imp.id ? (
+                                                <input 
+                                                    type="number" 
+                                                    defaultValue={imp.valor}
+                                                    autoFocus
+                                                    onBlur={async (e) => {
+                                                        const val = parseFloat(e.target.value);
+                                                        setEditingImpostoId(null);
+                                                        if (isNaN(val) || val === imp.valor) return;
+                                                        const updated = data.impostos.map(i => i.id === imp.id ? { ...i, valor: val } : i);
+                                                        await onSave({ ...data, impostos: updated });
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') e.currentTarget.blur();
+                                                    }}
+                                                    className="bg-amber-500/10 border border-amber-500 text-amber-50 font-bold focus:ring-2 focus:ring-amber-500 rounded px-2 py-1 outline-none w-32"
+                                                />
+                                            ) : (
+                                                <div 
+                                                    onClick={() => setEditingImpostoId(imp.id)}
+                                                    className="font-bold text-slate-300 hover:text-amber-400 cursor-pointer transition-colors px-2 py-1 -ml-2 rounded hover:bg-amber-500/10 inline-flex"
+                                                    title="Clique para editar"
+                                                >
+                                                    {formatCurrency(imp.valor)}
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button 
