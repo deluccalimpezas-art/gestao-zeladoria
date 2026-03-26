@@ -906,18 +906,18 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <div className="flex flex-col">
                                 {/* Reestruturação do Cabeçalho - Totais + Botão de Adição */}
                                 <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                    <div className="flex items-center gap-2 md:gap-3 flex-nowrap overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0 hide-scrollbar">
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
                                             <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
-                                            <span className="text-xl font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
+                                            <span className="text-lg md:text-xl font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
                                             <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
-                                            <span className="text-xl font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
+                                            <span className="text-lg md:text-xl font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-5 py-2.5 rounded-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/5">
-                                            <span className="text-xs text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
-                                            <span className="text-2xl font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-4 md:px-5 py-2.5 rounded-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/5 shrink-0">
+                                            <span className="text-[10px] md:text-xs text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
+                                            <span className="text-xl md:text-2xl font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
                                         </div>
                                     </div>
                                     
@@ -1121,18 +1121,18 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     {activeTab === 'folha' && (
                         <div className="flex flex-col">
                             <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                <div className="flex items-center gap-2 md:gap-3 flex-nowrap overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0 hide-scrollbar">
+                                    <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
                                         <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Gestão:</span>
-                                        <span className="text-xl font-black text-indigo-400">{formatCurrency(teamStats.gestaoTotal)}</span>
+                                        <span className="text-lg md:text-xl font-black text-indigo-400">{formatCurrency(teamStats.gestaoTotal)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                    <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
                                         <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Operacional:</span>
-                                        <span className="text-xl font-black text-slate-300">{formatCurrency(teamStats.operacionalTotal)}</span>
+                                        <span className="text-lg md:text-xl font-black text-slate-300">{formatCurrency(teamStats.operacionalTotal)}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 bg-blue-500/10 px-5 py-2.5 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-500/5">
-                                        <span className="text-xs text-blue-500 uppercase font-black tracking-wider">Total Folha:</span>
-                                        <span className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.salarios)}</span>
+                                    <div className="flex items-center gap-2 bg-blue-500/10 px-4 md:px-5 py-2.5 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-500/5 shrink-0">
+                                        <span className="text-[10px] md:text-xs text-blue-500 uppercase font-black tracking-wider">Total Folha:</span>
+                                        <span className="text-xl md:text-2xl font-black text-blue-400">{formatCurrency(currentTotals.salarios)}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
