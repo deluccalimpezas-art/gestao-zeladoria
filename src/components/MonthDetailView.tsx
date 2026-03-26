@@ -153,6 +153,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [isAddImpModalOpen, setIsAddImpModalOpen] = useState(false);
     const [newImpData, setNewImpData] = useState({ nome: '', valor: 0, vencimento: '' });
 
+    const [isAddRescisaoModalOpen, setIsAddRescisaoModalOpen] = useState(false);
+    const [selectedFuncForRescisao, setSelectedFuncForRescisao] = useState<number | 'new' | null>(null);
+    const [tempRescisaoValue, setTempRescisaoValue] = useState(0);
+
     const handleSaveNewCondo = () => {
         if (!newCondoData.nome) return alert("Nome é obrigatório");
         const fresh: CondominioData = {
@@ -205,6 +209,21 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         updateHistory({ ...localMonth, impostos: newList });
         setIsAddImpModalOpen(false);
         setNewImpData({ nome: '', valor: 0, vencimento: '' });
+    };
+
+    const handleSaveRescisao = () => {
+        if (selectedFuncForRescisao === null) return;
+
+        if (selectedFuncForRescisao === 'new') {
+            alert("Para adicionar um lançamento avulso, primeiro adicione o colaborador na aba de Funcionários e depois vincule o valor.");
+            return;
+        }
+
+        updateFunc(selectedFuncForRescisao as number, 'rescisaoFerias', tempRescisaoValue);
+        
+        setIsAddRescisaoModalOpen(false);
+        setSelectedFuncForRescisao(null);
+        setTempRescisaoValue(0);
     };
 
     const updateCondo = (index: number, field: keyof CondominioData, value: string | number | boolean) => {
@@ -509,6 +528,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             .sort((a, b) => (Number(b.totalReceber) || 0) - (Number(a.totalReceber) || 0));
     }, [localMonth.funcionarios]);
 
+    const rescisoesFuncs = useMemo(() => {
+        return sortedFuncs.filter(f => (f.rescisaoFerias || 0) > 0);
+    }, [sortedFuncs]);
+
     const gestaoFuncs = useMemo(() => sortedFuncs.filter(f => ['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
     const operacionalFuncs = useMemo(() => sortedFuncs.filter(f => !['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
 
@@ -522,6 +545,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             operacionalTotal
         };
     }, [gestaoFuncs, operacionalFuncs]);
+
 
     const sortedImpostos = useMemo(() => {
         const parseDate = (dStr?: string) => {
@@ -1194,11 +1218,19 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     {activeTab === 'rescisoes' && (
                         <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-6 shadow-2xl backdrop-blur-sm -mt-2">
                              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <Calendar className="w-6 h-6 text-indigo-400" /> Rescisões e Férias
-                                    </h3>
-                                    <p className="text-sm text-slate-400 mt-1">Gestão de pagamentos extras de desligamento ou férias.</p>
+                                <div className="flex items-center gap-4">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                            <Calendar className="w-6 h-6 text-indigo-400" /> Rescisões e Férias
+                                        </h3>
+                                        <p className="text-sm text-slate-400 mt-1">Gestão de pagamentos extras de desligamento ou férias.</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => setIsAddRescisaoModalOpen(true)}
+                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2 h-fit"
+                                    >
+                                        <Plus className="w-4 h-4" /> Lançar Nova
+                                    </button>
                                 </div>
                                 <div className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
                                     <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total deste Mês</p>
@@ -1213,12 +1245,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Colaborador</th>
                                             <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Condomínio</th>
                                             <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 w-44">Valor Rescisão/Férias</th>
-                                            <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-500 w-24">Status Pgto</th>
+                                            <th className="px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-500 w-24">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
-                                        {sortedFuncs.length > 0 ? (
-                                            sortedFuncs.map((func) => (
+                                        {rescisoesFuncs.length > 0 ? (
+                                            rescisoesFuncs.map((func) => (
                                                 <tr key={func.originalIndex} className="hover:bg-slate-700/10 h-16 group">
                                                     <td className="px-4 py-2">
                                                         <div className="text-sm font-bold text-white mb-0.5">{func.nome}</div>
@@ -1235,25 +1267,47 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                             width="w-36"
                                                         />
                                                     </td>
-                                                    <td className="px-4 py-2 text-center">
-                                                        <button
-                                                            onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                                            className={`w-5 h-5 rounded-full transition-all mx-auto border-2 ${func.pagamentoFeito ? 'bg-indigo-500 border-indigo-400 shadow-lg shadow-indigo-500/20' : 'bg-slate-900 border-slate-700 hover:border-indigo-500/50'}`}
-                                                        >
-                                                            {func.pagamentoFeito && <Check className="w-3 h-3 text-white m-auto" />}
-                                                        </button>
+                                                    <td className="px-4 py-2">
+                                                        <div className="flex items-center justify-center gap-3">
+                                                            <button
+                                                                onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                                                                className={`w-5 h-5 rounded-full transition-all border-2 ${func.pagamentoFeito ? 'bg-indigo-500 border-indigo-400 shadow-lg shadow-indigo-500/20' : 'bg-slate-900 border-slate-700 hover:border-indigo-500/50'}`}
+                                                            >
+                                                                {func.pagamentoFeito && <Check className="w-3 h-3 text-white m-auto" />}
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => updateFunc(func.originalIndex, 'rescisaoFerias', 0)}
+                                                                className="p-1.5 hover:bg-red-500/10 text-slate-600 hover:text-red-400 rounded-lg transition-colors"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={4} className="px-4 py-12 text-center text-slate-500 font-medium italic">
-                                                    Nenhum colaborador encontrado para este mês.
+                                                <td colSpan={4} className="px-4 py-20 text-center">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="p-4 bg-slate-900 rounded-full text-slate-700">
+                                                            <Calendar className="w-10 h-10" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-lg font-bold text-slate-400">Nenhum lançamento efetuado</p>
+                                                            <p className="text-sm text-slate-500 mt-1">Clique em "Lançar Nova" para adicionar rescisões ou férias.</p>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => setIsAddRescisaoModalOpen(true)}
+                                                            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
+                                                        >
+                                                            <Plus className="w-4 h-4" /> Começar Lançamento
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
                                     </tbody>
-                                    {sortedFuncs.length > 0 && (
+                                    {rescisoesFuncs.length > 0 && (
                                         <tfoot className="bg-slate-900/40 border-t border-slate-700">
                                             <tr>
                                                 <td colSpan={2} className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Soma das Rescisões/Férias</td>
@@ -1719,6 +1773,56 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <Save className="w-4 h-4" /> Salvar Nota Fiscal
                         </button>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Modal de Lançamento de Rescisão/Férias */}
+            <Modal
+                isOpen={isAddRescisaoModalOpen}
+                onClose={() => setIsAddRescisaoModalOpen(false)}
+                title="Lançar Rescisão ou Férias"
+            >
+                <div className="space-y-6">
+                    <p className="text-sm text-slate-400">Selecione um colaborador da lista mensal para aplicar o valor de rescisão ou férias.</p>
+                    
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Colaborador</label>
+                        <select 
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
+                            value={selectedFuncForRescisao || ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === 'new') setSelectedFuncForRescisao('new');
+                                else setSelectedFuncForRescisao(parseInt(val));
+                            }}
+                        >
+                            <option value="">Selecione...</option>
+                            {sortedFuncs.map(f => (
+                                <option key={f.originalIndex} value={f.originalIndex}>{f.nome} ({f.condominio})</option>
+                            ))}
+                            <option value="new">+ Adicionar Lançamento Avulso</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Valor do Pagamento (R$)</label>
+                        <input 
+                            type="number" 
+                            step="0.01"
+                            placeholder="0,00"
+                            value={tempRescisaoValue} 
+                            onChange={e => setTempRescisaoValue(parseFloat(e.target.value) || 0)} 
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                        />
+                    </div>
+
+                    <button 
+                        onClick={handleSaveRescisao}
+                        disabled={selectedFuncForRescisao === null}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
+                    >
+                        Confirmar Lançamento
+                    </button>
                 </div>
             </Modal>
 
