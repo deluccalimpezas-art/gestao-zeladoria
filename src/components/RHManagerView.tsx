@@ -308,8 +308,19 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                             
                             {/* Projeção de Rentabilidade */}
                             <div className="mt-6 pt-6 border-t border-slate-700/30">
-                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-4">
-                                    <TrendingUp className="w-3 h-3 text-emerald-400" /> Projeção de Rentabilidade
+                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="w-3 h-3 text-emerald-400" /> Projeção de Rentabilidade
+                                    </div>
+                                    <span className={`px-2 py-0.5 rounded font-black text-[10px] ${
+                                        profitMargin >= 30 
+                                            ? 'bg-emerald-500/20 text-emerald-400' 
+                                            : profitMargin > 0 
+                                                ? 'bg-yellow-500/20 text-yellow-400' 
+                                                : 'bg-rose-500/20 text-rose-400'
+                                    }`} title="Margem de Lucro">
+                                        {profitMargin.toFixed(1)}%
+                                    </span>
                                 </h4>
                                 <div className="bg-slate-900/40 rounded-xl border border-slate-700/30 p-4">
                                     <div className="space-y-2 mb-4">
