@@ -343,11 +343,21 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                                             <span className="text-red-400 font-bold">- {formatCurrency(totalEncargos)}</span>
                                         </div>
                                     </div>
-                                    <div className="pt-3 border-t border-slate-700/50 flex justify-between items-center">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Lucro Estimado</span>
-                                        <span className={`text-lg font-black ${projProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                            {formatCurrency(projProfit)}
-                                        </span>
+                                    <div className="pt-3 border-t border-slate-700/50 flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Lucro Estimado</span>
+                                            <span className={`text-lg font-black ${projProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                {formatCurrency(projProfit)}
+                                            </span>
+                                        </div>
+                                        {isLowProfit && (
+                                            <div className="flex justify-between items-center pt-2 border-t border-slate-700/30 animate-in fade-in">
+                                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider" title="Cálculo base: (Custos de Folha + Encargos) ÷ 0.57">Meta para 30%:</span>
+                                                <span className="text-xs font-black text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded">
+                                                    {formatCurrency((totalSalaries + totalEncargos) / 0.57)}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
