@@ -921,7 +921,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         </div>
                                     </div>
                                     
-                                    <div className="flex flex-wrap items-center gap-4">
+                                    <div className="flex items-center gap-4 ml-auto">
                                         {/* INSS Rate Toggle */}
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest hidden md:block">Taxa INSS</span>
@@ -943,9 +943,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                                         <button
                                             onClick={addCondo}
-                                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/20 shrink-0"
+                                            className="p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-all shadow-lg shadow-purple-600/20 shrink-0 flex items-center justify-center"
+                                            title="Adicionar Condomínio"
                                         >
-                                            <Plus className="w-3.5 h-3.5" /> Adicionar Condomínio
+                                            <Plus className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </div>
@@ -1135,12 +1136,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <span className="text-xl md:text-2xl font-black text-blue-400">{formatCurrency(currentTotals.salarios)}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 ml-auto">
                                     <button
                                         onClick={addFuncionario}
-                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-600/20 shrink-0"
+                                        className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-600/20 shrink-0 flex items-center justify-center"
+                                        title="Adicionar Funcionário"
                                     >
-                                        <Plus className="w-3.5 h-3.5" /> Adicionar Funcionário
+                                        <Plus className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
@@ -1215,12 +1217,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <span className="text-2xl font-black text-indigo-400">{formatCurrency(currentTotals.rescisoes)}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 ml-auto">
                                     <button
                                         onClick={() => setIsAddRescisaoModalOpen(true)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/20 shrink-0"
+                                        className="p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg shadow-indigo-600/20 shrink-0 flex items-center justify-center"
+                                        title="Lançar Nova Rescisão ou Férias"
                                     >
-                                        <Plus className="w-3.5 h-3.5" /> Lançar Nova
+                                        <Plus className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
@@ -1319,12 +1322,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <span className="text-2xl font-black text-red-400">{formatCurrency(currentTotals.impostos)}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 ml-auto">
                                     <button
                                         onClick={addImposto}
-                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-red-600/20 shrink-0"
+                                        className="p-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-600/20 shrink-0 flex items-center justify-center"
+                                        title="Adicionar Imposto"
                                     >
-                                        <Plus className="w-3.5 h-3.5" /> Adicionar Imposto
+                                        <Plus className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
@@ -1405,12 +1409,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <span className="text-2xl font-black text-rose-400">{formatCurrency(currentTotals.gastos)}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 ml-auto">
                                     <button
                                         onClick={() => handleOpenGastoModal()}
-                                        className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-rose-600/20 shrink-0"
+                                        className="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl transition-all shadow-lg shadow-rose-600/20 shrink-0 flex items-center justify-center"
+                                        title="Novo Gasto"
                                     >
-                                        <Plus className="w-3.5 h-3.5" /> Novo Gasto
+                                        <Plus className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
