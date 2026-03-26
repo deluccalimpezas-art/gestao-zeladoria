@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp } from 'lucide-react';
+import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp, ArrowUpDown, Check } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
 
 interface CondoCardProps {
@@ -352,6 +352,9 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showTrash, setShowTrash] = useState(false);
     const [lastSavedData, setLastSavedData] = useState<string>(JSON.stringify(data));
+    const [sortBy, setSortBy] = useState<'alfabetica' | 'valor' | 'lucro' | 'administradora'>('alfabetica');
+    const [sortAsc, setSortAsc] = useState(true);
+    const [isSortOpen, setIsSortOpen] = useState(false);
 
     const onSaveRef = useRef(onSave);
     useEffect(() => {
@@ -443,13 +446,50 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         }));
     };
 
+    const calcCondoProfit = (condo: CondominioData) => {
+        const base = condo.valorContrato || 0;
+        const inss = base * 0.13;
+        const emps = localData.funcionarios.filter(f => f.condominioId === condo.id && !f.deleted);
+        const salaries = emps.reduce((acc, emp) => acc + (emp.salario || 0), 0);
+        const encargos = emps.reduce((acc, emp) => {
+            if (emp.statusClt === 'registrada') {
+                return acc + (condo.cargaHoraria === '22h' ? 859 : 1431);
+            }
+            return acc;
+        }, 0);
+        return base - inss - salaries - encargos;
+    };
+
+    const sortFn = (a: CondominioData, b: CondominioData) => {
+        let res = 0;
+        switch (sortBy) {
+            case 'valor': res = (a.valorContrato || 0) - (b.valorContrato || 0); break;
+            case 'lucro': res = calcCondoProfit(a) - calcCondoProfit(b); break;
+            case 'administradora': res = (a.administradora || '').localeCompare(b.administradora || ''); break;
+            case 'alfabetica':
+            default:
+                res = a.nome.localeCompare(b.nome); break;
+        }
+        return sortAsc ? res : -res;
+    };
+
     const filteredCondos = localData.condominios
         .filter(c => !c.deleted && c.nome.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => a.nome.localeCompare(b.nome));
+        .sort(sortFn);
 
     const trashCondos = localData.condominios
         .filter(c => c.deleted && c.nome.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => a.nome.localeCompare(b.nome));
+        .sort(sortFn);
+
+    const handleSortOption = (type: typeof sortBy) => {
+        if (sortBy === type) {
+            setSortAsc(!sortAsc);
+        } else {
+            setSortBy(type);
+            setSortAsc(type === 'alfabetica' || type === 'administradora');
+        }
+        setIsSortOpen(false);
+    };
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -524,15 +564,62 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                         Lixeira ({trashCondos.length})
                     </button>
                 </div>
-                <div className="relative w-full md:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                        type="text"
-                        placeholder="Buscar condomínio..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50"
-                    />
+                
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <div className="relative w-full md:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                            type="text"
+                            placeholder="Buscar condomínio..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        />
+                    </div>
+                    
+                    {/* Sort Dropdown */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsSortOpen(!isSortOpen)} 
+                            className={`p-2.5 border rounded-xl transition-colors flex items-center justify-center ${isSortOpen ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                            title="Ordenar por..."
+                        >
+                            <ArrowUpDown className="w-4 h-4" />
+                        </button>
+                        
+                        {isSortOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
+                                <div className="absolute right-0 top-full mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                                    <div className="px-4 py-2 border-b border-slate-700/50 mb-1">
+                                        <p className="text-[10px] uppercase font-black tracking-widest text-slate-500">Ordenar por</p>
+                                    </div>
+                                    {[
+                                        { id: 'alfabetica', label: 'Ordem Alfabética' },
+                                        { id: 'valor', label: 'Por Valor Mensal' },
+                                        { id: 'lucro', label: 'Por Lucratividade' },
+                                        { id: 'administradora', label: 'Por Administradora' }
+                                    ].map(opt => (
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => handleSortOption(opt.id as any)}
+                                            className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors flex items-center justify-between ${sortBy === opt.id ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'}`}
+                                        >
+                                            {opt.label}
+                                            {sortBy === opt.id && (
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-[9px] uppercase tracking-tighter text-indigo-300 opacity-60">
+                                                        {sortAsc ? 'ASC' : 'DESC'}
+                                                    </span>
+                                                    <Check className="w-3 h-3" />
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
