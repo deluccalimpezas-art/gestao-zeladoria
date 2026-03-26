@@ -26,7 +26,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [historyIndex, setHistoryIndex] = useState(0);
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-    const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('value');
+    const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('name');
     const [expandedNoteRows, setExpandedNoteRows] = useState<Set<string>>(new Set());
     const [isGastoModalOpen, setIsGastoModalOpen] = useState(false);
     const [editingGastoIndex, setEditingGastoIndex] = useState<number | null>(null);
@@ -525,7 +525,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         return (localMonth.funcionarios || [])
             .map((f, originalIndex) => ({ ...f, originalIndex }))
             .filter(f => f.nome?.toUpperCase() !== 'TOTAL')
-            .sort((a, b) => (Number(b.totalReceber) || 0) - (Number(a.totalReceber) || 0));
+            .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
     }, [localMonth.funcionarios]);
 
     const rescisoesFuncs = useMemo(() => {
@@ -851,12 +851,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                    <SummaryCard label="Folha Base" value={formatCurrency(currentTotals.salarios - currentTotals.rescisoes)} color="text-blue-400" />
-                                    <SummaryCard label="Folha Gestão" value={formatCurrency(teamStats.gestaoTotal)} color="text-indigo-400" />
-                                    <SummaryCard label="Rescisões/Férias" value={formatCurrency(currentTotals.rescisoes)} color="text-indigo-300" />
+                                    <SummaryCard label="Brutos dos Condominios" value={formatCurrency(currentTotals.bruto)} color="text-indigo-400" />
+                                    <SummaryCard label="Folha de Pagamento" value={formatCurrency(currentTotals.salarios)} color="text-blue-400" />
                                     <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
-                                    <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-red-400" />
-                                    <SummaryCard label="Lucro Estimado" value={formatCurrency(lucroCalculado)} color="text-emerald-400" special />
+                                    <SummaryCard label="Rescisões/Férias" value={formatCurrency(currentTotals.rescisoes)} color="text-amber-400" />
+                                    <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-rose-400" />
+                                    <SummaryCard label="Lucro Líquido" value={formatCurrency(currentTotals.liquida - currentTotals.salarios - currentTotals.impostos - currentTotals.gastos)} color="text-emerald-400" special />
                                 </div>
                             </section>
 
@@ -904,76 +904,51 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     {activeTab === 'condominios' && (
                         <>
                             <div className="flex flex-col">
-                                {/* Summary at Top - New Compact Layout */}
-                                <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700">
-                                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
-                                                <span className="text-sm font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
-                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
-                                                <span className="text-sm font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 shadow-sm">
-                                                <span className="text-[10px] text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
-                                                <span className="text-lg font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
-                                            </div>
-                                            
-                                            {/* INSS Rate Toggle */}
-                                            <div className="flex items-center gap-2 ml-2 pl-4 border-l border-slate-700">
-                                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Taxa INSS</span>
-                                                <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50 scale-90 origin-left">
-                                                    <button 
-                                                        onClick={() => handleInssRateChange(0.11)}
-                                                        className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                                    >
-                                                        11%
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleInssRateChange(0.13)}
-                                                        className={`px-2 py-1 rounded text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                                    >
-                                                        13%
-                                                    </button>
-                                                </div>
-                                            </div>
+                                {/* Reestruturação do Cabeçalho - Totais + Botão de Adição */}
+                                <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
+                                            <span className="text-xl font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
                                         </div>
-                                        
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {/* Sorting Toolbar - More Compact */}
+                                        <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
+                                            <span className="text-xl font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-5 py-2.5 rounded-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/5">
+                                            <span className="text-xs text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
+                                            <span className="text-2xl font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        {/* INSS Rate Toggle */}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest hidden md:block">Taxa INSS</span>
                                             <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50">
                                                 <button 
-                                                    onClick={() => setCondoSortMethod('value')}
-                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'value' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    onClick={() => handleInssRateChange(0.11)}
+                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
-                                                    Valor
+                                                    11%
                                                 </button>
                                                 <button 
-                                                    onClick={() => setCondoSortMethod('name')}
-                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'name' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    onClick={() => handleInssRateChange(0.13)}
+                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
-                                                    Nome
-                                                </button>
-                                                <button 
-                                                    onClick={() => setCondoSortMethod('status')}
-                                                    className={`px-2 py-1 rounded text-[9px] font-bold uppercase transition-all ${condoSortMethod === 'status' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                                >
-                                                    Pagamento
+                                                    13%
                                                 </button>
                                             </div>
+                                        </div>
+
+                                        <button
+                                            onClick={addCondo}
+                                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20"
+                                        >
+                                            <Plus className="w-4 h-4" /> Adicionar Condomínio
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
-                                <button
-                                    onClick={addCondo}
-                                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-purple-600/20"
-                                >
-                                    <Plus className="w-4 h-4" /> Adicionar Condomínio
-                                </button>
-                            </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left text-sm text-slate-300 border-collapse">
                                         <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
@@ -1145,13 +1120,29 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                     {activeTab === 'folha' && (
                         <div className="flex flex-col">
-                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
-                                <button
-                                    onClick={addFuncionario}
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-blue-600/20"
-                                >
-                                    <Plus className="w-4 h-4" /> Adicionar Funcionário
-                                </button>
+                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Gestão:</span>
+                                        <span className="text-xl font-black text-indigo-400">{formatCurrency(teamStats.gestaoTotal)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700/50">
+                                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Operacional:</span>
+                                        <span className="text-xl font-black text-slate-300">{formatCurrency(teamStats.operacionalTotal)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-blue-500/10 px-5 py-2.5 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-500/5">
+                                        <span className="text-xs text-blue-500 uppercase font-black tracking-wider">Total Folha:</span>
+                                        <span className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.salarios)}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={addFuncionario}
+                                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20"
+                                    >
+                                        <Plus className="w-4 h-4" /> Adicionar Funcionário
+                                    </button>
+                                </div>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300">
@@ -1216,25 +1207,21 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     )}
 
                     {activeTab === 'rescisoes' && (
-                        <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-6 shadow-2xl backdrop-blur-sm -mt-2">
-                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                                <div className="flex items-center gap-4">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                            <Calendar className="w-6 h-6 text-indigo-400" /> Rescisões e Férias
-                                        </h3>
-                                        <p className="text-sm text-slate-400 mt-1">Gestão de pagamentos extras de desligamento ou férias.</p>
+                        <div className="flex flex-col">
+                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center gap-2 bg-indigo-500/10 px-5 py-2.5 rounded-xl border border-indigo-500/30 shadow-lg shadow-indigo-500/5">
+                                        <span className="text-xs text-indigo-500 uppercase font-black tracking-wider">Total Rescisões/Férias:</span>
+                                        <span className="text-2xl font-black text-indigo-400">{formatCurrency(currentTotals.rescisoes)}</span>
                                     </div>
-                                    <button 
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <button
                                         onClick={() => setIsAddRescisaoModalOpen(true)}
-                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2 h-fit"
+                                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20"
                                     >
                                         <Plus className="w-4 h-4" /> Lançar Nova
                                     </button>
-                                </div>
-                                <div className="px-5 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total deste Mês</p>
-                                    <p className="text-2xl font-black text-white">{formatCurrency(currentTotals.rescisoes)}</p>
                                 </div>
                             </div>
 
@@ -1325,13 +1312,21 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                     {activeTab === 'impostos' && (
                         <div className="flex flex-col">
-                            <div className="p-4 border-b border-slate-700 bg-slate-900/10 flex justify-end">
-                                <button
-                                    onClick={addImposto}
-                                    className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-amber-600/20"
-                                >
-                                    <Plus className="w-4 h-4" /> Adicionar Imposto
-                                </button>
+                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center gap-2 bg-red-500/10 px-5 py-2.5 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/5">
+                                        <span className="text-xs text-red-500 uppercase font-black tracking-wider">Total Impostos:</span>
+                                        <span className="text-2xl font-black text-red-400">{formatCurrency(currentTotals.impostos)}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={addImposto}
+                                        className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-red-600/20"
+                                    >
+                                        <Plus className="w-4 h-4" /> Adicionar Imposto
+                                    </button>
+                                </div>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300">
@@ -1402,52 +1397,60 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         </div>
                     )}
                     {activeTab === 'gastos' && (
-                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500 p-6 space-y-6">
-                            {/* Header de Resumo de Gastos */}
-                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-700/50 flex flex-col justify-center shadow-xl">
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total de Gastos</span>
-                                    <span className="text-2xl font-black text-white italic">{formatCurrency(currentTotals.gastos)}</span>
-                                </div>
-                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-indigo-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <DollarSign className="w-3 h-3 text-indigo-400" />
-                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Pagamentos</span>
+                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <div className="flex items-center gap-2 bg-rose-500/10 px-5 py-2.5 rounded-xl border border-rose-500/30 shadow-lg shadow-rose-500/5">
+                                        <span className="text-xs text-rose-500 uppercase font-black tracking-wider">Total de Gastos:</span>
+                                        <span className="text-2xl font-black text-rose-400">{formatCurrency(currentTotals.gastos)}</span>
                                     </div>
-                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Pagamentos)}</span>
                                 </div>
-                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <HandCoins className="w-3 h-3 text-amber-400" />
-                                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Vales</span>
-                                    </div>
-                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Vales)}</span>
-                                </div>
-                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Utensils className="w-3 h-3 text-emerald-400" />
-                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Restaurantes</span>
-                                    </div>
-                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Restaurantes)}</span>
-                                </div>
-                                <div className="bg-slate-900/40 p-4 rounded-2xl border border-slate-700 flex flex-col justify-center transition-all hover:bg-slate-900/60">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Tag className="w-3 h-3 text-slate-400" />
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Outros</span>
-                                    </div>
-                                    <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Outros)}</span>
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={() => handleOpenGastoModal()}
+                                        className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-rose-600/20"
+                                    >
+                                        <Plus className="w-4 h-4" /> Novo Gasto
+                                    </button>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between">
-                                 <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Detalhes dos Lançamentos</h2>
-                                 <button
-                                    onClick={() => handleOpenGastoModal()}
-                                    className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 active:scale-95"
-                                >
-                                    <Plus className="w-4 h-4" /> Novo Gasto
-                                </button>
-                            </div>
+                            <div className="p-6 space-y-6">
+                                {/* Header de Resumo de Categorias */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="bg-slate-900/40 p-4 rounded-2xl border border-indigo-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <DollarSign className="w-3 h-3 text-indigo-400" />
+                                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Pagamentos</span>
+                                        </div>
+                                        <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Pagamentos)}</span>
+                                    </div>
+                                    <div className="bg-slate-900/40 p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <HandCoins className="w-3 h-3 text-amber-400" />
+                                            <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Vales</span>
+                                        </div>
+                                        <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Vales)}</span>
+                                    </div>
+                                    <div className="bg-slate-900/40 p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Utensils className="w-3 h-3 text-emerald-400" />
+                                            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Restaurantes</span>
+                                        </div>
+                                        <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Restaurantes)}</span>
+                                    </div>
+                                    <div className="bg-slate-900/40 p-4 rounded-2xl border border-slate-700 flex flex-col justify-center transition-all hover:bg-slate-900/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Tag className="w-3 h-3 text-slate-400" />
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Outros</span>
+                                        </div>
+                                        <span className="text-lg font-black text-white">{formatCurrency(gastosByCategory.Outros)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                     <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Detalhes dos Lançamentos</h2>
+                                </div>
 
                             <div className="bg-slate-800/40 rounded-3xl border border-slate-700/50 overflow-hidden shadow-2xl">
                                 <table className="w-full text-left border-collapse">
@@ -1530,6 +1533,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
                         </div>
                     )}
                 </div>
