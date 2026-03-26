@@ -40,7 +40,7 @@ interface CompanyRHViewProps {
 }
 
 type RegistrationStatus = 'registrada' | 'precisa_registrar' | 'em_processo' | 'nao_vai_registrar' | 'afastada_inss' | 'ferias';
-type RegistrationCategory = 'Todos' | 'Gestão' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Impostos' | 'Lixeira';
+type RegistrationCategory = 'Todos' | 'Gestão' | 'Registradas' | 'Precisa Registrar' | 'Em Processo' | 'Não vai Registrar' | 'Afastadas INSS' | 'Férias' | 'Candidatos' | 'Lixeira';
 
 const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todos' | 'Lixeira' | 'Candidatos' | 'Gestão'>> = {
     'registrada': 'Registradas',
@@ -53,6 +53,7 @@ const STATUS_MAP: Record<RegistrationStatus, Exclude<RegistrationCategory, 'Todo
 
 export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState<'funcionarios' | 'impostos'>('funcionarios');
     const [activeCategory, setActiveCategory] = useState<RegistrationCategory>('Todos');
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [isSaving, setIsSaving] = useState<string | null>(null);
@@ -244,7 +245,6 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         { label: 'Afastadas INSS', icon: AlertCircle, color: 'text-orange-400' },
         { label: 'Férias', icon: Calendar, color: 'text-indigo-400' },
         { label: 'Candidatos', icon: Users, color: 'text-violet-400' },
-        { label: 'Impostos', icon: DollarSign, color: 'text-amber-500' },
         { label: 'Lixeira', icon: Trash2, color: 'text-red-400' },
     ];
 
@@ -309,8 +309,26 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 </div>
             </div>
 
-            {/* Folders */}
-            <div className="flex flex-wrap gap-2 p-1.5 bg-slate-800/20 border border-slate-700/50 rounded-3xl overflow-hidden shadow-inner">
+            {/* Tab Navigation */}
+            <div className="flex overflow-x-auto border-b border-slate-700/50 -mt-2 hide-scrollbar">
+                <button
+                    onClick={() => setActiveTab('funcionarios')}
+                    className={`flex items-center gap-2 px-6 py-4 font-black uppercase tracking-widest text-xs border-b-2 transition-all ${activeTab === 'funcionarios' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                >
+                    <Users className="w-4 h-4" /> Funcionários e Candidatos
+                </button>
+                <button
+                    onClick={() => setActiveTab('impostos')}
+                    className={`flex items-center gap-2 px-6 py-4 font-black uppercase tracking-widest text-xs border-b-2 transition-all ${activeTab === 'impostos' ? 'border-amber-500 text-amber-400' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                >
+                    <DollarSign className="w-4 h-4" /> Base de Impostos
+                </button>
+            </div>
+
+            {activeTab === 'funcionarios' && (
+                <>
+                    {/* Folders */}
+                    <div className="flex flex-wrap gap-2 p-1.5 bg-slate-800/20 border border-slate-700/50 rounded-3xl overflow-hidden shadow-inner">
                 {categories.map((cat) => (
                     <button
                         key={cat.label}
@@ -720,80 +738,6 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                             </div>
                         );
                     })
-                ) : activeCategory === 'Impostos' ? (
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
-                            <button 
-                                onClick={() => setIsAddImpostoOpen(true)}
-                                className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20"
-                            >
-                                <Plus className="w-4 h-4" /> Adicionar Imposto
-                            </button>
-                        </div>
-
-                        <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl overflow-hidden shadow-2xl">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-900/50 border-b border-slate-700">
-                                    <tr>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Nome do Imposto</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor Padrão</th>
-                                        <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-700/50">
-                                    {(data.impostos || []).map(imp => (
-                                        <tr key={imp.id} className="hover:bg-slate-700/30 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <input 
-                                                    type="text" 
-                                                    defaultValue={imp.nome}
-                                                    onBlur={async (e) => {
-                                                        if (e.target.value === imp.nome) return;
-                                                        const updated = data.impostos.map(i => i.id === imp.id ? { ...i, nome: e.target.value } : i);
-                                                        await onSave({ ...data, impostos: updated });
-                                                    }}
-                                                    className="bg-transparent border-none text-white font-bold focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-full"
-                                                />
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <input 
-                                                    type="number" 
-                                                    defaultValue={imp.valor}
-                                                    onBlur={async (e) => {
-                                                        const val = parseFloat(e.target.value);
-                                                        if (val === imp.valor) return;
-                                                        const updated = data.impostos.map(i => i.id === imp.id ? { ...i, valor: val } : i);
-                                                        await onSave({ ...data, impostos: updated });
-                                                    }}
-                                                    className="bg-transparent border-none text-white font-bold focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-32"
-                                                />
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button 
-                                                    onClick={async () => {
-                                                        if (!confirm("Excluir imposto?")) return;
-                                                        const updated = data.impostos.filter(i => i.id !== imp.id);
-                                                        await onSave({ ...data, impostos: updated });
-                                                    }}
-                                                    className="p-2 text-slate-500 hover:text-red-500 transition-colors"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {(data.impostos || []).length === 0 && (
-                                        <tr>
-                                            <td colSpan={3} className="px-6 py-12 text-center text-slate-500 text-xs font-bold uppercase tracking-widest">
-                                                Nenhum imposto cadastrado na base.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 ) : (
                     <div className="py-20 bg-slate-800/20 border border-slate-700/50 border-dashed rounded-3xl text-center">
                         <SearchX className="w-12 h-12 text-slate-600 mx-auto mb-4" />
@@ -802,6 +746,85 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                     </div>
                 )}
             </div>
+            </>
+            )}
+
+            {activeTab === 'impostos' && (
+                <div className="space-y-4 pb-12 animate-in fade-in block">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
+                        <button 
+                            onClick={() => setIsAddImpostoOpen(true)}
+                            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20"
+                        >
+                            <Plus className="w-4 h-4" /> Adicionar Imposto
+                        </button>
+                    </div>
+
+                    <div className="bg-slate-800/40 border border-slate-700/50 rounded-3xl overflow-hidden shadow-2xl">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-900/50 border-b border-slate-700">
+                                <tr>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Nome do Imposto</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor Padrão</th>
+                                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-700/50">
+                                {(data.impostos || []).map(imp => (
+                                    <tr key={imp.id} className="hover:bg-slate-700/30 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <input 
+                                                type="text" 
+                                                defaultValue={imp.nome}
+                                                onBlur={async (e) => {
+                                                    if (e.target.value === imp.nome) return;
+                                                    const updated = data.impostos.map(i => i.id === imp.id ? { ...i, nome: e.target.value } : i);
+                                                    await onSave({ ...data, impostos: updated });
+                                                }}
+                                                className="bg-transparent border-none text-white font-bold focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-full"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <input 
+                                                type="number" 
+                                                defaultValue={imp.valor}
+                                                onBlur={async (e) => {
+                                                    const val = parseFloat(e.target.value);
+                                                    if (val === imp.valor) return;
+                                                    const updated = data.impostos.map(i => i.id === imp.id ? { ...i, valor: val } : i);
+                                                    await onSave({ ...data, impostos: updated });
+                                                }}
+                                                className="bg-transparent border-none text-white font-bold focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-32"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button 
+                                                onClick={async () => {
+                                                    if (!confirm("Excluir imposto?")) return;
+                                                    const updated = data.impostos.filter(i => i.id !== imp.id);
+                                                    await onSave({ ...data, impostos: updated });
+                                                }}
+                                                className="p-2 text-slate-500 hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {(data.impostos || []).length === 0 && (
+                                    <tr>
+                                        <td colSpan={3} className="px-6 py-12 text-center text-slate-500 text-xs font-bold uppercase tracking-widest">
+                                            Nenhum imposto cadastrado na base.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
 
 
             {/* Add RH Imposto Modal */}
