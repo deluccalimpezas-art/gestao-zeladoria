@@ -943,9 +943,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                                         <button
                                             onClick={addCondo}
-                                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20"
+                                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-purple-600/20 shrink-0"
                                         >
-                                            <Plus className="w-4 h-4" /> Adicionar Condomínio
+                                            <Plus className="w-3.5 h-3.5" /> Adicionar Condomínio
                                         </button>
                                     </div>
                                 </div>
@@ -1138,9 +1138,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={addFuncionario}
-                                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20"
+                                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-600/20 shrink-0"
                                     >
-                                        <Plus className="w-4 h-4" /> Adicionar Funcionário
+                                        <Plus className="w-3.5 h-3.5" /> Adicionar Funcionário
                                     </button>
                                 </div>
                             </div>
@@ -1218,9 +1218,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={() => setIsAddRescisaoModalOpen(true)}
-                                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20"
+                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/20 shrink-0"
                                     >
-                                        <Plus className="w-4 h-4" /> Lançar Nova
+                                        <Plus className="w-3.5 h-3.5" /> Lançar Nova
                                     </button>
                                 </div>
                             </div>
@@ -1322,9 +1322,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={addImposto}
-                                        className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-red-600/20"
+                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-red-600/20 shrink-0"
                                     >
-                                        <Plus className="w-4 h-4" /> Adicionar Imposto
+                                        <Plus className="w-3.5 h-3.5" /> Adicionar Imposto
                                     </button>
                                 </div>
                             </div>
@@ -1408,9 +1408,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={() => handleOpenGastoModal()}
-                                        className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-rose-600/20"
+                                        className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-rose-600/20 shrink-0"
                                     >
-                                        <Plus className="w-4 h-4" /> Novo Gasto
+                                        <Plus className="w-3.5 h-3.5" /> Novo Gasto
                                     </button>
                                 </div>
                             </div>
