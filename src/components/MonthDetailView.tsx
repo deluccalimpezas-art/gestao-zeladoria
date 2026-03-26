@@ -837,7 +837,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-900/20 px-4 pt-4 hide-scrollbar">
                     <TabButton active={activeTab === 'visao_geral'} onClick={() => setActiveTab('visao_geral')} icon={<Activity className="w-4 h-4" />} label="Visão Geral" />
                     <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
-                    <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
+                    <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Funcionários" />
                     <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
                     <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos e Taxas" />
                     <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
@@ -851,9 +851,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                    <SummaryCard label="Brutos dos Condominios" value={formatCurrency(currentTotals.bruto)} color="text-indigo-400" />
-                                    <SummaryCard label="Folha de Pagamento" value={formatCurrency(currentTotals.salarios)} color="text-blue-400" />
-                                    <SummaryCard label="Total Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
+                                    <SummaryCard label="Condomínio" value={formatCurrency(currentTotals.bruto)} color="text-indigo-400" />
+                                    <SummaryCard label="Funcionários" value={formatCurrency(currentTotals.salarios)} color="text-blue-400" />
+                                    <SummaryCard label="Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
                                     <SummaryCard label="Rescisões/Férias" value={formatCurrency(currentTotals.rescisoes)} color="text-amber-400" />
                                     <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-rose-400" />
                                     <SummaryCard label="Lucro Líquido" value={formatCurrency(currentTotals.liquida - currentTotals.salarios - currentTotals.impostos - currentTotals.gastos)} color="text-emerald-400" special />
