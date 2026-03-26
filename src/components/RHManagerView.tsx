@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp, ArrowUpDown, Check } from 'lucide-react';
+import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp, ArrowUpDown, Check, AlertTriangle } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
 
 interface CondoCardProps {
@@ -8,9 +8,10 @@ interface CondoCardProps {
     onUpdate: (field: keyof CondominioData, val: any) => void;
     onRemove: () => void;
     index: number;
+    isSortedByProfit: boolean;
 }
 
-function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardProps) {
+function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProfit }: CondoCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, updateFn: (field: any, val: any) => void) => {
@@ -76,16 +77,25 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index }: CondoCardPro
         return acc;
     }, 0);
     const projProfit = baseValue - inssDeduction - totalSalaries - totalEncargos;
+    const profitMargin = baseValue > 0 ? (projProfit / baseValue) * 100 : 0;
+    const isLowProfit = isSortedByProfit && profitMargin < 30;
 
     return (
-        <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'}`}>
+        <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'} ${isLowProfit ? 'ring-1 ring-rose-500/50' : ''}`}>
             <div
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="p-4 flex items-center justify-between cursor-pointer group"
             >
                 <div className="flex items-center gap-4 flex-1">
-                    <div className={`p-2 rounded-lg ${isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'} transition-colors`}>
-                        <Building2 className="w-5 h-5" />
+                    <div 
+                        className={`p-2 rounded-lg transition-colors ${
+                            isLowProfit 
+                                ? 'bg-rose-500/20 text-rose-500' 
+                                : isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'
+                        }`}
+                        title={isLowProfit ? `Atenção: Margem de Lucro Crítica (${profitMargin.toFixed(1)}%)` : undefined}
+                    >
+                        {isLowProfit ? <AlertTriangle className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1">
                         <div className="relative md:col-span-3">
@@ -631,6 +641,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                 key={condo.id}
                                 condo={condo}
                                 index={idx}
+                                isSortedByProfit={sortBy === 'lucro'}
                                 employees={data.funcionarios.filter(f => f.condominioId === condo.id && !f.deleted)}
                                 onUpdate={(field, val) => {
                                     const idx = localData.condominios.findIndex(c => c.id === condo.id);
