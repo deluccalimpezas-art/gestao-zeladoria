@@ -78,7 +78,10 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
     }, 0);
     const projProfit = baseValue - inssDeduction - totalSalaries - totalEncargos;
     const profitMargin = baseValue > 0 ? (projProfit / baseValue) * 100 : 0;
-    const isLowProfit = isSortedByProfit && profitMargin < 30;
+    
+    const targetMargin = baseValue > 2900 ? 20 : 30;
+    const targetDivider = baseValue > 2900 ? 0.67 : 0.57;
+    const isLowProfit = isSortedByProfit && profitMargin < targetMargin;
 
     return (
         <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'} ${isLowProfit ? 'ring-1 ring-rose-500/50' : ''}`}>
@@ -353,15 +356,15 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                                         {isLowProfit && (
                                             <div className="flex flex-col gap-1.5 pt-2 mt-1 border-t border-slate-700/30 animate-in fade-in">
                                                 <div className="flex justify-between items-center">
-                                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider" title="Cálculo base: (Custos de Folha + Encargos) ÷ 0.57">Meta para 30%:</span>
+                                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider" title={`Cálculo base: (Custos de Folha + Encargos) ÷ ${targetDivider}`}>Meta para {targetMargin}%:</span>
                                                     <span className="text-xs font-black text-slate-300">
-                                                        {formatCurrency((totalSalaries + totalEncargos) / 0.57)}
+                                                        {formatCurrency((totalSalaries + totalEncargos) / targetDivider)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Reajuste Necessário:</span>
                                                     <span className="text-[10px] font-black text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded">
-                                                        + {formatCurrency(((totalSalaries + totalEncargos) / 0.57) - baseValue)}
+                                                        + {formatCurrency(((totalSalaries + totalEncargos) / targetDivider) - baseValue)}
                                                     </span>
                                                 </div>
                                             </div>
