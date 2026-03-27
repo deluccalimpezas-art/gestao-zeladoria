@@ -353,61 +353,93 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                 <div className="flex-1 overflow-auto p-6">
                     {activeTab === 'visao_geral' ? (
                         <div className="max-w-7xl mx-auto space-y-8">
-                            <div className="flex flex-wrap items-center gap-4">
-                                {/* Entrada */}
-                                <div className="bg-slate-800/40 border border-emerald-500/20 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-xl backdrop-blur-md">
-                                    <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
-                                        <TrendingUp className="w-5 h-5 text-emerald-400" />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                {/* Entrada - Emerald Glass */}
+                                <div className="group relative bg-slate-800/40 border border-emerald-500/20 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-slate-800/60 hover:border-emerald-500/40 overflow-hidden">
+                                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors"></div>
+                                    <div className="flex items-center gap-5 relative z-10">
+                                        <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-inner group-hover:rotate-3 transition-transform">
+                                            <TrendingUp className="w-7 h-7 text-emerald-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-1">Entradas Brutas</p>
+                                            <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.income)}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Entradas (Total)</p>
-                                        <p className="text-lg font-black text-emerald-400">{formatCurrency(financialTotals.income)}</p>
-                                    </div>
-                                </div>
-                                {/* Saída */}
-                                <div className="bg-slate-800/40 border border-rose-500/20 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-xl backdrop-blur-md">
-                                    <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center border border-rose-500/20">
-                                        <Receipt className="w-5 h-5 text-rose-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Saídas (Folha+Enc)</p>
-                                        <p className="text-lg font-black text-rose-400">{formatCurrency(financialTotals.expenses)}</p>
-                                    </div>
-                                </div>
-                                {/* Lucro */}
-                                <div className="bg-indigo-600/10 border border-indigo-500/30 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-2xl backdrop-blur-md relative overflow-hidden group">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none"></div>
-                                    <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-500/30">
-                                        <Zap className="w-5 h-5 text-indigo-400" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <p className="text-[10px] uppercase font-black text-indigo-400 tracking-widest">Lucro Projetado</p>
-                                        <p className={`text-xl font-black ${financialTotals.profit >= 0 ? 'text-white' : 'text-rose-400'}`}>
-                                            {formatCurrency(financialTotals.profit)}
-                                        </p>
+                                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Total de Contratos</span>
+                                        <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/20">GLOBAL</span>
                                     </div>
                                 </div>
 
-                                {/* Counts */}
-                                <div className="h-12 w-px bg-slate-700/50 mx-2 hidden lg:block"></div>
-
-                                <div className="flex gap-4">
-                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
-                                        <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                            <Briefcase className="w-5 h-5 text-blue-400" />
+                                {/* Saída - Rose Glass */}
+                                <div className="group relative bg-slate-800/40 border border-rose-500/20 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-slate-800/60 hover:border-rose-500/40 overflow-hidden">
+                                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-rose-500/5 rounded-full blur-3xl group-hover:bg-rose-500/10 transition-colors"></div>
+                                    <div className="flex items-center gap-5 relative z-10">
+                                        <div className="w-14 h-14 bg-rose-500/10 rounded-2xl flex items-center justify-center border border-rose-500/20 shadow-inner group-hover:-rotate-3 transition-transform">
+                                            <Receipt className="w-7 h-7 text-rose-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Condomínios</p>
-                                            <p className="text-xl font-black text-white">{masterRH.condominios.filter(c => !c.deleted).length}</p>
+                                            <p className="text-xs font-black text-rose-500/80 uppercase tracking-[0.2em] mb-1">Custos Totais</p>
+                                            <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.expenses)}</p>
                                         </div>
                                     </div>
-                                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-6 py-3 flex items-center gap-4 shadow-lg backdrop-blur-sm">
-                                        <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                                            <Users className="w-5 h-5 text-indigo-400" />
+                                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Folha + Encargos</span>
+                                        <span className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/20">ESTIMADO</span>
+                                    </div>
+                                </div>
+
+                                {/* Lucro Hero - Indigo/Gold Glass */}
+                                <div className="group relative bg-indigo-600/10 border border-indigo-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-indigo-600/20 hover:border-indigo-400/50 overflow-hidden ring-1 ring-white/5">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-50"></div>
+                                    <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors"></div>
+                                    <div className="flex items-center gap-5 relative z-10">
+                                        <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 shadow-lg shadow-indigo-500/10 group-hover:scale-110 transition-transform duration-500">
+                                            <Zap className="w-7 h-7 text-indigo-400 animate-pulse" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Funcionários</p>
-                                            <p className="text-xl font-black text-white">{masterRH.funcionarios.filter(f => !f.deleted).length}</p>
+                                            <p className="text-xs font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">Lucro Projetado</p>
+                                            <p className={`text-3xl font-black tracking-tight ${financialTotals.profit >= 0 ? 'text-white drop-shadow-sm' : 'text-rose-400'}`}>
+                                                {formatCurrency(financialTotals.profit)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-indigo-500/20 flex items-center justify-between">
+                                        <span className="text-indigo-400/60 text-[10px] font-black uppercase tracking-wider">Resultado Líquido</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className={`w-2 h-2 rounded-full ${financialTotals.profit >= 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-ping opacity-75`}></div>
+                                            <span className={`text-[11px] font-black ${financialTotals.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                {financialTotals.profit >= 0 ? 'POSITIVO' : 'DÉFICIT'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-6 mb-12">
+                                <div className="group bg-slate-800/30 border border-slate-700/30 rounded-2xl px-6 py-4 flex items-center gap-5 shadow-lg backdrop-blur-md hover:bg-slate-800/50 hover:border-blue-500/30 transition-all cursor-default">
+                                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
+                                        <Briefcase className="w-6 h-6 text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.15em] mb-0.5">Portfólio Ativo</p>
+                                        <div className="flex items-baseline gap-1.5">
+                                            <p className="text-2xl font-black text-white">{masterRH.condominios.filter(c => !c.deleted).length}</p>
+                                            <p className="text-xs font-bold text-slate-600">Condomínios</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="group bg-slate-800/30 border border-slate-700/30 rounded-2xl px-6 py-4 flex items-center gap-5 shadow-lg backdrop-blur-md hover:bg-slate-800/50 hover:border-indigo-500/30 transition-all cursor-default">
+                                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                                        <Users className="w-6 h-6 text-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.15em] mb-0.5">Equipe Operacional</p>
+                                        <div className="flex items-baseline gap-1.5">
+                                            <p className="text-2xl font-black text-white">{masterRH.funcionarios.filter(f => !f.deleted).length}</p>
+                                            <p className="text-xs font-bold text-slate-600">Funcionários</p>
                                         </div>
                                     </div>
                                 </div>
