@@ -137,6 +137,7 @@ export function ProposalGeneratorView() {
                 {/* Preview Area */}
                 <div className="lg:col-span-8 overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 no-print-bg">
                     <div 
+                        id="printable-proposal"
                         className="bg-white text-black p-[15mm] min-h-[297mm] shadow-inner font-serif leading-[1.6] print-shadow-none"
                         style={{ width: '210mm', margin: '0 auto' }}
                     >
@@ -247,23 +248,34 @@ export function ProposalGeneratorView() {
                     }
                     body {
                         background: white !important;
-                        margin: 0;
-                        padding: 0;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    body * {
+                        visibility: hidden;
                     }
                     .no-print {
                         display: none !important;
                     }
-                    .print-shadow-none {
-                        box-shadow: none !important;
-                        border: none !important;
-                        width: 100% !important;
-                        max-width: 100% !important;
+                    /* Ensure parent containers do not hide overflow or clip the print */
+                    body, html, #root, main, div {
+                        height: auto !important;
+                        overflow: visible !important;
+                    }
+                    #printable-proposal, #printable-proposal * {
+                        visibility: visible;
+                    }
+                    #printable-proposal {
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        top: 0;
                         margin: 0 !important;
                         padding: 15mm !important;
-                    }
-                    /* Remove headers/footers */
-                    header, footer, .sidebar, .navbar {
-                        display: none !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        box-shadow: none !important;
+                        border: none !important;
                     }
                 }
                 .no-print-bg {
