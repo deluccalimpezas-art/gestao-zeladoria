@@ -870,13 +870,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <h4 className="text-3xl font-black text-white mb-2">{localMonth.condominios?.length || 0}</h4>
                                             <span className="text-xs uppercase font-medium text-slate-400">Condomínios</span>
                                         </div>
-                                        <div className="p-4 bg-slate-800 rounded-lg border border-indigo-500/30">
-                                            <div className="flex justify-center gap-1 mb-1">
-                                                <span className="text-2xl font-black text-white">{teamStats.gestaoCount}</span>
-                                                <span className="text-2xl font-black text-slate-600">/</span>
-                                                <span className="text-2xl font-black text-slate-400">{teamStats.operacionalCount}</span>
-                                            </div>
-                                            <span className="text-[10px] uppercase font-bold text-indigo-400">Gestão / Operacional</span>
+                                        <div className="p-4 bg-slate-800 rounded-lg border border-indigo-500/30 flex flex-col items-center justify-center">
+                                            <h4 className="text-3xl font-black text-white mb-1">{teamStats.gestaoCount + teamStats.operacionalCount}</h4>
+                                            <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-widest">Colaboradores</span>
                                         </div>
                                     </div>
                                 </section>
