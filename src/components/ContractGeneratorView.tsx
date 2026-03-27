@@ -303,20 +303,20 @@ export function ContractGeneratorView() {
 
                                                     <p><strong>CONTRATADA:</strong> <span className="font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, pessoa jurídica de direito privado, inscrita no CNPJ sob o n° <span className="font-bold">49.909.068/0001-87</span>, localizada na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC, 88.220-000, neste ato representada por seu sócio administrador Eduardo Gabriel Lucca, portador do CPF sob o n° 143.364.479-77.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 1ª – DO OBJETO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 1ª – DO OBJETO</h4>
                                                     <p>1.1 – O objeto do presente contrato é a prestação de serviços de Faxina (limpeza e conservação) nas instalações da CONTRATANTE, incluindo, mas não se limitando a:</p>
                                                     <p className="ml-4">a) Manutenção de Ambientes: Organização e conservação de áreas comuns, incluindo salas, corredores, banheiros, áreas externas, academias, salões de festa, elevadores, escadarias, garagens, halls internos, hall de entrada, sauna, salão de jogos, espaço gourmet, área de funcionários, depósitos, calçadas, cozinhas e a reposição de suprimentos (como papel toalha, sabonete, etc.).</p>
                                                     <p className="ml-4">b) Limpeza de Equipamentos: Higienização e limpeza dos móveis das áreas de lazer, do hall de entrada e dos equipamentos instalados nas áreas comuns.</p>
                                                     <p className="ml-4">c) Limpeza de Eletrodomésticos: Limpeza interna e externa de eletrodomésticos, incluindo geladeiras, micro-ondas, fogões, e demais equipamentos, garantindo a manutenção da higiene e funcionamento adequado.</p>
                                                     <p className="ml-4">d) Coleta de Lixo: Recolhimento, separação e destinação adequada de resíduos.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
-                                                    <p className="font-bold text-center mt-10">ITEM I – OBRIGAÇÕES DA CONTRATANTE</p>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
+                                                    <p className="font-bold text-center mt-4">ITEM I – OBRIGAÇÕES DA CONTRATANTE</p>
                                                     <p>2.1 – Fornecer à CONTRATADA as condições necessárias à execução dos serviços, inclusive a disponibilização de materiais de limpeza, produtos e outros que forem necessários, sendo que a eventual ausência ou insuficiência desses materiais poderá impactar a execução dos serviços, sem que haja aplicação de penalidade à CONTRATADA.</p>
                                                     <p>2.2 – Permitir livre acesso dos funcionários ao ambiente que se trata do objeto deste contrato, desde quando devidamente identificados.</p>
                                                     <p>2.3 – Deverá efetuar o pagamento na forma e condições estabelecidas na Cláusula 3ª.</p>
 
-                                                    <p className="font-bold text-center mt-10">ITEM II – OBRIGAÇÕES DA CONTRATADA</p>
+                                                    <p className="font-bold text-center mt-4">ITEM II – OBRIGAÇÕES DA CONTRATADA</p>
                                                     <p>2.4 – A CONTRATADA, diante deste contrato, se compromete a executar a prestação de serviços referentes a limpeza e conservação das instalações da CONTRATANTE de acordo com as condições estabelecidas entre as partes.</p>
                                                     <p>2.5 – Executar todos os serviços com observância das normas técnicas e legislação vigente, com pessoal qualificado e utilizando os equipamentos de proteção individual (EPIs) obrigatórios.</p>
                                                     <p>2.6 – A CONTRATADA será exclusivamente responsável por eventuais danos corporais e/ou materiais ou pecuniários, causados ao CONTRATANTE e/ou a terceiros decorrentes da falha da prestação de serviços ou atos praticados por seus funcionários na execução do objeto deste contrato. No caso de danos a terceiros, caso a CONTRATANTE venha ser acionada judicialmente, a CONTRATADA, desde já, admite e concorda com a sua responsabilidade.</p>
@@ -365,13 +365,13 @@ export function ContractGeneratorView() {
                                                         </div>
                                                     )}
 
-                                                    <p className="page-break-container font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
+                                                    <p className="page-break-container font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
                                                     <p>2.27 – Os serviços serão prestados de forma pessoal à CONTRATANTE, sendo incluídos, também, aqueles que indiretamente se vinculam ao presente contrato.</p>
                                                     <p>2.28 – A CONTRATADA atuará nos serviços contratados de acordo com as especificações descritas na Cláusula 1ª.</p>
                                                     <p>2.29 – Os serviços terão início imediatamente após a assinatura deste contrato.</p>
                                                     <p>2.30 – Obriga-se a CONTRATADA a manter o estrito sigilo de todos os dados pessoais tratados, decorrentes do presente contrato, não podendo divulgá-los sem a devida autorização, por escrito, da CONTRATANTE</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
                                                     {(serviceType === '22h' && !usePriceOverride) ? (
                                                         <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 3.600,00 (Três mil e seiscentos reais)</span> por mês.</p>
                                                     ) : (serviceType === '44h' && !usePriceOverride) ? (
@@ -395,7 +395,7 @@ export function ContractGeneratorView() {
                                                     <p className="ml-4">3.10.3 – Os valores previstos nesta cláusula referem-se a serviços pontuais e não estão incluídos no valor mensal estabelecido na cláusula 3.1.</p>
                                                     <p className="ml-4">3.10.4 – Os valores previstos nesta cláusula poderão sofrer alteração caso os serviços sejam realizados aos domingos ou feriados, devendo, nesses casos, os novos valores serem previamente ajustados entre as partes.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 4ª – DA RESCISÃO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 4ª – DA RESCISÃO</h4>
                                                     <p>4.1 – O presente contrato poderá ser rescindido imotivadamente a qualquer tempo pelas partes, mediante comunicação escrita à outra parte, com antecedência mínima de 30 (trinta) dias, observadas as disposições quanto à aplicação de multa previstas nesta cláusula.</p>
                                                     <p>4.2 – O presente instrumento será considerado rescindido de pleno direito, independentemente de notificação judicial ou extrajudicial, nas seguintes hipóteses:</p>
                                                     <p className="ml-4">a) Descumprimento das obrigações ajustadas por quaisquer das PARTES, se não sanado o inadimplemento dentro de 5 (cinco) dias, a contar da data do recebimento de notificação escrita pela parte prejudicada;</p>
@@ -406,17 +406,17 @@ export function ContractGeneratorView() {
                                                     <p>4.4 – Na hipótese de rescisão imotivada (sem justa causa) por qualquer das partes antes do término da vigência contratual, a parte que der causa à rescisão deverá pagar à outra multa compensatória equivalente a 01 (uma) mensalidade do valor vigente à época da rescisao.</p>
                                                     <p>4.5 – A multa prevista na cláusula anterior não será aplicável nos casos de rescisão motivada por descumprimento contratual, nem quando houver manifestação de qualquer das partes, pela não renovação do contrato ao término do período vigente.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
                                                     <p>5.1 – O prazo do presente contrato será de 12 (doze) meses, com início em <span className="font-bold">{startFormatted}</span> e término em <span className="font-bold">{endFormatted}</span>, sendo automaticamente renovado por iguais e sucessivos períodos, salvo manifestação contrária de qualquer das partes, mediante comunicação por escrito com antecedência mínima de 30 (trinta) dias.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 6ª – DO REAJUSTE</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 6ª – DO REAJUSTE</h4>
                                                     <p>6.1 – Os preços do presente contrato serão reajustados anualmente, sempre na data-base da categoria (1º de fevereiro), com base nos percentuais estabelecidos em Acordo ou Convenção Coletiva de Trabalho, devidamente registrados no Tribunal Regional do Trabalho (TRT) da respectiva região, ou, na sua ausência, por Dissídio Coletivo devidamente homologado.</p>
                                                     <p>6.2 – Caso não haja instrumento coletivo aplicável na data do reajuste, as partes poderão ajustar, de comum acordo, a aplicação de índice oficial de inflação, como o IPCA ou IGPM, até a definição do índice da categoria.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
                                                     <p>7.1. Os serviços objeto do presente contrato serão realizados exclusivamente por empregados da Contratada, razão pela qual nenhuma relação empregatícia ou jurídica existirá entre os mesmos e a Contratante, ficando a Contratante isenta de qualquer encargos trabalhistas, sociais ou previdenciários que possam decorrer dos serviços que serão prestados pelos referidos empregados, pois tais ônus serão de exclusiva responsabilidade da Contratada.</p>
 
-                                                    <h4 className="font-bold text-center mt-14 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
                                                     <p>8.1 – Os tributos e contribuições, que incidam ou venham a incidir sobre as importâncias pagas em decorrência direta ou indireta deste Contrato ou de sua execução, serão suportados pelo seu contribuinte, assim definido na legislação que instituir e/ou regular esses tributos e contribuições</p>
                                                     <p>8.2 – O presente contrato não implica em qualquer outra forma de associação.</p>
                                                     <p>8.3 – Este contrato, bem como seus direitos e obrigações dele decorrentes, não poderão ser cedidos e/ou transferidos pelas partes, obrigando-as, por si, seus herdeiros e/ou sucessores.</p>
