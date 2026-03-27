@@ -365,7 +365,7 @@ export function ContractGeneratorView() {
                                                         </div>
                                                     )}
 
-                                                    <p className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
+                                                    <p className="page-break-container font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
                                                     <p>2.27 – Os serviços serão prestados de forma pessoal à CONTRATANTE, sendo incluídos, também, aqueles que indiretamente se vinculam ao presente contrato.</p>
                                                     <p>2.28 – A CONTRATADA atuará nos serviços contratados de acordo com as especificações descritas na Cláusula 1ª.</p>
                                                     <p>2.29 – Os serviços terão início imediatamente após a assinatura deste contrato.</p>
