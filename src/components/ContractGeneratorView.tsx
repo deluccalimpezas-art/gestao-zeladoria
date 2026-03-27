@@ -303,14 +303,14 @@ export function ContractGeneratorView() {
 
                                                     <p><strong>CONTRATADA:</strong> <span className="font-bold">DELUCCA SERVIÇOS PREDIAIS LTDA</span>, pessoa jurídica de direito privado, inscrita no CNPJ sob o n° <span className="font-bold">49.909.068/0001-87</span>, localizada na rua 414, Nº 823, Apto. 402, Morretes, Itapema/SC, 88.220-000, neste ato representada por seu sócio administrador Eduardo Gabriel Lucca, portador do CPF sob o n° 143.364.479-77.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 1ª – DO OBJETO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 1ª – DO OBJETO</h4>
                                                     <p>1.1 – O objeto do presente contrato é a prestação de serviços de Faxina (limpeza e conservação) nas instalações da CONTRATANTE, incluindo, mas não se limitando a:</p>
                                                     <p className="ml-4">a) Manutenção de Ambientes: Organização e conservação de áreas comuns, incluindo salas, corredores, banheiros, áreas externas, academias, salões de festa, elevadores, escadarias, garagens, halls internos, hall de entrada, sauna, salão de jogos, espaço gourmet, área de funcionários, depósitos, calçadas, cozinhas e a reposição de suprimentos (como papel toalha, sabonete, etc.).</p>
                                                     <p className="ml-4">b) Limpeza de Equipamentos: Higienização e limpeza dos móveis das áreas de lazer, do hall de entrada e dos equipamentos instalados nas áreas comuns.</p>
                                                     <p className="ml-4">c) Limpeza de Eletrodomésticos: Limpeza interna e externa de eletrodomésticos, incluindo geladeiras, micro-ondas, fogões, e demais equipamentos, garantindo a manutenção da higiene e funcionamento adequado.</p>
                                                     <p className="ml-4">d) Coleta de Lixo: Recolhimento, separação e destinação adequada de resíduos.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 2ª – DAS CONDIÇÕES DA PRESTAÇÃO DE SERVIÇOS</h4>
                                                     <p className="font-bold text-center mt-4">ITEM I – OBRIGAÇÕES DA CONTRATANTE</p>
                                                     <p>2.1 – Fornecer à CONTRATADA as condições necessárias à execução dos serviços, inclusive a disponibilização de materiais de limpeza, produtos e outros que forem necessários, sendo que a eventual ausência ou insuficiência desses materiais poderá impactar a execução dos serviços, sem que haja aplicação de penalidade à CONTRATADA.</p>
                                                     <p>2.2 – Permitir livre acesso dos funcionários ao ambiente que se trata do objeto deste contrato, desde quando devidamente identificados.</p>
@@ -365,13 +365,13 @@ export function ContractGeneratorView() {
                                                         </div>
                                                     )}
 
-                                                    <p className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
+                                                    <p className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">ITEM III – SERVIÇOS E SUAS EXECUÇÕES</p>
                                                     <p>2.27 – Os serviços serão prestados de forma pessoal à CONTRATANTE, sendo incluídos, também, aqueles que indiretamente se vinculam ao presente contrato.</p>
                                                     <p>2.28 – A CONTRATADA atuará nos serviços contratados de acordo com as especificações descritas na Cláusula 1ª.</p>
                                                     <p>2.29 – Os serviços terão início imediatamente após a assinatura deste contrato.</p>
                                                     <p>2.30 – Obriga-se a CONTRATADA a manter o estrito sigilo de todos os dados pessoais tratados, decorrentes do presente contrato, não podendo divulgá-los sem a devida autorização, por escrito, da CONTRATANTE</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</h4>
                                                     {(serviceType === '22h' && !usePriceOverride) ? (
                                                         <p>3.1 – As atividades objeto deste contrato serão remuneradas pela quantia de <span className="font-bold">R$ 3.600,00 (Três mil e seiscentos reais)</span> por mês.</p>
                                                     ) : (serviceType === '44h' && !usePriceOverride) ? (
@@ -395,7 +395,7 @@ export function ContractGeneratorView() {
                                                     <p className="ml-4">3.10.3 – Os valores previstos nesta cláusula referem-se a serviços pontuais e não estão incluídos no valor mensal estabelecido na cláusula 3.1.</p>
                                                     <p className="ml-4">3.10.4 – Os valores previstos nesta cláusula poderão sofrer alteração caso os serviços sejam realizados aos domingos ou feriados, devendo, nesses casos, os novos valores serem previamente ajustados entre as partes.</p>
 
-                                                    <h4 className="page-break-container font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 4ª – DA RESCISÃO</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 4ª – DA RESCISÃO</h4>
                                                     <p>4.1 – O presente contrato poderá ser rescindido imotivadamente a qualquer tempo pelas partes, mediante comunicação escrita à outra parte, com antecedência mínima de 30 (trinta) dias, observadas as disposições quanto à aplicação de multa previstas nesta cláusula.</p>
                                                     <p>4.2 – O presente instrumento será considerado rescindido de pleno direito, independentemente de notificação judicial ou extrajudicial, nas seguintes hipóteses:</p>
                                                     <p className="ml-4">a) Descumprimento das obrigações ajustadas por quaisquer das PARTES, se não sanado o inadimplemento dentro de 5 (cinco) dias, a contar da data do recebimento de notificação escrita pela parte prejudicada;</p>
@@ -406,17 +406,17 @@ export function ContractGeneratorView() {
                                                     <p>4.4 – Na hipótese de rescisão imotivada (sem justa causa) por qualquer das partes antes do término da vigência contratual, a parte que der causa à rescisão deverá pagar à outra multa compensatória equivalente a 01 (uma) mensalidade do valor vigente à época da rescisao.</p>
                                                     <p>4.5 – A multa prevista na cláusula anterior não será aplicável nos casos de rescisão motivada por descumprimento contratual, nem quando houver manifestação de qualquer das partes, pela não renovação do contrato ao término do período vigente.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 5ª – DO PRAZO E DA VALIDADE</h4>
                                                     <p>5.1 – O prazo do presente contrato será de 12 (doze) meses, com início em <span className="font-bold">{startFormatted}</span> e término em <span className="font-bold">{endFormatted}</span>, sendo automaticamente renovado por iguais e sucessivos períodos, salvo manifestação contrária de qualquer das partes, mediante comunicação por escrito com antecedência mínima de 30 (trinta) dias.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 6ª – DO REAJUSTE</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 6ª – DO REAJUSTE</h4>
                                                     <p>6.1 – Os preços do presente contrato serão reajustados anualmente, sempre na data-base da categoria (1º de fevereiro), com base nos percentuais estabelecidos em Acordo ou Convenção Coletiva de Trabalho, devidamente registrados no Tribunal Regional do Trabalho (TRT) da respectiva região, ou, na sua ausência, por Dissídio Coletivo devidamente homologado.</p>
                                                     <p>6.2 – Caso não haja instrumento coletivo aplicável na data do reajuste, as partes poderão ajustar, de comum acordo, a aplicação de índice oficial de inflação, como o IPCA ou IGPM, até a definição do índice da categoria.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 7ª – DA AUSÊNCIA DE VÍNCULO TRABALHISTA</h4>
                                                     <p>7.1. Os serviços objeto do presente contrato serão realizados exclusivamente por empregados da Contratada, razão pela qual nenhuma relação empregatícia ou jurídica existirá entre os mesmos e a Contratante, ficando a Contratante isenta de qualquer encargos trabalhistas, sociais ou previdenciários que possam decorrer dos serviços que serão prestados pelos referidos empregados, pois tais ônus serão de exclusiva responsabilidade da Contratada.</p>
 
-                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
+                                                    <h4 className="font-bold text-center mt-8 uppercase underline decoration-1 underline-offset-4 avoid-break">Cláusula 8ª – DISPOSIÇÕES GERAIS</h4>
                                                     <p>8.1 – Os tributos e contribuições, que incidam ou venham a incidir sobre as importâncias pagas em decorrência direta ou indireta deste Contrato ou de sua execução, serão suportados pelo seu contribuinte, assim definido na legislação que instituir e/ou regular esses tributos e contribuições</p>
                                                     <p>8.2 – O presente contrato não implica em qualquer outra forma de associação.</p>
                                                     <p>8.3 – Este contrato, bem como seus direitos e obrigações dele decorrentes, não poderão ser cedidos e/ou transferidos pelas partes, obrigando-as, por si, seus herdeiros e/ou sucessores.</p>
@@ -433,12 +433,12 @@ export function ContractGeneratorView() {
                                                     <p className="mt-8">Em caso de controvérsias, dúvidas, processos e conflitos, fica eleito o foro da comarca de Itapema-SC, ainda que exista outro mais privilegiado, sendo este o eleito para qualquer ação ou execução que possa ocorrer por motivo de descumprimento de algumas das cláusulas dispostas neste documento ou da legislação brasileira aplicável.</p>
                                                     <p className="mt-4">E, por estarem assim, justas e contratadas, CONTRATANTE E CONTRATADO assinam o presente instrumento em 2 (duas) vias de igual teor e forma para a produção de todos os efeitos de direito.</p>
 
-                                                    <div className="text-right mt-12 mb-16">
+                                                    <div className="text-right mt-6 mb-8 avoid-break">
                                                         <span className="font-bold italic">{contractorCity}, {getDateExtenso(signatureDateObj)}.</span>
                                                     </div>
 
                                                     {/* Signatures */}
-                                                    <div className="grid grid-cols-2 gap-16 text-center text-sm mb-16 px-4">
+                                                    <div className="grid grid-cols-2 gap-16 text-center text-sm mb-8 px-4 avoid-break">
                                                         <div className="space-y-1">
                                                             <div className="border-t border-black pt-2 mb-1">
                                                                 <p className="font-bold">CONTRATANTE</p>
@@ -559,6 +559,10 @@ export function ContractGeneratorView() {
                     .page-break-container {
                         break-before: page;
                         page-break-before: always;
+                    }
+                    .avoid-break {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
                     }
                     /* Ensure no other elements overlap the top margin */
                     .page-break-container + * {
