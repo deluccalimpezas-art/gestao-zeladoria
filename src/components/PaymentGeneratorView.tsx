@@ -123,7 +123,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl flex items-center justify-between no-print">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Wallet className="w-8 h-8 text-emerald-400" />
+                        <Wallet className="w-8 h-8 text-indigo-400" />
                         Gerador de Holerites
                     </h1>
                     <p className="text-slate-400 text-sm mt-1">Gere recibos de pagamento com cálculo automático de faltas.</p>
@@ -183,7 +183,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             type="number"
                                             value={selectedEmployeeRecord.salario || ''}
                                             onChange={(e) => handleSalaryChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-rose-500/50 outline-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -194,7 +194,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             max="31"
                                             value={selectedEmployeeRecord.faltas || ''}
                                             onChange={(e) => handleAbsenceChange(selectedEmployeeRecord.id!, parseInt(e.target.value) || 0)}
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-red-500/50 outline-none"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-rose-500/50 outline-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -203,7 +203,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                             type="number"
                                             value={selectedEmployeeRecord.extras || ''}
                                             onChange={(e) => handleExtrasChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-blue-400 font-bold focus:ring-2 focus:ring-blue-500/50 outline-none"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-red-400 font-bold focus:ring-2 focus:ring-rose-500/50 outline-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -228,11 +228,11 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Adicionais</p>
-                                        <p className="text-sm font-bold text-blue-400">+{formatCurrency(selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</p>
+                                        <p className="text-sm font-bold text-red-400">+{formatCurrency(selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</p>
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Total Líquido</p>
-                                        <p className="text-sm font-bold text-emerald-400">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
+                                        <p className="text-sm font-bold text-red-400">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
                                     </div>
                                 </div>
 

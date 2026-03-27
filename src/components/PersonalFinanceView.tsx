@@ -340,15 +340,15 @@ export function PersonalFinanceView() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-slate-800/60 p-5 rounded-3xl border border-slate-700/50 shadow-xl">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total do Mês</p>
-                            <p className="text-2xl font-black text-white italic">R$ {stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-2xl font-black text-red-400 italic">R$ {stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                         </div>
                         <div className="bg-emerald-500/10 p-5 rounded-3xl border border-emerald-500/20 shadow-xl">
                             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Pago</p>
-                            <p className="text-2xl font-black text-emerald-400 italic">R$ {stats.paid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-2xl font-black text-red-400 italic opacity-70">R$ {stats.paid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                         </div>
                         <div className="bg-rose-500/10 p-5 rounded-3xl border border-rose-500/20 shadow-xl border-t-4 border-t-rose-500">
                             <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Falta Pagar (Pendente)</p>
-                            <p className="text-2xl font-black text-rose-400 italic">R$ {stats.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-2xl font-black text-red-400 italic">R$ {stats.pending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                         </div>
                     </div>
 
@@ -394,7 +394,7 @@ export function PersonalFinanceView() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <span className={`text-base font-black ${exp.paid ? 'text-slate-500' : 'text-slate-100'}`}>
+                                            <span className={`text-base font-black text-red-400`}>
                                                 R$ {exp.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                             </span>
                                         </td>
@@ -413,7 +413,7 @@ export function PersonalFinanceView() {
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
-                                                <button onClick={() => handleDelete(exp)} className="p-2 hover:bg-rose-500/20 rounded-xl text-slate-500 hover:text-rose-400">
+                                                <button onClick={() => handleDelete(exp)} className="p-2 hover:bg-rose-500/20 rounded-xl text-slate-500 hover:text-red-400">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -457,7 +457,7 @@ export function PersonalFinanceView() {
                                 <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{card.name}</h3>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Total Calculado da Fatura</p>
                                 <div className="flex items-end justify-between">
-                                    <span className="text-2xl font-black text-indigo-300">R$ {cardSpend.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                                    <span className="text-2xl font-black text-red-400">R$ {cardSpend.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                                     <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center group-hover:bg-indigo-600 transition-all">
                                         <ArrowRight className="w-4 h-4 text-white" />
                                     </div>
@@ -481,7 +481,7 @@ export function PersonalFinanceView() {
                         </div>
                         <div className="bg-slate-900/60 px-6 py-4 rounded-3xl border border-slate-800/50 flex flex-col items-end shadow-xl">
                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subtotal Acumulado</p>
-                             <p className="text-2xl font-black text-indigo-400 italic">R$ {activeCardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                             <p className="text-2xl font-black text-red-400 italic">R$ {activeCardTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                         </div>
                     </div>
 
@@ -517,9 +517,7 @@ export function PersonalFinanceView() {
                                                 {exp.isInstallment ? `Parcela ${exp.currentInstallment}/${exp.totalInstallments}` : exp.category}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5 text-right font-black text-slate-300">
                                             R$ {exp.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                        </td>
                                         <td className="px-6 py-5 text-right">
                                             <button onClick={() => handleDelete(exp)} className="p-2 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 rounded-xl text-slate-500">
                                                 <Trash2 className="w-4 h-4" />

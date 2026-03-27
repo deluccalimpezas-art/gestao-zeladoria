@@ -241,7 +241,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
         { label: 'Registradas', icon: CheckCircle2, color: 'text-emerald-400' },
         { label: 'Precisa Registrar', icon: Clock, color: 'text-amber-400' },
         { label: 'Em Processo', icon: Briefcase, color: 'text-blue-400' },
-        { label: 'Não vai Registrar', icon: UserMinus, color: 'text-rose-400' },
+        { label: 'Não vai Registrar', icon: UserMinus, color: 'text-red-400' },
         { label: 'Afastadas INSS', icon: AlertCircle, color: 'text-orange-400' },
         { label: 'Férias', icon: Calendar, color: 'text-indigo-400' },
         { label: 'Lixeira', icon: Trash2, color: 'text-red-400' },
@@ -293,12 +293,12 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                 <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider whitespace-nowrap">
                                     {activeCategory === 'Todos' ? 'Folha Total:' : `Folha ${activeCategory}:`}
                                 </p>
-                                <span className="text-xl font-black text-emerald-400">{formatCurrency(stats.totalSalaries)}</span>
+                                <span className="text-xl font-black text-red-400">{formatCurrency(stats.totalSalaries)}</span>
                             </div>
                             <div className="h-4 w-px bg-slate-700/50 hidden md:block"></div>
                             <div className="flex items-center gap-3">
                                 <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider whitespace-nowrap">Total Impostos:</p>
-                                <span className="text-xl font-black text-amber-400">{formatCurrency(stats.totalImpostos)}</span>
+                                <span className="text-xl font-black text-red-400">{formatCurrency(stats.totalImpostos)}</span>
                             </div>
                         </div>
                     </div>
@@ -397,7 +397,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                         
                                         <div className="flex items-center gap-1.5 text-emerald-400 text-[12px] font-black uppercase tracking-tight">
                                             <DollarSign className="w-3.5 h-3.5 opacity-40 shrink-0" />
-                                            <span>{formatCurrency(employee.salario || 0)}</span>
+                                            <span className="text-red-400">{formatCurrency(employee.salario || 0)}</span>
                                         </div>
 
                                         <div className="flex justify-end">
@@ -739,7 +739,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                             <h2 className="text-xl font-black text-white uppercase tracking-tighter">Base de Impostos (Template Mensal)</h2>
                             <div className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/30">
                                 <span className="text-[10px] text-amber-500 uppercase font-black tracking-wider">Total Acumulado:</span>
-                                <span className="text-lg font-black text-amber-400">
+                                <span className="text-lg font-black text-red-400">
                                     {formatCurrency((data.impostos || []).reduce((a, b) => a + b.valor, 0))}
                                 </span>
                             </div>

@@ -110,18 +110,18 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                                                 <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                                             </div>
                                             
-                                            <div className="space-y-3">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-[9px] uppercase font-bold text-slate-500 tracking-tighter">Entrada</span>
-                                                    <span className="text-[11px] font-black text-white">{formatCurrency(month.receitaBruta)}</span>
+                                            <div className="flex flex-col gap-1.5 pt-3 border-t border-slate-700/50 mt-2">
+                                                <div className="flex justify-between items-center px-1">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Entrada</span>
+                                                    <span className="text-sm font-black text-blue-400 tracking-tight">{formatCurrency(month.receitaBruta)}</span>
                                                 </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-[9px] uppercase font-bold text-slate-500 tracking-tighter">Saída</span>
-                                                    <span className="text-[11px] font-black text-rose-400/80">{formatCurrency(totalSaida)}</span>
+                                                <div className="flex justify-between items-center px-1">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Saída</span>
+                                                    <span className="text-sm font-black text-red-400 tracking-tight">{formatCurrency(totalSaida)}</span>
                                                 </div>
-                                                <div className="pt-2 border-t border-slate-700/50 flex justify-between items-center">
-                                                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-tighter">Lucro</span>
-                                                    <span className={`text-xs font-black ${lucro >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>{formatCurrency(lucro)}</span>
+                                                <div className="flex justify-between items-center px-1">
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Lucro</span>
+                                                    <span className="text-sm font-black text-emerald-400 tracking-tight">{formatCurrency(lucro)}</span>
                                                 </div>
                                             </div>
                                         </button>

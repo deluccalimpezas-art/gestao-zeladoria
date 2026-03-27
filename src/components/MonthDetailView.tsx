@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -850,13 +850,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                    <SummaryCard label="Condomínio" value={formatCurrency(currentTotals.bruto)} color="text-indigo-400" />
-                                    <SummaryCard label="Funcionários" value={formatCurrency(currentTotals.salarios)} color="text-blue-400" />
-                                    <SummaryCard label="Impostos" value={formatCurrency(currentTotals.impostos)} color="text-red-400" />
-                                    <SummaryCard label="Rescisões/Férias" value={formatCurrency(currentTotals.rescisoes)} color="text-amber-400" />
-                                    <SummaryCard label="Outros Gastos" value={formatCurrency(currentTotals.gastos)} color="text-rose-400" />
-                                    <SummaryCard label="Lucro Líquido" value={formatCurrency(currentTotals.liquida - currentTotals.salarios - currentTotals.impostos - currentTotals.gastos)} color="text-emerald-400" special />
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                    <SummaryCard title="Cnd. (Bruto)" value={currentTotals.bruto} color="text-blue-400" icon={<Building2 className="w-4 h-4" />} />
+                                    <SummaryCard title="Funcionários" value={currentTotals.salarios} color="text-red-400" icon={<Users className="w-4 h-4" />} />
+                                    <SummaryCard title="Impostos" value={currentTotals.impostos} color="text-red-400" icon={<ShieldCheck className="w-4 h-4" />} />
+                                    <SummaryCard title="Rescisões/Férias" value={currentTotals.rescisoes} color="text-red-400" icon={<UserMinus className="w-4 h-4" />} />
+                                    <SummaryCard title="Outros Gastos" value={currentTotals.gastos} color="text-red-400" icon={<FileText className="w-4 h-4" />} />
+                                    <SummaryCard title="Lucro Líquido" value={lucroCalculado} color="text-emerald-400" icon={<TrendingUp className="w-4 h-4" />} />
                                 </div>
                             </section>
 
@@ -901,22 +901,23 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <>
                             <div className="flex flex-col">
                                 {/* Reestruturação do Cabeçalho - Totais + Botão de Adição */}
-                                <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                    <div className="flex items-center gap-2 md:gap-3 flex-nowrap overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0 hide-scrollbar">
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
-                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Bruto:</span>
-                                            <span className="text-lg md:text-xl font-black text-white">{formatCurrency(currentTotals.bruto)}</span>
+                                <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bruto Total</p>
+                                            <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.bruto)}</p>
                                         </div>
-                                        <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
-                                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">INSS:</span>
-                                            <span className="text-lg md:text-xl font-black text-red-400">{formatCurrency(currentTotals.inss)}</span>
+                                        <div className="h-8 w-px bg-slate-700"></div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">INSS Retido</p>
+                                            <p className="text-2xl font-black text-red-400">-{formatCurrency(currentTotals.inss)}</p>
                                         </div>
-                                        <div className="flex items-center gap-2 bg-emerald-500/10 px-4 md:px-5 py-2.5 rounded-xl border border-emerald-500/30 shadow-lg shadow-emerald-500/5 shrink-0">
-                                            <span className="text-[10px] md:text-xs text-emerald-500 uppercase font-black tracking-wider">Líquido:</span>
-                                            <span className="text-xl md:text-2xl font-black text-emerald-400">{formatCurrency(currentTotals.liquida)}</span>
+                                        <div className="h-8 w-px bg-slate-700"></div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Líquido Unificado</p>
+                                            <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
                                         </div>
                                     </div>
-                                    
                                     <div className="flex items-center gap-4 ml-auto">
                                         {/* INSS Rate Toggle */}
                                         <div className="flex items-center gap-2">
@@ -937,12 +938,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={addCondo}
-                                            className="p-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-all shadow-lg shadow-purple-600/20 shrink-0 flex items-center justify-center"
-                                            title="Adicionar Condomínio"
-                                        >
-                                            <Plus className="w-5 h-5" />
+                                        <button onClick={() => setIsAddCondoModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2">
+                                            <Plus className="w-4 h-4" /> Novo Condomínio
                                         </button>
                                     </div>
                                 </div>
@@ -1117,30 +1114,26 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                     {activeTab === 'folha' && (
                         <div className="flex flex-col">
-                            <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-                                <div className="flex items-center gap-2 md:gap-3 flex-nowrap overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0 hide-scrollbar">
-                                    <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
-                                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Gestão:</span>
-                                        <span className="text-lg md:text-xl font-black text-indigo-400">{formatCurrency(teamStats.gestaoTotal)}</span>
+                            <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Custo Gestão</p>
+                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.gestaoTotal)}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 bg-slate-800/80 px-3 md:px-4 py-2.5 rounded-xl border border-slate-700/50 shrink-0">
-                                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Custo Operacional:</span>
-                                        <span className="text-lg md:text-xl font-black text-slate-300">{formatCurrency(teamStats.operacionalTotal)}</span>
+                                    <div className="h-8 w-px bg-slate-700"></div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Custo Operacional</p>
+                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.operacionalTotal)}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 bg-blue-500/10 px-4 md:px-5 py-2.5 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-500/5 shrink-0">
-                                        <span className="text-[10px] md:text-xs text-blue-500 uppercase font-black tracking-wider">Total Folha:</span>
-                                        <span className="text-xl md:text-2xl font-black text-blue-400">{formatCurrency(currentTotals.salarios)}</span>
+                                    <div className="h-8 w-px bg-slate-700"></div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total da Folha</p>
+                                        <p className="text-2xl font-black text-red-400 italic">{formatCurrency(currentTotals.salarios)}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4 ml-auto">
-                                    <button
-                                        onClick={addFuncionario}
-                                        className="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-lg shadow-blue-600/20 shrink-0 flex items-center justify-center"
-                                        title="Adicionar Funcionário"
-                                    >
-                                        <Plus className="w-5 h-5" />
-                                    </button>
-                                </div>
+                                <button onClick={() => setIsAddFuncModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2">
+                                    <Plus className="w-4 h-4" /> Adicionar Colaborador
+                                </button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm text-slate-300">
@@ -1190,8 +1183,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             </td>
                                             <td colSpan={3}></td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className="text-[10px] text-blue-400 mb-1 uppercase font-bold tracking-widest">Custo Total Folha</div>
-                                                <div className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xl inline-block min-w-[140px]">
+                                                <div className="text-[10px] text-red-400 mb-1 uppercase font-bold tracking-widest">Custo Total Folha</div>
+                                                <div className="px-4 py-2 bg-rose-500/10 border border-red-500/20 rounded-lg text-red-400 text-xl inline-block min-w-[140px]">
                                                     {formatCurrency(currentTotals.salarios)}
                                                 </div>
                                             </td>
@@ -1208,9 +1201,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <div className="flex flex-col">
                             <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <div className="flex items-center gap-2 bg-indigo-500/10 px-5 py-2.5 rounded-xl border border-indigo-500/30 shadow-lg shadow-indigo-500/5">
-                                        <span className="text-xs text-indigo-500 uppercase font-black tracking-wider">Total Rescisões/Férias:</span>
-                                        <span className="text-2xl font-black text-indigo-400">{formatCurrency(currentTotals.rescisoes)}</span>
+                                    <div className="flex items-center gap-2 bg-rose-500/10 px-5 py-2.5 rounded-xl border border-rose-500/30 shadow-lg shadow-rose-500/5">
+                                        <span className="text-xs text-rose-500 uppercase font-black tracking-wider">Total Rescisões/Férias:</span>
+                                        <span className="text-2xl font-black text-red-400">{formatCurrency(currentTotals.rescisoes)}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 ml-auto">
@@ -1313,8 +1306,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <div className="flex flex-col">
                             <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <div className="flex items-center gap-2 bg-red-500/10 px-5 py-2.5 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/5">
-                                        <span className="text-xs text-red-500 uppercase font-black tracking-wider">Total Impostos:</span>
+                                    <div className="flex items-center gap-2 bg-rose-500/10 px-5 py-2.5 rounded-xl border border-rose-500/30 shadow-lg shadow-rose-500/5">
+                                        <span className="text-xs text-rose-500 uppercase font-black tracking-wider">Total Impostos:</span>
                                         <span className="text-2xl font-black text-red-400">{formatCurrency(currentTotals.impostos)}</span>
                                     </div>
                                 </div>
@@ -1400,15 +1393,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500">
                             <div className="px-6 py-4 bg-slate-900/60 border-b border-slate-700 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <div className="flex items-center gap-2 bg-rose-500/10 px-5 py-2.5 rounded-xl border border-rose-500/30 shadow-lg shadow-rose-500/5">
-                                        <span className="text-xs text-rose-500 uppercase font-black tracking-wider">Total de Gastos:</span>
-                                        <span className="text-2xl font-black text-rose-400">{formatCurrency(currentTotals.gastos)}</span>
+                                    <div className="flex items-center gap-2 bg-red-500/10 px-5 py-2.5 rounded-xl border border-red-500/30 shadow-lg shadow-red-500/5">
+                                        <span className="text-xs text-red-500 uppercase font-black tracking-wider">Total de Gastos:</span>
+                                        <span className="text-2xl font-black text-red-400">{formatCurrency(currentTotals.gastos)}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 ml-auto">
                                     <button
                                         onClick={() => handleOpenGastoModal()}
-                                        className="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl transition-all shadow-lg shadow-rose-600/20 shrink-0 flex items-center justify-center"
+                                        className="p-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-600/20 shrink-0 flex items-center justify-center"
                                         title="Novo Gasto"
                                     >
                                         <Plus className="w-5 h-5" />
@@ -1475,7 +1468,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     >
                                                         {gasto.pago ? (
                                                             <div className="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                                                                <CheckCircle2 className="w-4 h-4 text-white" />
+                                                                <CheckCircle2 className="w-4 h-4" />
                                                             </div>
                                                         ) : (
                                                             <div className="w-6 h-6 bg-slate-900 border-2 border-slate-800 rounded-lg" />
@@ -1513,7 +1506,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         </button>
                                                         <button
                                                             onClick={() => removeGasto(idx)}
-                                                            className="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-500 hover:text-rose-400 transition-all"
+                                                            className="p-1.5 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-400 transition-all"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -1929,11 +1922,15 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
     );
 }
 
-function SummaryCard({ label, value, color = "text-white", special = false }: { label: string, value: string, color?: string, special?: boolean }) {
+function SummaryCard({ title, value, color = "text-white", icon }: { title: string, value: string | number, color?: string, icon?: React.ReactNode }) {
+    const displayValue = typeof value === 'number' ? formatCurrency(value) : value;
     return (
-        <div className={`border border-slate-700 rounded-xl p-5 ${special ? 'bg-gradient-to-br from-indigo-900/40 to-slate-900' : 'bg-slate-900/50'}`}>
-            <p className="text-sm font-medium text-slate-400 mb-1">{label}</p>
-            <h3 className={`text-xl font-bold ${color}`}>{value}</h3>
+        <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-col gap-3 group hover:border-indigo-500/30 transition-all">
+            <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</span>
+                {icon && <div className={`${color} opacity-40 group-hover:opacity-100 transition-opacity`}>{icon}</div>}
+            </div>
+            <p className={`text-2xl font-black ${color}`}>{displayValue}</p>
         </div>
     );
 }

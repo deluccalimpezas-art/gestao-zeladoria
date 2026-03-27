@@ -157,13 +157,13 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                                             value={condo.valorContrato || ''}
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                            className="bg-slate-800/50 border border-slate-700/50 outline-none focus:ring-1 focus:ring-indigo-500 rounded pl-6 pr-1.5 py-1 w-full text-indigo-400 font-bold text-xs cursor-text transition-all"
+                                            className="bg-slate-800/50 border border-slate-700/50 outline-none focus:ring-1 focus:ring-blue-500 rounded pl-6 pr-1.5 py-1 w-full text-blue-400 font-bold text-xs cursor-text transition-all"
                                             placeholder="0.00"
                                         />
                                     </div>
                                 </div>
                             ) : (
-                                <span className="text-sm font-black text-indigo-400 tracking-tight">
+                                <span className="text-sm font-black text-blue-400 tracking-tight">
                                     {formatCurrency(condo.valorContrato || 0)}
                                 </span>
                             )}
@@ -320,7 +320,7 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                                             ? 'bg-emerald-500/20 text-emerald-400' 
                                             : profitMargin > 0 
                                                 ? 'bg-yellow-500/20 text-yellow-400' 
-                                                : 'bg-rose-500/20 text-rose-400'
+                                                : 'bg-rose-500/20 text-red-400'
                                     }`} title="Margem de Lucro">
                                         {profitMargin.toFixed(1)}%
                                     </span>
