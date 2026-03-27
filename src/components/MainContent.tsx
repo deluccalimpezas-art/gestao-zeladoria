@@ -366,9 +366,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                             <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.income)}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                                    <div className="mt-4 pt-4 border-t border-white/5">
                                         <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Total de Contratos</span>
-                                        <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/20">GLOBAL</span>
                                     </div>
                                 </div>
 
@@ -384,9 +383,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                             <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.expenses)}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Folha + Encargos</span>
-                                        <span className="bg-rose-500/20 text-rose-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-500/20">ESTIMADO</span>
+                                    <div className="mt-4 pt-4 border-t border-white/5">
+                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Folha + Enc + Impostos</span>
                                     </div>
                                 </div>
 
@@ -405,14 +403,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-indigo-500/20 flex items-center justify-between">
+                                    <div className="mt-4 pt-4 border-t border-indigo-500/20">
                                         <span className="text-indigo-400/60 text-[10px] font-black uppercase tracking-wider">Resultado Líquido</span>
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={`w-2 h-2 rounded-full ${financialTotals.profit >= 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-ping opacity-75`}></div>
-                                            <span className={`text-[11px] font-black ${financialTotals.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                                {financialTotals.profit >= 0 ? 'POSITIVO' : 'DÉFICIT'}
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
