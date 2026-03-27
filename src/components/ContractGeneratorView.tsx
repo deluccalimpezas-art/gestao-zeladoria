@@ -433,12 +433,12 @@ export function ContractGeneratorView() {
                                                     <p className="mt-8">Em caso de controvérsias, dúvidas, processos e conflitos, fica eleito o foro da comarca de Itapema-SC, ainda que exista outro mais privilegiado, sendo este o eleito para qualquer ação ou execução que possa ocorrer por motivo de descumprimento de algumas das cláusulas dispostas neste documento ou da legislação brasileira aplicável.</p>
                                                     <p className="mt-4">E, por estarem assim, justas e contratadas, CONTRATANTE E CONTRATADO assinam o presente instrumento em 2 (duas) vias de igual teor e forma para a produção de todos os efeitos de direito.</p>
 
-                                                    <div className="page-break-container text-right mt-20 mb-12 avoid-break">
+                                                    <div className="page-break-container text-right mt-20 mb-20 avoid-break">
                                                         <span className="font-bold italic">{contractorCity}, {getDateExtenso(signatureDateObj)}.</span>
                                                     </div>
 
                                                     {/* Signatures */}
-                                                    <div className="grid grid-cols-2 gap-16 text-center text-sm mt-12 mb-12 px-4 avoid-break">
+                                                    <div className="grid grid-cols-2 gap-16 text-center text-sm mt-20 mb-12 px-4 avoid-break">
                                                         <div className="space-y-1">
                                                             <div className="border-t border-black pt-2 mb-1">
                                                                 <p className="font-bold">CONTRATANTE</p>
