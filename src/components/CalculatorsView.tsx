@@ -114,12 +114,6 @@ export function CalculatorsView() {
                 </button>
             </div>
 
-            <div className="bg-amber-500/5 border border-amber-500/10 p-6 rounded-3xl flex items-start gap-4 max-w-2xl mx-auto mt-12">
-                <TrendingUp className="w-6 h-6 text-amber-500 flex-shrink-0" />
-                <p className="text-xs text-amber-500/70 font-medium leading-relaxed">
-                    <strong>Atenção:</strong> Estes cálculos são simulações baseadas em regras padrões. Valores reais podem variar de acordo com o sindicato, convenções coletivas e benefícios específicos.
-                </p>
-            </div>
         </div>
     );
 }

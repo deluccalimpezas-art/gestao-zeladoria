@@ -282,27 +282,16 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                     <ShieldCheck className="w-48 h-48 text-indigo-400" />
                 </div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                <Users className="w-5 h-5 text-indigo-400" />
-                            </div>
-                            <span className="text-xs font-black uppercase tracking-widest text-indigo-400/80">Gestão Global de RH</span>
-                        </div>
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-6">
                         <h1 className="text-3xl font-black text-white tracking-tighter">RH da Empresa</h1>
-                        <p className="text-slate-400 mt-1 max-w-lg text-sm leading-relaxed">
-                            Controle unificado de colaboradores. Registre, gerencie e organize toda a equipe em um só lugar.
-                        </p>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-2xl px-5 py-3 shadow-xl text-right min-w-[160px]">
-                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Folha {activeCategory}</p>
-                            <div className="flex items-baseline justify-end gap-2">
-                                <span className="text-xl font-black text-white">{formatCurrency(stats.totalSalaries)}</span>
-                                <TrendingUp className="w-4 h-4 text-emerald-500" />
-                            </div>
+                        <div className="h-8 w-px bg-slate-700 hidden md:block"></div>
+                        <div className="flex items-center gap-3">
+                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Folha {activeCategory}:</p>
+                            <span className="text-xl font-black text-emerald-400">{formatCurrency(stats.totalSalaries)}</span>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
 

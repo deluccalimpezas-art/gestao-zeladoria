@@ -143,15 +143,6 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                 </button>
             </div>
 
-            <div className="bg-slate-800/60 border border-slate-700/50 p-8 rounded-[2.5rem] flex items-center justify-between">
-                <div className="space-y-1">
-                    <h4 className="text-white font-black">Precisa de mais geradores?</h4>
-                    <p className="text-sm text-slate-500 font-medium">Novas ferramentas de automação são adicionadas mensalmente.</p>
-                </div>
-                <div className="bg-slate-900/50 px-4 py-2 rounded-xl border border-slate-700 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    v2.1 Stable
-                </div>
-            </div>
         </div>
     );
 }

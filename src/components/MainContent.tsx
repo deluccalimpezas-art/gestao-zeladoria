@@ -62,7 +62,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'visao_geral' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('visao_geral');
+    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
 
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
@@ -231,11 +231,11 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                     <ul className="space-y-1 px-2">
                         <li>
                             <button
-                                onClick={() => setActiveTab('visao_geral')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'visao_geral' ? 'bg-blue-600/10 text-blue-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                                onClick={() => setActiveTab('alertas')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'alertas' ? 'bg-blue-600/10 text-blue-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
                                 <Briefcase className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Visão Geral (RH)</span>}
+                                {sidebarOpen && <span className="font-medium">Alertas</span>}
                             </button>
                         </li>
                         <li>
@@ -341,91 +341,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                 </header>
 
                 <div className="flex-1 overflow-auto p-6">
-                    {activeTab === 'visao_geral' ? (
+                    {activeTab === 'alertas' ? (
                         <div className="max-w-7xl mx-auto space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                {/* Entrada - Emerald Glass */}
-                                <div className="group relative bg-slate-800/40 border border-emerald-500/20 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-slate-800/60 hover:border-emerald-500/40 overflow-hidden">
-                                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors"></div>
-                                    <div className="flex items-center gap-5 relative z-10">
-                                        <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-inner group-hover:rotate-3 transition-transform">
-                                            <TrendingUp className="w-7 h-7 text-emerald-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-1">Entradas Brutas</p>
-                                            <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.income)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5">
-                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Total de Contratos</span>
-                                    </div>
-                                </div>
-
-                                {/* Saída - Rose Glass */}
-                                <div className="group relative bg-slate-800/40 border border-rose-500/20 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-slate-800/60 hover:border-rose-500/40 overflow-hidden">
-                                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-rose-500/5 rounded-full blur-3xl group-hover:bg-rose-500/10 transition-colors"></div>
-                                    <div className="flex items-center gap-5 relative z-10">
-                                        <div className="w-14 h-14 bg-rose-500/10 rounded-2xl flex items-center justify-center border border-rose-500/20 shadow-inner group-hover:-rotate-3 transition-transform">
-                                            <Receipt className="w-7 h-7 text-rose-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-rose-500/80 uppercase tracking-[0.2em] mb-1">Custos Totais</p>
-                                            <p className="text-3xl font-black text-white tracking-tight">{formatCurrency(financialTotals.expenses)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-white/5">
-                                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Folha + Enc + Impostos</span>
-                                    </div>
-                                </div>
-
-                                {/* Lucro Hero - Indigo/Gold Glass */}
-                                <div className="group relative bg-indigo-600/10 border border-indigo-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:bg-indigo-600/20 hover:border-indigo-400/50 overflow-hidden ring-1 ring-white/5">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-50"></div>
-                                    <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors"></div>
-                                    <div className="flex items-center gap-5 relative z-10">
-                                        <div className="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 shadow-lg shadow-indigo-500/10 group-hover:scale-110 transition-transform duration-500">
-                                            <Zap className="w-7 h-7 text-indigo-400 animate-pulse" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">Lucro Projetado</p>
-                                            <p className={`text-3xl font-black tracking-tight ${financialTotals.profit >= 0 ? 'text-white drop-shadow-sm' : 'text-rose-400'}`}>
-                                                {formatCurrency(financialTotals.profit)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 pt-4 border-t border-indigo-500/20">
-                                        <span className="text-indigo-400/60 text-[10px] font-black uppercase tracking-wider">Resultado Líquido</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-6 mb-12">
-                                <div className="group bg-slate-800/30 border border-slate-700/30 rounded-2xl px-6 py-4 flex items-center gap-5 shadow-lg backdrop-blur-md hover:bg-slate-800/50 hover:border-blue-500/30 transition-all cursor-default">
-                                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-                                        <Briefcase className="w-6 h-6 text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.15em] mb-0.5">Portfólio Ativo</p>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <p className="text-2xl font-black text-white">{masterRH.condominios.filter(c => !c.deleted).length}</p>
-                                            <p className="text-xs font-bold text-slate-600">Condomínios</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="group bg-slate-800/30 border border-slate-700/30 rounded-2xl px-6 py-4 flex items-center gap-5 shadow-lg backdrop-blur-md hover:bg-slate-800/50 hover:border-indigo-500/30 transition-all cursor-default">
-                                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                                        <Users className="w-6 h-6 text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.15em] mb-0.5">Equipe Operacional</p>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <p className="text-2xl font-black text-white">{masterRH.funcionarios.filter(f => !f.deleted).length}</p>
-                                            <p className="text-xs font-bold text-slate-600">Funcionários</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <section className="space-y-6">
                                     <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-2">

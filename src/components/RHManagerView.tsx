@@ -548,7 +548,6 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                         <Building2 className="w-8 h-8 text-indigo-400" />
                         Gestão de Condomínios
                     </h1>
-                    <p className="text-slate-400 text-sm mt-1">Gerencie os dados dos prédios atendidos e seus contratos.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     {availableMonths.length > 0 && (

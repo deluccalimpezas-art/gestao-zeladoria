@@ -115,24 +115,8 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                                             </span>
                                             <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
                                         </div>
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between items-baseline">
-                                                <span className="text-[10px] uppercase font-bold text-slate-500">Bruto</span>
-                                                <h4 className="text-base font-bold text-white transition-colors group-hover:text-indigo-300">{formatCurrency(month.receitaBruta)}</h4>
-                                            </div>
-                                            <div className="flex justify-between items-baseline">
-                                                <span className="text-[10px] uppercase font-bold text-slate-500">Retido NF (INSS)</span>
-                                                <h4 className="text-sm font-bold text-red-400">{formatCurrency(month.inssRetido || 0)}</h4>
-                                            </div>
-                                            <div className="flex justify-between items-baseline">
-                                                <span className="text-[10px] uppercase font-bold text-slate-500">Líquido</span>
-                                                <h4 className="text-sm font-bold text-emerald-400">{formatCurrency(month.receitaLiquida)}</h4>
-                                            </div>
-                                        </div>
-                                        <div className="mt-3 pt-3 border-t border-slate-700/50 flex items-center justify-between">
-                                            <p className="text-[10px] uppercase font-bold text-slate-500">
-                                                {month.condominios?.length || 0} Condomínios
-                                            </p>
+                                        <div className="flex-1 flex items-center justify-center py-4">
+                                            <CalendarDays className="w-12 h-12 text-slate-700 group-hover:text-emerald-500/20 transition-colors" />
                                         </div>
                                     </button>
                                         <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
