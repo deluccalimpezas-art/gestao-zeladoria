@@ -86,16 +86,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
 
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
     const [startEmpty, setStartEmpty] = useState(false);
-    const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
-        registro: false,
-        experiencia: false,
-        ferias: false
-    });
-
-    const toggleFolder = (folder: string) => {
-        setExpandedFolders(prev => ({ ...prev, [folder]: !prev[folder] }));
-    };
-
     const employeesCount = useMemo(() => masterRH.funcionarios.length, [masterRH.funcionarios]);
 
     const allEmployeeAlerts = useMemo(() => {
@@ -443,64 +433,31 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                         Alertas de Funcionários
                                     </h2>
                                     
-                                    <div className="space-y-3">
-                                        <button 
-                                            onClick={() => toggleFolder('registro')}
-                                            className="w-full text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2 hover:bg-slate-700/50 transition-colors"
-                                        >
-                                            {expandedFolders.registro ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
-                                            <PenTool className="w-4 h-4 text-amber-500" />
-                                            Fazer Registro
-                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).length}</span>
-                                        </button>
-                                        {expandedFolders.registro && (
-                                            <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-registro')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <button 
-                                            onClick={() => toggleFolder('experiencia')}
-                                            className="w-full text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2 hover:bg-slate-700/50 transition-colors"
-                                        >
-                                            {expandedFolders.experiencia ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
-                                            <Briefcase className="w-4 h-4 text-rose-500" />
-                                            Vencendo Contrato de Experiência
-                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).length}</span>
-                                        </button>
-                                        {expandedFolders.experiencia && (
-                                            <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-contrato')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <button 
-                                            onClick={() => toggleFolder('ferias')}
-                                            className="w-full text-sm font-black uppercase tracking-wider text-slate-500 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-2 hover:bg-slate-700/50 transition-colors"
-                                        >
-                                            {expandedFolders.ferias ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
-                                            <CalendarDays className="w-4 h-4 text-emerald-500" />
-                                            Vencendo as Férias
-                                            <span className="ml-auto bg-slate-900 px-2 py-0.5 rounded text-[10px]">{allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).length}</span>
-                                        </button>
-                                        {expandedFolders.ferias && (
-                                            <div className="space-y-3 pl-2 animate-in slide-in-from-top-2 duration-200">
-                                                {allEmployeeAlerts.filter(a => a.id.includes('rh-ferias') || a.id.includes('rh-aniversario')).map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                    <div className="space-y-4 max-h-[600px] overflow-auto pr-2 custom-scrollbar">
+                                        {allEmployeeAlerts.length > 0 ? (
+                                            allEmployeeAlerts.map(alert => (
+                                                <AlertCard key={alert.id} alert={alert} />
+                                            ))
+                                        ) : (
+                                            <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-8 text-center italic text-slate-500">
+                                                Nenhum alerta pendente para funcionários.
                                             </div>
                                         )}
                                     </div>
                                 </section>
                                 <section className="space-y-4">
-                                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                                        <Briefcase className="w-5 h-5 text-emerald-400" />
+                                    <h2 className="text-xl font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-2">
+                                        <Briefcase className="w-6 h-6 text-emerald-400" />
                                         Condomínios e Contratos
                                     </h2>
                                     <div className="space-y-3">
-                                        {condoAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+                                        {condoAlerts.length > 0 ? (
+                                            condoAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)
+                                        ) : (
+                                            <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-8 text-center italic text-slate-500">
+                                                Tudo em dia com os contratos.
+                                            </div>
+                                        )}
                                     </div>
                                 </section>
                             </div>

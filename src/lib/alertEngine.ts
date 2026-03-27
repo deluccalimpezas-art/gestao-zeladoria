@@ -56,7 +56,8 @@ export function gerarAlertasDashboard(funcionarios: FuncionarioCSV[]): Alert[] {
                     title: `${func.Nome} (${func.Cargo})`,
                     subtitle: diasRestantes === 0 ? 'Vence HOJE' : `Em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
                     deadline: `Vencimento: ${func.VencimentoFerias.split('-').reverse().join('/')}`,
-                    description: `Planejar as férias do colaborador.`
+                    description: `Planejar as férias do colaborador.`,
+                    daysRemaining: diasRestantes
                 });
             }
         }
@@ -73,7 +74,8 @@ export function gerarAlertasDashboard(funcionarios: FuncionarioCSV[]): Alert[] {
                     title: `${func.Nome} (${func.Cargo})`,
                     subtitle: diasRestantes === 0 ? 'Vence HOJE' : `Em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
                     deadline: `Término Exp.: ${func.FimContratoExperiencia.split('-').reverse().join('/')}`,
-                    description: `Decidir sobre a renovação/efetivação do contrato de experiência.`
+                    description: `Decidir sobre a renovação/efetivação do contrato de experiência.`,
+                    daysRemaining: diasRestantes
                 });
             }
         }
@@ -102,7 +104,8 @@ export function gerarAlertasCondominios(condominios: CondominioData[]): Alert[] 
                     title: condo.nome,
                     subtitle: diasRestantes === 0 ? '⚠️ Vence HOJE!' : `Vence em ${diasRestantes} dia${diasRestantes > 1 ? 's' : ''}`,
                     deadline: `Término do contrato: ${condo.termino}`,
-                    description: `Contrato próximo do vencimento. Iniciar negociação de renovação.${condo.cnpj ? ` CNPJ: ${condo.cnpj}` : ''}`
+                    description: `Contrato próximo do vencimento. Iniciar negociação de renovação.${condo.cnpj ? ` CNPJ: ${condo.cnpj}` : ''}`,
+                    daysRemaining: diasRestantes
                 });
             } else if (diasRestantes < 0 && diasRestantes >= -30) {
                 alertas.push({
@@ -112,7 +115,8 @@ export function gerarAlertasCondominios(condominios: CondominioData[]): Alert[] 
                     title: condo.nome,
                     subtitle: `⚠️ VENCIDO há ${Math.abs(diasRestantes)} dia${Math.abs(diasRestantes) > 1 ? 's' : ''}`,
                     deadline: `Venceu em: ${condo.termino}`,
-                    description: `Contrato expirou! Regularizar renovação com urgência.${condo.cnpj ? ` CNPJ: ${condo.cnpj}` : ''}`
+                    description: `Contrato expirou! Regularizar renovação com urgência.${condo.cnpj ? ` CNPJ: ${condo.cnpj}` : ''}`,
+                    daysRemaining: diasRestantes
                 });
             }
         }
@@ -150,7 +154,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                     title: func.nome,
                     subtitle: dias === 0 ? '⚠️ Abre período HOJE' : `Em ${dias} dia${dias > 1 ? 's' : ''}`,
                     deadline: `Período de férias abre em: ${func.vencimentoFerias}`,
-                    description: `Planejar período de férias. ${func.cargo ? `Cargo: ${func.cargo}.` : ''} ${func.condominio ? `Alocação: ${func.condominio}.` : ''}`
+                    description: `Planejar período de férias. ${func.cargo ? `Cargo: ${func.cargo}.` : ''} ${func.condominio ? `Alocação: ${func.condominio}.` : ''}`,
+                    daysRemaining: dias
                 });
             } else if (dias < 0 && dias >= -30) {
                 alertas.push({
@@ -160,7 +165,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                     title: func.nome,
                     subtitle: `⚠️ VENCIDO há ${Math.abs(dias)} dia${Math.abs(dias) > 1 ? 's' : ''}`,
                     deadline: `Venceu em: ${func.vencimentoFerias}`,
-                    description: `Período de férias já venceu! Regularizar com urgência.`
+                    description: `Período de férias já venceu! Regularizar com urgência.`,
+                    daysRemaining: dias
                 });
             }
         }
@@ -177,7 +183,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                     title: func.nome,
                     subtitle: dias === 0 ? '⚠️ Vence HOJE!' : `Em ${dias} dia${dias > 1 ? 's' : ''}`,
                     deadline: `Contrato de experiência termina em: ${func.fimContratoExperiencia}`,
-                    description: `Decidir sobre efetivação ou encerramento. ${func.cargo ? `Cargo: ${func.cargo}.` : ''} ${func.condominio ? `Alocação: ${func.condominio}.` : ''}`
+                    description: `Decidir sobre efetivação ou encerramento. ${func.cargo ? `Cargo: ${func.cargo}.` : ''} ${func.condominio ? `Alocação: ${func.condominio}.` : ''}`,
+                    daysRemaining: dias
                 });
             } else if (dias < 0 && dias >= -15) {
                 alertas.push({
@@ -187,7 +194,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                     title: func.nome,
                     subtitle: `⚠️ EXPIRADO há ${Math.abs(dias)} dia${Math.abs(dias) > 1 ? 's' : ''}`,
                     deadline: `Expirou em: ${func.fimContratoExperiencia}`,
-                    description: `Contrato de experiência expirou! Tomar providências imediatas.`
+                    description: `Contrato de experiência expirou! Tomar providências imediatas.`,
+                    daysRemaining: dias
                 });
             }
         }
@@ -221,7 +229,8 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
                             title: func.nome,
                             subtitle: diffDays === 0 ? '🎉 HOJE!' : `Em ${diffDays} dia${diffDays > 1 ? 's' : ''}`,
                             deadline: `Aniversário de Empresa (${anosEmpresa} ano${anosEmpresa > 1 ? 's' : ''})`,
-                            description: `Parabenize o colaborador pelo seu tempo de casa!`
+                            description: `Parabenize o colaborador pelo seu tempo de casa!`,
+                            daysRemaining: diffDays
                         });
                     }
                 }
@@ -230,12 +239,7 @@ export function gerarAlertasRH(funcionarios: FuncionarioData[]): Alert[] {
 
     });
 
-    // Ordenar: vencidos primeiro, depois por urgência
-    alertas.sort((a, b) => {
-        const isOverdueA = a.subtitle.includes('VENCIDO') || a.subtitle.includes('EXPIRADO') ? 0 : 1;
-        const isOverdueB = b.subtitle.includes('VENCIDO') || b.subtitle.includes('EXPIRADO') ? 0 : 1;
-        return isOverdueA - isOverdueB;
-    });
+    alertas.sort((a, b) => (a.daysRemaining || 0) - (b.daysRemaining || 0));
 
     return alertas;
 }

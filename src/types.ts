@@ -8,6 +8,7 @@ export interface Alert {
     subtitle: string;
     description: string;
     deadline: string;
+    daysRemaining?: number;
 }
 
 export interface CondominioCSV {
