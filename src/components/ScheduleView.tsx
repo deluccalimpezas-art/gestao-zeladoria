@@ -267,9 +267,9 @@ export function ScheduleView() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] -mr-16 -mt-16 pointer-events-none"></div>
                 
                 <div className="relative z-10">
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-black text-white flex items-center gap-3">
                         <CalendarDays className="w-8 h-8 text-indigo-400" />
-                        Planejamento & Escala
+                        Planejamento
                     </h1>
                 </div>
                 
@@ -317,11 +317,10 @@ export function ScheduleView() {
             {/* TAB: WEEKLY SCHEDULE */}
             {activeTab === 'weekly' && (
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-sm">
-                        <div></div>
+                    <div className="flex justify-end items-center px-4">
                         <button 
                             onClick={() => setIsEditingWeekly(!isEditingWeekly)}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${isEditingWeekly ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20'}`}
+                            className={`px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 ${isEditingWeekly ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/20' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/20'}`}
                         >
                             {isEditingWeekly ? 'Concluir Edição' : 'Editar Semana Completa'}
                         </button>

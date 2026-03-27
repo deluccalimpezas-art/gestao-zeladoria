@@ -92,33 +92,39 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
             {monthsData.length > 0 && (
                 <>
                     {/* Bloco: Visão de Meses Detalhada */}
-                    <section>
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                <CalendarDays className="w-5 h-5 text-emerald-500" /> Planilhas Analisadas
-                            </h2>
-                            <span className="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">
-                                {monthsData.length} meses disponíveis
-                            </span>
-                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {monthsData.map((month, idx) => {
+                                const totalSaida = (month.totalSalarios || 0) + (month.totalImpostos || 0) + (month.totalGastos || 0) + (month.totalRescisao || 0);
+                                const lucro = month.lucroEstimado ?? (month.receitaLiquida - totalSaida);
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {monthsData.map((month, idx) => (
-                                <div key={idx} className="relative group">
-                                    <button
-                                        onClick={() => setSelectedMonth(month)}
-                                        className="w-full h-full bg-slate-800 border border-slate-700 hover:border-emerald-500/50 hover:bg-slate-700/50 rounded-xl p-5 shadow flex flex-col text-left transition-all"
-                                    >
-                                        <div className="flex w-full justify-between items-start mb-3">
-                                            <span className="text-sm font-bold uppercase tracking-wider text-slate-300 group-hover:text-white transition-colors">
-                                                {month.monthName}
-                                            </span>
-                                            <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all" />
-                                        </div>
-                                        <div className="flex-1 flex items-center justify-center py-4">
-                                            <CalendarDays className="w-12 h-12 text-slate-700 group-hover:text-emerald-500/20 transition-colors" />
-                                        </div>
-                                    </button>
+                                return (
+                                    <div key={idx} className="relative group">
+                                        <button
+                                            onClick={() => setSelectedMonth(month)}
+                                            className="w-full bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/30 hover:bg-slate-800/80 rounded-3xl p-6 shadow-xl flex flex-col text-left transition-all active:scale-95 group"
+                                        >
+                                            <div className="flex w-full justify-between items-center mb-4">
+                                                <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">
+                                                    {month.monthName}
+                                                </span>
+                                                <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                                            </div>
+                                            
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-[9px] uppercase font-bold text-slate-500 tracking-tighter">Entrada</span>
+                                                    <span className="text-[11px] font-black text-white">{formatCurrency(month.receitaBruta)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-[9px] uppercase font-bold text-slate-500 tracking-tighter">Saída</span>
+                                                    <span className="text-[11px] font-black text-rose-400/80">{formatCurrency(totalSaida)}</span>
+                                                </div>
+                                                <div className="pt-2 border-t border-slate-700/50 flex justify-between items-center">
+                                                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-tighter">Lucro</span>
+                                                    <span className={`text-xs font-black ${lucro >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>{formatCurrency(lucro)}</span>
+                                                </div>
+                                            </div>
+                                        </button>
                                         <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); onDuplicateMonth(month); }}
@@ -136,9 +142,9 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                                         </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </section>
+                            );
+                        })}
+                    </div>
                 </>
             )
             }

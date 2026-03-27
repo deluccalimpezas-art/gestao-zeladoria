@@ -267,8 +267,9 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
 
     const stats = useMemo(() => {
         const totalSalaries = employees.reduce((acc, curr) => acc + (curr.salario || 0), 0);
-        return { totalSalaries };
-    }, [employees]);
+        const totalImpostos = (data.impostos || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+        return { totalSalaries, totalImpostos };
+    }, [employees, data.impostos]);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
@@ -284,12 +285,23 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-6">
                         <h1 className="text-3xl font-black text-white tracking-tighter">RH da Empresa</h1>
                         <div className="h-8 w-px bg-slate-700 hidden md:block"></div>
-                        <div className="flex items-center gap-3">
-                            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Folha {activeCategory}:</p>
-                            <span className="text-xl font-black text-emerald-400">{formatCurrency(stats.totalSalaries)}</span>
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-3">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider whitespace-nowrap">
+                                    {activeCategory === 'Todos' ? 'Folha Total:' : `Folha ${activeCategory}:`}
+                                </p>
+                                <span className="text-xl font-black text-emerald-400">{formatCurrency(stats.totalSalaries)}</span>
+                            </div>
+                            <div className="h-4 w-px bg-slate-700/50 hidden md:block"></div>
+                            <div className="flex items-center gap-3">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider whitespace-nowrap">Total Impostos:</p>
+                                <span className="text-xl font-black text-amber-400">{formatCurrency(stats.totalImpostos)}</span>
+                            </div>
                         </div>
+                    </div>
                     </div>
                 </div>
                 </div>
