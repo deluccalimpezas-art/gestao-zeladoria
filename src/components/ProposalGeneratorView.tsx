@@ -163,7 +163,7 @@ export function ProposalGeneratorView() {
                                         </div>
                                     </div>
                                     <div className="text-right text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest">
-                                        <p>Eduardo Gabriel Lucca</p>
+                                        <p>DELUCCA SERVIÇOS PREDIAS LTDA.</p>
                                         <p>CNPJ: 49.909.068/0001-87</p>
                                         <p>Itapema - Santa Catarina</p>
                                     </div>
@@ -196,7 +196,7 @@ export function ProposalGeneratorView() {
                                     <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 space-y-4">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-2">
-                                                <p className="font-bold text-slate-900 italic underline">A) Uma Auxiliar de Limpeza: 44 horas semanais.</p>
+                                                <p className="font-bold text-slate-900 italic">A) Uma Auxiliar de Limpeza: 44 horas semanais.</p>
                                                 <div className="text-xs text-slate-600 space-y-1 ml-4">
                                                     <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
                                                     <p>Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
@@ -205,7 +205,7 @@ export function ProposalGeneratorView() {
                                                 </div>
                                             </div>
                                             <div className="text-right flex flex-col items-end">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Investimento Mensal</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Valor Mensal</p>
                                                 <p className="text-2xl font-black text-slate-900">R$ {monthlyValue}</p>
                                             </div>
                                         </div>
@@ -219,6 +219,7 @@ export function ProposalGeneratorView() {
                                         <li>O prazo contratual será de 12 meses, com renovação automática, salvo manifestação contrária com 30 dias de antecedência.</li>
                                         <li>Em caso de rescisão imotivada antes do término do contrato, será aplicada multa equivalente a 01 (uma) mensalidade vigente à época.</li>
                                         <li>Os valores poderão ser reajustados anualmente conforme convenção coletiva da categoria ou índice oficial de inflação.</li>
+                                        <li>Serviços de limpeza de salões de festas e quaisquer outras atividades realizadas fora do horário regular de trabalho serão cobrados à parte do presente orçamento, devendo seus valores e condições ser previamente acordados entre as partes.</li>
                                     </ul>
                                 </div>
 
@@ -227,9 +228,11 @@ export function ProposalGeneratorView() {
                                     Este orçamento contempla apenas a prestação de serviços, não incluindo materiais de limpeza ou equipamentos.
                                 </div>
 
-                                <div className="space-y-2 pt-6">
-                                    <h3 className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Validade da Proposta</h3>
-                                    <p className="text-sm font-bold text-slate-800">Esta proposta possui validade de 15 (quinze) dias.</p>
+                                <div className="page-break-container pt-8">
+                                    <div className="space-y-2">
+                                        <h3 className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Validade da Proposta</h3>
+                                        <p className="text-sm font-bold text-slate-800">Esta proposta possui validade de 15 (quinze) dias.</p>
+                                    </div>
                                 </div>
 
                                 <div className="pt-12 text-center space-y-4">
@@ -281,6 +284,10 @@ export function ProposalGeneratorView() {
                         max-width: 100% !important;
                         box-shadow: none !important;
                         border: none !important;
+                    }
+                    .page-break-container {
+                        break-before: page;
+                        page-break-before: always;
                     }
                 }
                 .no-print-bg {
