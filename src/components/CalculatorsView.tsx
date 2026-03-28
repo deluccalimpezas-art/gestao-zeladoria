@@ -50,14 +50,8 @@ export function CalculatorsView() {
 
     return (
         <div className="max-w-4xl mx-auto py-12 space-y-12 animate-in fade-in duration-700">
-            <div className="text-center space-y-4">
-                <div className="inline-flex p-4 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 mb-4">
-                    <Calculator className="w-10 h-10 text-indigo-400" />
-                </div>
-                <h1 className="text-4xl font-black text-white tracking-tight">Cálculos Trabalhistas</h1>
-                <p className="text-slate-400 max-w-lg mx-auto font-medium">
-                    Simule os custos de contratação e os valores de rescisão de forma precisa e rápida.
-                </p>
+            <div className="text-center pt-8">
+                <h1 className="text-2xl font-black text-white tracking-widest uppercase">Cálculos Trabalhistas</h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
