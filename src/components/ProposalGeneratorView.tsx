@@ -8,6 +8,9 @@ export function ProposalGeneratorView() {
     const [clientAddress, setClientAddress] = useState('Itapema/SC');
     const [monthlyValue, setMonthlyValue] = useState('6.200,00');
     
+    // Workload options
+    const [serviceType, setServiceType] = useState<'44h' | '22h' | 'manual'>('44h');
+    
     // Manual Edit Mode
     const [isManualMode, setIsManualMode] = useState(false);
     const [manualHtml, setManualHtml] = useState('');
@@ -114,7 +117,22 @@ export function ProposalGeneratorView() {
                             </div>
 
                             <div className="space-y-1.5 pt-4 border-t border-slate-700">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Valor Mensal (R$)</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Carga Horária / Valor</label>
+                                <select 
+                                    value={serviceType}
+                                    onChange={(e) => {
+                                        const val = e.target.value as any;
+                                        setServiceType(val);
+                                        if (val === '44h') setMonthlyValue('6.200,00');
+                                        if (val === '22h') setMonthlyValue('3.600,00');
+                                    }}
+                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-amber-500 transition-all font-medium mb-4"
+                                >
+                                    <option value="44h">44 Horas Semanais (R$ 6.200)</option>
+                                    <option value="22h">22 Horas Semanais (R$ 3.600)</option>
+                                    <option value="manual">Manual / Outro Valor</option>
+                                </select>
+                                
                                 <div className="relative group">
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">R$</span>
                                     <input 
@@ -196,13 +214,29 @@ export function ProposalGeneratorView() {
                                     <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 space-y-4">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-2">
-                                                <p className="font-bold text-slate-900 italic">A) Uma Auxiliar de Limpeza: 44 horas semanais.</p>
-                                                <div className="text-xs text-slate-600 space-y-1 ml-4">
-                                                    <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
-                                                    <p>Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
-                                                    <p className="font-bold text-slate-800 pt-1">Sábado:</p>
-                                                    <p>Período Matutino (08:00 às 12:00)</p>
-                                                </div>
+                                                {serviceType === '44h' ? (
+                                                    <>
+                                                        <p className="font-bold text-slate-900 italic">A) Uma zeladora - 44h semanais</p>
+                                                        <div className="text-xs text-slate-600 space-y-1 ml-4">
+                                                            <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
+                                                            <p>Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
+                                                            <p className="font-bold text-slate-800 pt-1">Sábado:</p>
+                                                            <p>Período matutino (08:00 às 12:00)</p>
+                                                        </div>
+                                                    </>
+                                                ) : serviceType === '22h' ? (
+                                                    <>
+                                                        <p className="font-bold text-slate-900 italic">A) Uma Auxiliar de limpeza - 22h semanais</p>
+                                                        <div className="text-xs text-slate-600 space-y-1 ml-4">
+                                                            <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
+                                                            <p>Período matutino (08:00 às 12:00)</p>
+                                                            <p className="font-bold text-slate-800 pt-1">Sábado:</p>
+                                                            <p>Período matutino (08:00 às 10:00)</p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <p className="font-bold text-slate-900 italic">A) Detalhes do serviço personalizado (Edite manualmente se necessário)</p>
+                                                )}
                                             </div>
                                             <div className="text-right flex flex-col items-end">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Valor Mensal</p>
@@ -216,7 +250,7 @@ export function ProposalGeneratorView() {
                                     <h3 className="font-bold uppercase tracking-widest text-xs border-b border-slate-100 pb-2">Condições Comerciais</h3>
                                     <ul className="text-xs space-y-3 text-slate-700 list-disc ml-4">
                                         <li>O pagamento deverá ser realizado mensalmente, mediante emissão de Nota Fiscal, com vencimento todo dia 05.</li>
-                                        <li>O prazo contratual será de 12 meses, com renovação automática, salvo manifestação contrária com 30 dias de antecedência.</li>
+                                        <li>O prazo contratual será de 12 meses, com renovação automática, salvo manifestation contrária com 30 dias de antecedência.</li>
                                         <li>Em caso de rescisão imotivada antes do término do contrato, será aplicada multa equivalente a 01 (uma) mensalidade vigente à época.</li>
                                         <li>Os valores poderão ser reajustados anualmente conforme convenção coletiva da categoria ou índice oficial de inflação.</li>
                                         <li>Serviços de limpeza de salões de festas e quaisquer outras atividades realizadas fora do horário regular de trabalho serão cobrados à parte do presente orçamento, devendo seus valores e condições ser previamente acordados entre as partes.</li>
