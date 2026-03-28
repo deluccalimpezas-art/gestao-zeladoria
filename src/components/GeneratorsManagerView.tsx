@@ -75,18 +75,34 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
 
     return (
         <div className="max-w-5xl mx-auto py-12 px-6 space-y-12 animate-in fade-in duration-700">
-            <div className="text-center space-y-4">
-                <div className="inline-flex p-4 bg-amber-500/10 rounded-3xl border border-amber-500/20 mb-4">
-                    <Sparkles className="w-10 h-10 text-amber-400" />
-                </div>
-                <h1 className="text-4xl font-black text-white tracking-tight">Central de Geradores</h1>
-                <p className="text-slate-400 max-w-lg mx-auto font-medium">
-                    Acesse todas as ferramentas de automação e cálculo em um único lugar.
-                </p>
+            <div className="text-center pt-8">
+                <h1 className="text-2xl font-black text-white tracking-widest uppercase">Geradores</h1>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* 1. Contratos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* 1. Orçamentos */}
+                <button 
+                    onClick={() => setView('proposals')}
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-amber-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                >
+                    <div className="relative z-10 space-y-4">
+                        <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                            <Sparkles className="w-6 h-6 text-amber-400 group-hover:text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-white mb-1">Propostas</h3>
+                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                                Gerar propostas comerciais profissionais.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-amber-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                            <span>Abrir</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
+                        </div>
+                    </div>
+                </button>
+
+                {/* 2. Contratos */}
                 <button 
                     onClick={() => setView('contracts')}
                     className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-rose-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
@@ -108,29 +124,29 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                     </div>
                 </button>
 
-                {/* 2. Nota Fiscal */}
+                {/* 3. Nota Fiscal */}
                 <button 
                     onClick={() => setView('nf')}
-                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-amber-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
+                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-sky-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
                 >
                     <div className="relative z-10 space-y-4">
-                        <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                            <Receipt className="w-6 h-6 text-amber-400 group-hover:text-white" />
+                        <div className="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center border border-sky-500/20 group-hover:bg-sky-500 group-hover:text-white transition-all">
+                            <Receipt className="w-6 h-6 text-sky-400 group-hover:text-white" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-white mb-1">Nota Fiscal</h3>
+                            <h3 className="text-lg font-black text-white mb-1">Notas Fiscais</h3>
                             <p className="text-slate-500 text-xs font-medium leading-relaxed">
                                 Rascunhos e envio de NF para condomínios.
                             </p>
                         </div>
-                        <div className="flex items-center gap-2 text-amber-400 font-black text-[10px] uppercase tracking-widest pt-2">
+                        <div className="flex items-center gap-2 text-sky-400 font-black text-[10px] uppercase tracking-widest pt-2">
                             <span>Abrir</span>
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
                         </div>
                     </div>
                 </button>
 
-                {/* 3. Holerites */}
+                {/* 4. Holerites */}
                 <button 
                     onClick={() => setView('holerites')}
                     className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-emerald-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
@@ -140,7 +156,7 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                             <Wallet className="w-6 h-6 text-emerald-400 group-hover:text-white" />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-white mb-1">Holerites</h3>
+                            <h3 className="text-lg font-black text-white mb-1">Holerite</h3>
                             <p className="text-slate-500 text-xs font-medium leading-relaxed">
                                 Geração de comprovantes de pagamento.
                             </p>
@@ -151,30 +167,7 @@ export function GeneratorsManagerView({ employees, condominios }: GeneratorsMana
                         </div>
                     </div>
                 </button>
-
-                {/* 4. Orçamentos */}
-                <button 
-                    onClick={() => setView('proposals')}
-                    className="group relative bg-slate-800/40 border border-slate-700/50 p-6 rounded-[2rem] text-left hover:border-amber-500/50 hover:bg-slate-800/60 transition-all shadow-xl active:scale-95"
-                >
-                    <div className="relative z-10 space-y-4">
-                        <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                            <Sparkles className="w-6 h-6 text-amber-400 group-hover:text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black text-white mb-1">Orçamentos</h3>
-                            <p className="text-slate-500 text-xs font-medium leading-relaxed">
-                                Gerar propostas comerciais profissionais.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-amber-400 font-black text-[10px] uppercase tracking-widest pt-2">
-                            <span>Abrir</span>
-                            <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" />
-                        </div>
-                    </div>
-                </button>
             </div>
-
         </div>
     );
 }
