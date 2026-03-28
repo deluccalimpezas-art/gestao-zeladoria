@@ -152,10 +152,15 @@ export function ProposalGeneratorView() {
                         ) : (
                             <div id="proposal-content-area" className="flex flex-col space-y-6 text-sm">
                                 {/* Letterhead */}
-                                <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8">
-                                    <div className="space-y-1">
-                                        <h2 className="text-2xl font-black tracking-tighter text-slate-900 italic">DeLucca</h2>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Gestão em Limpeza</p>
+                                <div className="flex justify-between items-start border-b-2 border-slate-100 pb-6 mb-8">
+                                    <div className="flex flex-col items-start">
+                                        <div className="flex items-baseline gap-0 transform scale-100 origin-left">
+                                            <span className="text-3xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
+                                            <span className="text-3xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
+                                        </div>
+                                        <div className="text-[14px] text-[#00CEE4] -mt-2 italic font-serif">
+                                            Gestão em Limpeza
+                                        </div>
                                     </div>
                                     <div className="text-right text-[10px] font-bold text-slate-400 leading-tight uppercase tracking-widest">
                                         <p>Eduardo Gabriel Lucca</p>
