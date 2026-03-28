@@ -231,7 +231,7 @@ export function ProposalGeneratorView() {
                                 <div className="page-break-container pt-8">
                                     <div className="space-y-2">
                                         <h3 className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Validade da Proposta</h3>
-                                        <p className="text-sm font-bold text-slate-800">Esta proposta possui validade de 15 (quinze) dias.</p>
+                                        <p className="text-sm font-bold text-slate-800">Esta proposta possui validade de 30 (trinta) dias.</p>
                                     </div>
                                 </div>
 
