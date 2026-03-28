@@ -20,6 +20,10 @@ export function ProposalGeneratorView() {
         { id: '1', type: '44h', count: 1 }
     ]);
     
+    // Manual Total State
+    const [isTotalManual, setIsTotalManual] = useState(false);
+    const [manualTotal, setManualTotal] = useState('6.200,00');
+
     // Manual Edit Mode
     const [isManualMode, setIsManualMode] = useState(false);
     const [manualHtml, setManualHtml] = useState('');
@@ -66,6 +70,10 @@ export function ProposalGeneratorView() {
             else val = parseFloat((item.customValue || '0').replace('.', '').replace(',', '.')) || 0;
             return acc + (val * item.count);
         }, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const renderTotalValue = () => {
+        return isTotalManual ? manualTotal : calculateTotal();
     };
 
     const handleManualChange = () => {
@@ -227,9 +235,37 @@ export function ProposalGeneratorView() {
                                     ))}
                                 </div>
 
-                                <div className="pt-4 border-t border-slate-700 flex justify-between items-center">
-                                    <span className="text-[10px] font-black uppercase text-slate-500">Valor Total Estimado</span>
-                                    <span className="text-amber-400 font-black text-lg">R$ {calculateTotal()}</span>
+                                <div className="pt-4 border-t border-slate-700 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black uppercase text-slate-500">Valor Total Estimado</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] font-bold text-slate-500">MANUAL</span>
+                                            <input 
+                                                type="checkbox"
+                                                checked={isTotalManual}
+                                                onChange={(e) => setIsTotalManual(e.target.checked)}
+                                                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {isTotalManual ? (
+                                        <div className="relative group">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">R$</span>
+                                            <input 
+                                                type="text"
+                                                value={manualTotal}
+                                                onChange={(e) => setManualTotal(e.target.value)}
+                                                className="w-full bg-slate-900/50 border border-amber-500/50 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-all font-black text-lg"
+                                                placeholder="0.000,00"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="bg-slate-900/50 border border-slate-800 rounded-xl py-3 px-4 flex justify-between items-center group">
+                                            <span className="text-slate-500 font-bold">R$</span>
+                                            <span className="text-amber-400 font-black text-xl tracking-tight">{renderTotalValue()}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -345,7 +381,7 @@ export function ProposalGeneratorView() {
 
                                         <div className="pt-4 border-t-2 border-slate-200 flex flex-col items-end">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Valor Total Mensal</p>
-                                            <p className="text-3xl font-black text-slate-900">R$ {calculateTotal()}</p>
+                                            <p className="text-3xl font-black text-slate-900">R$ {renderTotalValue()}</p>
                                         </div>
                                     </div>
                                 </div>
