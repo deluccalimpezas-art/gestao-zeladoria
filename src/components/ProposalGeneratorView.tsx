@@ -321,7 +321,6 @@ export function ProposalGeneratorView() {
                                         <p className="font-bold text-slate-900">Nome: {clientName}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Localidade</p>
                                         <p className="font-bold text-slate-900">Endereço: {clientAddress}</p>
                                     </div>
                                 </div>
