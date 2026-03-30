@@ -35,6 +35,7 @@ export async function getCondominios() {
 
 export async function upsertCondominio(data: any) {
     try {
+        console.log(`Upserting condominio: ${data.nome} (ID: ${data.id}) - Obs: ${data.observacao ? 'Sim' : 'Não'}`);
         const { id, nome, administradora, cnpj, endereco, valorContrato, cargaHoraria, inicio, termino, deleted, contratoPdf, contratoNome, observacao } = data;
 
         // Normalize CNPJ: remove non-digits and handle empty strings/nulls
@@ -114,7 +115,7 @@ export async function deleteCondominioPermanent(id: string) {
 // Master RH: Funcionarios
 export async function upsertFuncionario(data: any) {
     try {
-        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted, contratoPdf, contratoNome } = data;
+        const { id, nome, cargo, salario, condominio, statusClt, vencimentoFerias, fimContratoExperiencia, dataAdmissao, deleted, contratoPdf, contratoNome, observacao } = data;
 
         // Resolve condominioId from name if not provided
         let cId = data.condominioId;
@@ -153,7 +154,8 @@ export async function upsertFuncionario(data: any) {
                 condominioNome: (condominio || '').toString(),
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
-                contratoNome: contratoNome || undefined
+                contratoNome: contratoNome || undefined,
+                observacao
             },
             create: {
                 id: (data.id && data.id !== '00000000-0000-0000-0000-000000000000' && data.id.length > 10) ? data.id : undefined,

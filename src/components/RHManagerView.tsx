@@ -390,6 +390,7 @@ interface RHManagerViewProps {
 
 export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths }: RHManagerViewProps) {
     const [localData, setLocalData] = useState<MasterRHData>(data);
+    const [hasChanges, setHasChanges] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [showTrash, setShowTrash] = useState(false);
@@ -397,6 +398,14 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     const [sortBy, setSortBy] = useState<'alfabetica' | 'valor' | 'lucro' | 'margem' | 'administradora'>('alfabetica');
     const [sortAsc, setSortAsc] = useState(true);
     const [isSortOpen, setIsSortOpen] = useState(false);
+
+    const localDataRef = useRef(localData);
+    const hasChangesRef = useRef(false);
+
+    useEffect(() => {
+        localDataRef.current = localData;
+        hasChangesRef.current = hasChanges;
+    }, [localData, hasChanges]);
 
     const onSaveRef = useRef(onSave);
     useEffect(() => {
@@ -416,20 +425,31 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
     }, [data, lastSavedData]);
 
     useEffect(() => {
+        if (!hasChanges) return;
+
         setSaveStatus('saving');
         const timer = setTimeout(async () => {
             const newData = { ...localData, ultimaAtualizacao: new Date().toISOString() };
             const result = await onSaveRef.current(newData);
             if (result && result.success) {
                 setLastSavedData(JSON.stringify(newData));
+                setHasChanges(false);
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 2000);
             } else {
                 setSaveStatus('idle');
             }
-        }, 2500); 
-        return () => clearTimeout(timer);
-    }, [localData]);
+        }, 1500); 
+
+        return () => {
+            clearTimeout(timer);
+            if (hasChangesRef.current) {
+                // Força salvamento ao sair se houver alterações pendentes
+                const finalData = { ...localDataRef.current, ultimaAtualizacao: new Date().toISOString() };
+                onSaveRef.current(finalData);
+            }
+        };
+    }, [localData, hasChanges]);
 
     const updateCondo = (index: number, field: keyof CondominioData, value: any) => {
         setLocalData(prev => {
@@ -450,6 +470,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             }
             
             newList[index] = updatedCondo;
+            setHasChanges(true);
             return { ...prev, condominios: newList };
         });
     };
@@ -463,7 +484,8 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             inssRetido: 0,
             receitaLiquida: 0
         };
-        setLocalData({ ...localData, condominios: [newCondo, ...localData.condominios] });
+        setLocalData(prev => ({ ...prev, condominios: [newCondo, ...prev.condominios] }));
+        setHasChanges(true);
     };
 
     const removeCondo = (id: string) => {
@@ -471,6 +493,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             ...prev,
             condominios: prev.condominios.map(c => c.id === id ? { ...c, deleted: true } : c)
         }));
+        setHasChanges(true);
     };
 
     const restoreCondo = (id: string) => {
@@ -478,6 +501,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             ...prev,
             condominios: prev.condominios.map(c => c.id === id ? { ...c, deleted: false } : c)
         }));
+        setHasChanges(true);
     };
 
     const permanentRemoveCondo = (id: string) => {
@@ -486,6 +510,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
             ...prev,
             condominios: prev.condominios.filter(c => c.id !== id)
         }));
+        setHasChanges(true);
     };
 
     const calcCondoProfit = (condo: CondominioData) => {
