@@ -52,6 +52,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     // Ignora a primeira renderização para não disparar save à toa
     const isFirstRender = useRef(true);
+    const localMonthRef = useRef(localMonth);
+    const hasChangesRef = useRef(hasChanges);
+
+    useEffect(() => {
+        localMonthRef.current = localMonth;
+        hasChangesRef.current = hasChanges;
+    }, [localMonth, hasChanges]);
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -89,9 +96,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             setHasChanges(false);
             setSaveStatus('saved');
             setTimeout(() => setSaveStatus('idle'), 2000);
-        }, 1500);
+        }, 1000);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            if (hasChangesRef.current) {
+                // Força salvamento ao sair se houver alterações pendentes
+                onSaveRef.current(localMonthRef.current);
+            }
+        };
     }, [localMonth, hasChanges]);
 
     const updateHistory = (newState: MonthlyFinanceData) => {
