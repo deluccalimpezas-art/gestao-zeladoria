@@ -397,7 +397,7 @@ export function ProposalGeneratorView() {
                                     </ul>
                                 </div>
 
-                                <div className="bg-amber-50 p-4 border-l-4 border-amber-400 text-xs italic text-slate-700 mt-4 rounded-r-lg">
+                                <div className="bg-amber-50 p-4 border-l-4 border-amber-400 text-xs italic text-slate-700 mt-16 rounded-r-lg">
                                     <span className="font-bold block mb-1">Observação:</span>
                                     Este orçamento contempla apenas a prestação de serviços, não incluindo materiais de limpeza ou equipamentos.
                                 </div>
