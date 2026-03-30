@@ -388,7 +388,8 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
                     cnpj: c.cnpj,
                     valorCobrado: c.valorCobrado,
                     pago: false,
-                    condominioId: c.condominioId
+                    condominioId: c.condominioId,
+                    observacao: c.observacao
                 }))
             });
         }
@@ -403,7 +404,8 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
                     valorPago: f.valorPago,
                     horasExtras: f.horasExtras,
                     statusClt: f.statusClt,
-                    funcionarioId: f.funcionarioId
+                    funcionarioId: f.funcionarioId,
+                    observacao: f.observacao
                 }))
             });
         }
@@ -414,7 +416,8 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
                     monthId: newMonth.id,
                     nome: i.nome,
                     valor: i.valor,
-                    pago: false
+                    pago: false,
+                    observacao: i.observacao
                 }))
             });
         }
@@ -461,7 +464,8 @@ export async function saveFinanceMonth(data: any) {
                         cnpj: c.cnpj,
                         valorCobrado: c.receitaBruta || 0,
                         pago: c.pagamentoFeito || false,
-                        condominioId: c.condominioId
+                        condominioId: c.condominioId,
+                        observacao: c.observacao
                     },
                     create: {
                         id: c.id.length > 20 ? c.id : undefined,
@@ -470,7 +474,8 @@ export async function saveFinanceMonth(data: any) {
                         cnpj: c.cnpj,
                         valorCobrado: c.receitaBruta || 0,
                         pago: c.pagamentoFeito || false,
-                        condominioId: c.condominioId
+                        condominioId: c.condominioId,
+                        observacao: c.observacao
                     }
                 });
             }
@@ -496,7 +501,8 @@ export async function saveFinanceMonth(data: any) {
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
-                        funcionarioId: f.funcionarioId
+                        funcionarioId: f.funcionarioId,
+                        observacao: f.observacao
                     },
                     create: {
                         id: f.id.length > 20 ? f.id : undefined,
@@ -507,7 +513,8 @@ export async function saveFinanceMonth(data: any) {
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
-                        funcionarioId: f.funcionarioId
+                        funcionarioId: f.funcionarioId,
+                        observacao: f.observacao
                     }
                 });
             }
@@ -529,14 +536,16 @@ export async function saveFinanceMonth(data: any) {
                     update: {
                         nome: i.nome,
                         valor: i.valor || 0,
-                        pago: i.pago || false
+                        pago: i.pago || false,
+                        observacao: i.observacao
                     },
                     create: {
                         id: i.id.length > 20 ? i.id : undefined,
                         monthId: id,
                         nome: i.nome,
                         valor: i.valor || 0,
-                        pago: i.pago || false
+                        pago: i.pago || false,
+                        observacao: i.observacao
                     }
                 });
             }

@@ -69,6 +69,7 @@ model MonthlyCondominio {
   condominioId String?
   cnpj         String?
   nome         String
+  observacao   String?
   condominio   Condominio?  @relation(fields: [condominioId], references: [id])
   month        FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
@@ -84,6 +85,7 @@ model MonthlyFuncionario {
   nome          String
   salarioBase   Float        @default(0)
   statusClt     String?
+  observacao    String?
   funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
   month         FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
@@ -102,6 +104,7 @@ model MonthlyImposto {
   nome    String
   valor   Float
   pago    Boolean      @default(false)
+  observacao String?
   monthId String
   month   FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }
