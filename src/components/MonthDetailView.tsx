@@ -904,7 +904,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-6">
                                     <div className="flex items-center gap-4">
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bruto Total</p>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
+                                                Bruto Total <span className="bg-slate-800 px-1.5 py-0.5 rounded text-blue-400 font-bold">{sortedCondos.length}</span>
+                                            </p>
                                             <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.bruto)}</p>
                                         </div>
                                         <div className="h-8 w-px bg-slate-700"></div>
@@ -1117,12 +1119,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-6">
                                 <div className="flex items-center gap-4">
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Custo Gestão</p>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
+                                            Custo Gestão <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.gestaoCount}</span>
+                                        </p>
                                         <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.gestaoTotal)}</p>
                                     </div>
                                     <div className="h-8 w-px bg-slate-700"></div>
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Custo Operacional</p>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
+                                            Custo Operacional <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.operacionalCount}</span>
+                                        </p>
                                         <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.operacionalTotal)}</p>
                                     </div>
                                     <div className="h-8 w-px bg-slate-700"></div>
