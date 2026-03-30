@@ -280,7 +280,7 @@ export function ProposalGeneratorView() {
                 <div className="lg:col-span-8 overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 no-print-bg">
                     <div 
                         id="printable-proposal"
-                        className="bg-white text-black p-[15mm] min-h-[297mm] shadow-inner font-serif leading-[1.6] print-shadow-none"
+                        className="bg-white text-black p-[15mm] min-h-[297mm] shadow-inner font-sans leading-[1.6] print-shadow-none"
                         style={{ width: '210mm', margin: '0 auto' }}
                     >
                         {isManualMode ? (
@@ -447,6 +447,7 @@ export function ProposalGeneratorView() {
                         visibility: visible;
                     }
                     #printable-proposal {
+                        font-family: Arial, sans-serif !important;
                         position: absolute;
                         left: 0;
                         right: 0;
