@@ -853,7 +853,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                                     <SummaryCard title="Cnd. (Bruto)" value={currentTotals.bruto} color="text-blue-400" icon={<Building2 className="w-4 h-4" />} />
                                     <SummaryCard title="Funcionários" value={currentTotals.salarios} color="text-red-400" icon={<Users className="w-4 h-4" />} />
-                                    <SummaryCard title="Impostos" value={currentTotals.impostos} color="text-red-400" icon={<ShieldCheck className="w-4 h-4" />} />
+                                    <SummaryCard title="Impostos (+ INSS)" value={currentTotals.impostos + currentTotals.inss} color="text-red-400" icon={<ShieldCheck className="w-4 h-4" />} />
                                     <SummaryCard title="Rescisões/Férias" value={currentTotals.rescisoes} color="text-red-400" icon={<UserMinus className="w-4 h-4" />} />
                                     <SummaryCard title="Outros Gastos" value={currentTotals.gastos} color="text-red-400" icon={<FileText className="w-4 h-4" />} />
                                     <SummaryCard title="Lucro Líquido" value={lucroCalculado} color="text-emerald-400" icon={<TrendingUp className="w-4 h-4" />} />
