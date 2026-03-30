@@ -1925,12 +1925,12 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
 function SummaryCard({ title, value, color = "text-white", icon }: { title: string, value: string | number, color?: string, icon?: React.ReactNode }) {
     const displayValue = typeof value === 'number' ? formatCurrency(value) : value;
     return (
-        <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-col gap-3 group hover:border-indigo-500/30 transition-all">
-            <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</span>
-                {icon && <div className={`${color} opacity-40 group-hover:opacity-100 transition-opacity`}>{icon}</div>}
+        <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-4 rounded-2xl flex flex-col gap-2 group hover:border-indigo-500/30 transition-all min-w-0">
+            <div className="flex items-center justify-between gap-2 overflow-hidden">
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest truncate">{title}</span>
+                {icon && <div className={`${color} opacity-40 group-hover:opacity-100 transition-opacity shrink-0`}>{icon}</div>}
             </div>
-            <p className={`text-2xl font-black ${color}`}>{displayValue}</p>
+            <p className={`text-lg sm:text-xl font-black ${color} truncate`} title={displayValue.toString()}>{displayValue}</p>
         </div>
     );
 }
