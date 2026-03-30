@@ -402,7 +402,7 @@ export function ProposalGeneratorView() {
                                     Este orçamento contempla apenas a prestação de serviços, não incluindo materiais de limpeza ou equipamentos.
                                 </div>
 
-                                <div className="page-break-container pt-8">
+                                <div className="pt-8">
                                     <div className="space-y-2">
                                         <h3 className="font-bold uppercase tracking-widest text-[10px] text-slate-400">Validade da Proposta</h3>
                                         <p className="text-sm font-bold text-slate-800">Esta proposta possui validade de 30 (trinta) dias.</p>
@@ -459,9 +459,6 @@ export function ProposalGeneratorView() {
                         box-shadow: none !important;
                         border: none !important;
                     }
-                    .page-break-container {
-                        break-before: page;
-                        page-break-before: always;
                     }
                 }
                 .no-print-bg {
