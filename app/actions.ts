@@ -442,72 +442,102 @@ export async function saveFinanceMonth(data: any) {
         const { id, condominios, funcionarios, impostos, gastos } = data;
 
         // Upsert Condos
-        for (const c of condominios) {
-            await (prisma.monthlyCondominio as any).upsert({
-                where: { id: c.id.length > 20 ? c.id : '00000000-0000-0000-0000-000000000000' },
-                update: {
-                    nome: c.nome,
-                    cnpj: c.cnpj,
-                    valorCobrado: c.receitaBruta || 0,
-                    pago: c.pagamentoFeito || false,
-                    condominioId: c.condominioId
-                },
-                create: {
-                    id: c.id.length > 20 ? c.id : undefined,
+        if (condominios && Array.isArray(condominios)) {
+            const incomingIds = condominios.map((c: any) => c.id).filter((id: string) => id && id.length > 20);
+            await (prisma.monthlyCondominio as any).deleteMany({
+                where: {
                     monthId: id,
-                    nome: c.nome,
-                    cnpj: c.cnpj,
-                    valorCobrado: c.receitaBruta || 0,
-                    pago: c.pagamentoFeito || false,
-                    condominioId: c.condominioId
+                    id: { notIn: incomingIds }
                 }
             });
+
+            for (const c of condominios) {
+                await (prisma.monthlyCondominio as any).upsert({
+                    where: { id: c.id.length > 20 ? c.id : '00000000-0000-0000-0000-000000000000' },
+                    update: {
+                        nome: c.nome,
+                        cnpj: c.cnpj,
+                        valorCobrado: c.receitaBruta || 0,
+                        pago: c.pagamentoFeito || false,
+                        condominioId: c.condominioId
+                    },
+                    create: {
+                        id: c.id.length > 20 ? c.id : undefined,
+                        monthId: id,
+                        nome: c.nome,
+                        cnpj: c.cnpj,
+                        valorCobrado: c.receitaBruta || 0,
+                        pago: c.pagamentoFeito || false,
+                        condominioId: c.condominioId
+                    }
+                });
+            }
         }
 
         // Upsert Funcs
-        for (const f of funcionarios) {
-            await (prisma.monthlyFuncionario as any).upsert({
-                where: { id: f.id.length > 20 ? f.id : '00000000-0000-0000-0000-000000000000' },
-                update: {
-                    nome: f.nome,
-                    condominio: f.condominio,
-                    valorPago: f.salario || 0,
-                    horasExtras: f.horasExtras || 0,
-                    rescisaoFerias: f.rescisaoFerias || 0,
-                    statusClt: f.statusClt,
-                    funcionarioId: f.funcionarioId
-                },
-                create: {
-                    id: f.id.length > 20 ? f.id : undefined,
+        if (funcionarios && Array.isArray(funcionarios)) {
+            const incomingIds = funcionarios.map((f: any) => f.id).filter((id: string) => id && id.length > 20);
+            await (prisma.monthlyFuncionario as any).deleteMany({
+                where: {
                     monthId: id,
-                    nome: f.nome,
-                    condominio: f.condominio,
-                    valorPago: f.salario || 0,
-                    horasExtras: f.horasExtras || 0,
-                    rescisaoFerias: f.rescisaoFerias || 0,
-                    statusClt: f.statusClt,
-                    funcionarioId: f.funcionarioId
+                    id: { notIn: incomingIds }
                 }
             });
+
+            for (const f of funcionarios) {
+                await (prisma.monthlyFuncionario as any).upsert({
+                    where: { id: f.id.length > 20 ? f.id : '00000000-0000-0000-0000-000000000000' },
+                    update: {
+                        nome: f.nome,
+                        condominio: f.condominio,
+                        valorPago: f.salario || 0,
+                        horasExtras: f.horasExtras || 0,
+                        rescisaoFerias: f.rescisaoFerias || 0,
+                        statusClt: f.statusClt,
+                        funcionarioId: f.funcionarioId
+                    },
+                    create: {
+                        id: f.id.length > 20 ? f.id : undefined,
+                        monthId: id,
+                        nome: f.nome,
+                        condominio: f.condominio,
+                        valorPago: f.salario || 0,
+                        horasExtras: f.horasExtras || 0,
+                        rescisaoFerias: f.rescisaoFerias || 0,
+                        statusClt: f.statusClt,
+                        funcionarioId: f.funcionarioId
+                    }
+                });
+            }
         }
 
         // Upsert Impostos
-        for (const i of impostos) {
-            await (prisma.monthlyImposto as any).upsert({
-                where: { id: i.id.length > 20 ? i.id : '00000000-0000-0000-0000-000000000000' },
-                update: {
-                    nome: i.nome,
-                    valor: i.valor || 0,
-                    pago: i.pago || false
-                },
-                create: {
-                    id: i.id.length > 20 ? i.id : undefined,
+        if (impostos && Array.isArray(impostos)) {
+            const incomingIds = impostos.map((i: any) => i.id).filter((id: string) => id && id.length > 20);
+            await (prisma.monthlyImposto as any).deleteMany({
+                where: {
                     monthId: id,
-                    nome: i.nome,
-                    valor: i.valor || 0,
-                    pago: i.pago || false
+                    id: { notIn: incomingIds }
                 }
             });
+
+            for (const i of impostos) {
+                await (prisma.monthlyImposto as any).upsert({
+                    where: { id: i.id.length > 20 ? i.id : '00000000-0000-0000-0000-000000000000' },
+                    update: {
+                        nome: i.nome,
+                        valor: i.valor || 0,
+                        pago: i.pago || false
+                    },
+                    create: {
+                        id: i.id.length > 20 ? i.id : undefined,
+                        monthId: id,
+                        nome: i.nome,
+                        valor: i.valor || 0,
+                        pago: i.pago || false
+                    }
+                });
+            }
         }
 
         // Upsert Gastos
