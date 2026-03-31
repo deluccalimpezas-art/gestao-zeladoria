@@ -4,6 +4,7 @@ import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, 
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
 import NFDraftGenerator from './NFDraftGenerator';
+import { PaymentGeneratorView } from './PaymentGeneratorView';
 
 interface MonthDetailViewProps {
     month: MonthlyFinanceData;
@@ -32,6 +33,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const handleOpenFullNF = (condoName: string) => {
         setFullNfGeneratorCondoName(condoName);
         setIsFullNfGeneratorOpen(true);
+    };
+
+    const [isFullPayrollGeneratorOpen, setIsFullPayrollGeneratorOpen] = useState(false);
+    const [fullPayrollGeneratorEmployeeId, setFullPayrollGeneratorEmployeeId] = useState<string | null>(null);
+
+    const handleOpenFullPayroll = (employeeId: string) => {
+        setFullPayrollGeneratorEmployeeId(employeeId);
+        setIsFullPayrollGeneratorOpen(true);
     };
 
     const [hasChanges, setHasChanges] = useState(false);
@@ -782,6 +791,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         textColor="text-blue-400"
                         width="w-28"
                     />
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => handleOpenFullPayroll(func.id)}
+                        className="p-1.5 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-lg transition-all"
+                        title="Gerar Holerite Completo"
+                    >
+                        <Wallet className="w-3.5 h-3.5" />
+                    </button>
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
@@ -2032,6 +2050,27 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             if (idx === 11) year += 1; // December -> January of next year
                             return year;
                         })()}
+                    />
+                </div>
+            </Modal>
+
+            {/* Modal Gerador de Holerites Completo */}
+            <Modal
+                isOpen={isFullPayrollGeneratorOpen}
+                onClose={() => setIsFullPayrollGeneratorOpen(false)}
+                title={`Gerador de Holerites - ${localMonth.monthName}`}
+                maxWidth="6xl"
+            >
+                <div className="bg-slate-900 rounded-xl overflow-hidden min-h-[80vh]">
+                    <PaymentGeneratorView
+                        employees={localMonth.funcionarios || []}
+                        initialEmployeeId={fullPayrollGeneratorEmployeeId}
+                        initialMonth={(() => {
+                            const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                            const mName = localMonth.monthName.split(' ')[0];
+                            return monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase()) + 1;
+                        })()}
+                        initialYear={parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear()}
                     />
                 </div>
             </Modal>

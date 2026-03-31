@@ -6,6 +6,9 @@ import { getMonthlyFinanceByMonth, updateMonthlyFuncionario } from '../../app/ac
 
 interface PaymentGeneratorViewProps {
     employees: FuncionarioData[];
+    initialEmployeeId?: string | null;
+    initialMonth?: number;
+    initialYear?: number;
 }
 
 interface PaymentRecord extends FuncionarioData {
@@ -16,12 +19,17 @@ interface PaymentRecord extends FuncionarioData {
     totalLiquido: number;
 }
 
-export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
+export function PaymentGeneratorView({ 
+    employees, 
+    initialEmployeeId = null,
+    initialMonth = new Date().getMonth() + 1,
+    initialYear = new Date().getFullYear()
+}: PaymentGeneratorViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployeeId);
     const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
-    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(initialMonth);
+    const [selectedYear, setSelectedYear] = useState<number>(initialYear);
     const [showHolidays, setShowHolidays] = useState(false);
     const [monthlyFuncs, setMonthlyFuncs] = useState<any[]>([]);
     const [isSavingSync, setIsSavingSync] = useState<string | null>(null);
