@@ -57,27 +57,27 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
     };
 
     return (
-        <div className="bg-slate-800/20 border border-slate-700/30 rounded-[2rem] p-10 shadow-xl relative overflow-hidden backdrop-blur-md animate-in fade-in duration-1000">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 relative z-10">
+        <div className="bg-slate-800/20 border border-slate-700/30 rounded-[1.5rem] p-6 shadow-xl relative overflow-hidden backdrop-blur-md animate-in fade-in duration-1000">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 relative z-10">
                 <div>
-                    <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-2">
-                         Performance Anual (Últimos 12 Meses)
+                    <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-2">
+                         Performance Anual
                     </h2>
                 </div>
                 
-                <div className="flex items-center gap-8 bg-slate-900/40 px-6 py-3 rounded-2xl border border-slate-700/50">
-                    <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Faturamento</span>
+                <div className="flex items-center gap-6 bg-slate-900/40 px-4 py-2 rounded-xl border border-slate-700/50">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Faturamento</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#14b8a6] shadow-[0_0_10px_rgba(20,184,166,0.5)]"></div>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Lucro</span>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#14b8a6] shadow-[0_0_8px_rgba(20,184,166,0.5)]"></div>
+                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Lucro</span>
                     </div>
                 </div>
             </div>
 
-            <div className="h-72 w-full relative group px-2">
+            <div className="h-48 w-full relative group px-2">
                 <div className="absolute -left-6 top-0 bottom-0 flex flex-col justify-between py-5 text-[9px] font-black text-slate-600 uppercase tracking-tighter">
                     <span>{formatShortCurrency(maxVal)}</span>
                     <span>{formatShortCurrency(minVal + range * 0.75)}</span>
@@ -147,16 +147,16 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-20 pt-10 border-t border-slate-700/30 relative z-10">
-                <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-700/20 flex flex-col items-center text-center">
-                    <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-2">Faturamento Médio</p>
-                    <p className="text-2xl font-black text-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-700/30 relative z-10">
+                <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/20 flex flex-col items-center text-center">
+                    <p className="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1">Faturamento Médio</p>
+                    <p className="text-lg font-black text-white">
                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(chartData.reduce((acc, d) => acc + d.faturamento, 0) / chartData.length).replace(/\s/g, '')}
                     </p>
                 </div>
-                <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-700/20 flex flex-col items-center text-center backdrop-blur-xl">
-                    <p className="text-[9px] font-black text-teal-400 uppercase tracking-widest mb-2">Lucro Médio</p>
-                    <p className="text-2xl font-black text-white">
+                <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700/20 flex flex-col items-center text-center backdrop-blur-xl">
+                    <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest mb-1">Lucro Médio</p>
+                    <p className="text-lg font-black text-white">
                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(chartData.reduce((acc, d) => acc + d.lucro, 0) / chartData.length).replace(/\s/g, '')}
                     </p>
                 </div>

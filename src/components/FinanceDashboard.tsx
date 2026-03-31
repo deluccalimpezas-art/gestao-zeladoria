@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus } from 'lucide-react';
+import { DollarSign, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus, ArrowUpDown } from 'lucide-react';
 import { MonthlyFinanceChart } from './MonthlyFinanceChart';
 import type { MonthlyFinanceData } from '../modelsFinance';
 import dynamic from 'next/dynamic';
@@ -20,6 +20,22 @@ interface FinanceDashboardProps {
 
 export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase }: FinanceDashboardProps) {
     const [selectedMonth, setSelectedMonth] = useState<MonthlyFinanceData | null>(null);
+    const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+
+    const monthsInPt = React.useMemo(() => [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ], []);
+
+    const sortedMonths = React.useMemo(() => {
+        return [...monthsData].sort((a, b) => {
+            const [mA, yA] = a.monthName.split(' ');
+            const [mB, yB] = b.monthName.split(' ');
+            const timeA = new Date(parseInt(yA), monthsInPt.indexOf(mA), 1).getTime();
+            const timeB = new Date(parseInt(yB), monthsInPt.indexOf(mB), 1).getTime();
+            return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+        });
+    }, [monthsData, sortOrder, monthsInPt]);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
@@ -99,9 +115,16 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                     <div className="space-y-6">
                         <div className="flex items-center justify-between px-2">
                              <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Meses Individuais</h3>
+                             <button 
+                                onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                                className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700/50 transition-all"
+                             >
+                                <ArrowUpDown className="w-3 h-3" />
+                                {sortOrder === 'desc' ? 'Mais Recentes' : 'Mais Antigos'}
+                             </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {monthsData.map((month, idx) => {
+                            {sortedMonths.map((month, idx) => {
                                 const totalSaida = (month.totalSalarios || 0) + (month.totalImpostos || 0) + (month.totalGastos || 0) + (month.totalRescisao || 0);
                                 const lucro = month.lucroEstimado ?? (month.receitaLiquida - totalSaida);
 
