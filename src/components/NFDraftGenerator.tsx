@@ -187,47 +187,48 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                         <FileText className="w-6 h-6 text-amber-400" />
                         Gerador de Nota Fiscal
                     </h1>
-                    <p className="text-slate-400 text-sm mt-1">Selecione o condomínio e o mês para gerar a NF e o e-mail automaticamente.</p>
+                    <div className="flex items-center gap-4 mt-1">
+                        <p className="text-slate-400 text-sm">Selecione o condomínio e o mês para gerar a NF e o e-mail automaticamente.</p>
+                        
+                        {/* Holidays Display Popover - Moved here to not shift selectors */}
+                        {holidays.length > 0 && (
+                            <div className="relative">
+                                <button 
+                                    onClick={() => setShowHolidays(!showHolidays)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all shadow-lg shrink-0 ${showHolidays ? 'bg-amber-500 text-slate-900 border-amber-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'}`}
+                                >
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{holidays.length} Feriados</span>
+                                    <ChevronDown className={`w-3 h-3 transition-transform ${showHolidays ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {showHolidays && (
+                                    <>
+                                        <div className="fixed inset-0 z-10" onClick={() => setShowHolidays(false)} />
+                                        <div className="absolute top-full mt-2 left-0 z-20 bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl min-w-[240px] animate-in zoom-in-95 fade-in duration-200">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2 flex items-center gap-2">
+                                                <Calendar className="w-3.5 h-3.5" /> Feriados {MONTHS[selectedMonth-1]}
+                                            </p>
+                                            <div className="space-y-3">
+                                                {holidays.map((h, i) => (
+                                                    <div key={i} className="flex items-center gap-3">
+                                                        <div className="bg-amber-500 text-slate-950 font-black text-[11px] w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                                            {h.day}
+                                                        </div>
+                                                        <span className="text-xs text-slate-200 font-bold uppercase tracking-tight">{h.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Selectors */}
                 <div className="flex flex-wrap items-center gap-3">
-                    {/* Holidays Display Popover */}
-                    {holidays.length > 0 && (
-                        <div className="relative">
-                            <button 
-                                onClick={() => setShowHolidays(!showHolidays)}
-                                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all shadow-lg ${showHolidays ? 'bg-amber-500 text-slate-900 border-amber-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'}`}
-                                title="Ver feriados do mês"
-                            >
-                                <Calendar className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Feriados {holidays.length}</span>
-                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showHolidays ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {showHolidays && (
-                                <>
-                                    <div className="fixed inset-0 z-10" onClick={() => setShowHolidays(false)} />
-                                    <div className="absolute top-full mt-2 left-0 z-20 bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl min-w-[240px] animate-in zoom-in-95 fade-in duration-200">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2 flex items-center gap-2">
-                                            <Calendar className="w-3.5 h-3.5" /> Feriados {MONTHS[selectedMonth-1]}
-                                        </p>
-                                        <div className="space-y-3">
-                                            {holidays.map((h, i) => (
-                                                <div key={i} className="flex items-center gap-3">
-                                                    <div className="bg-amber-500 text-slate-950 font-black text-[11px] w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                                                        {h.day}
-                                                    </div>
-                                                    <span className="text-xs text-slate-200 font-bold uppercase tracking-tight">{h.name}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    )}
-
                     <div className="relative">
                         <select
                             className="appearance-none bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 outline-none min-w-[220px]"
