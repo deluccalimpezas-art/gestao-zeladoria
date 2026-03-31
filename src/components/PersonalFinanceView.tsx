@@ -68,8 +68,25 @@ export function PersonalFinanceView() {
     const [data, setData] = useState<PersonalFinanceMonthData | null>(null);
     const [cards, setCards] = useState<PersonalCreditCard[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(1);
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedMonth = localStorage.getItem('personalFinanceMonth');
+            const savedYear = localStorage.getItem('personalFinanceYear');
+            if (savedMonth) setSelectedMonth(parseInt(savedMonth));
+            else setSelectedMonth(new Date().getMonth() + 1);
+            if (savedYear) setSelectedYear(parseInt(savedYear));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && selectedMonth && selectedYear) {
+            localStorage.setItem('personalFinanceMonth', selectedMonth.toString());
+            localStorage.setItem('personalFinanceYear', selectedYear.toString());
+        }
+    }, [selectedMonth, selectedYear]);
     
     // UI States
     const [searchTerm, setSearchTerm] = useState('');
