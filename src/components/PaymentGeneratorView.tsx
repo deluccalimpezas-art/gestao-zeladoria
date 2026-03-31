@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { FileText, Printer, Users, Wallet, Calendar, AlertCircle, Building2, Search } from 'lucide-react';
+import { FileText, Printer, Users, Wallet, Calendar, AlertCircle, Building2, Search, ChevronDown } from 'lucide-react';
 import type { FuncionarioData } from '../modelsFinance';
+import { MONTHS, getHolidays } from '@/lib/holidayUtils';
 
 interface PaymentGeneratorViewProps {
     employees: FuncionarioData[];
@@ -18,6 +19,11 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
+    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+    const [selectedYear] = useState<number>(new Date().getFullYear());
+    const [showHolidays, setShowHolidays] = useState(false);
+
+    const holidays = getHolidays(selectedMonth, selectedYear);
 
     const filteredEmployees = useMemo(() => {
         return employees
@@ -103,9 +109,8 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
         if (!selectedEmployeeRecord) return;
         
         const originalTitle = document.title;
-        const now = new Date();
-        const month = now.toLocaleDateString('pt-BR', { month: 'long' });
-        const year = now.getFullYear();
+        const month = MONTHS[selectedMonth - 1];
+        const year = selectedYear;
         const formattedMonth = month.charAt(0).toUpperCase() + month.slice(1);
         
         document.title = `Recibo de pagamento de salario ${selectedEmployeeRecord.nome} ${formattedMonth} ${year}`;
@@ -120,13 +125,66 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     return (
         <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl flex items-center justify-between no-print">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-end justify-between gap-6 no-print">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Wallet className="w-8 h-8 text-indigo-400" />
-                        Gerador de Holerites
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <Wallet className="w-8 h-8 text-indigo-400" />
+                            Gerador de Holerites
+                        </div>
+                        
+                        {/* Holidays Display Popover */}
+                        {holidays.length > 0 && (
+                            <div className="relative">
+                                <button 
+                                    onClick={() => setShowHolidays(!showHolidays)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all shadow-lg shrink-0 ${showHolidays ? 'bg-amber-500 text-slate-900 border-amber-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'}`}
+                                >
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{holidays.length} Feriados</span>
+                                    <ChevronDown className={`w-3 h-3 transition-transform ${showHolidays ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {showHolidays && (
+                                    <>
+                                        <div className="fixed inset-0 z-10" onClick={() => setShowHolidays(false)} />
+                                        <div className="absolute top-full mt-2 left-0 z-20 bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl min-w-[240px] animate-in zoom-in-95 fade-in duration-200">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2 flex items-center gap-2">
+                                                <Calendar className="w-3.5 h-3.5" /> Feriados {MONTHS[selectedMonth-1]}
+                                            </p>
+                                            <div className="space-y-3">
+                                                {holidays.map((h, i) => (
+                                                    <div key={i} className="flex items-center gap-3">
+                                                        <div className="bg-amber-500 text-slate-950 font-black text-[11px] w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                                            {h.day}
+                                                        </div>
+                                                        <span className="text-xs text-slate-200 font-bold uppercase tracking-tight">{h.name}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </h1>
                     <p className="text-slate-400 text-sm mt-1">Gere recibos de pagamento com cálculo automático de faltas.</p>
+                </div>
+
+                {/* Month/Year Selectors */}
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <select
+                            className="appearance-none bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                        >
+                            {MONTHS.map((m, i) => (
+                                <option key={i + 1} value={i + 1}>{m}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    </div>
                 </div>
             </div>
 
@@ -259,7 +317,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-bold text-slate-500 mb-1">RECIBO DE PAGAMENTO DE SALÁRIO</p>
-                                            <p className="text-xs font-bold uppercase">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</p>
+                                            <p className="text-xs font-bold uppercase">{MONTHS[selectedMonth-1]} DE {selectedYear}</p>
                                         </div>
                                     </div>
 
@@ -375,7 +433,7 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                 <div className="text-right">
                                     <div className="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
                                         <p className="text-[7px] font-bold text-slate-500 uppercase tracking-widest leading-none">Mês de Referência</p>
-                                        <p className="text-[10px] font-black">{new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</p>
+                                        <p className="text-[10px] font-black">{MONTHS[selectedMonth-1].toUpperCase()} / {selectedYear}</p>
                                     </div>
                                     <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">Recibo de Pagamento de Salário</p>
                                 </div>
