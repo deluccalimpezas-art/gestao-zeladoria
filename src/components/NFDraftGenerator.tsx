@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FileText, Copy, Check, Briefcase, Mail, DollarSign, ChevronDown } from 'lucide-react';
+import { FileText, Copy, Check, Briefcase, Mail, DollarSign, ChevronDown, Calendar } from 'lucide-react';
 import { CondominioData } from '@/modelsFinance';
 
 interface NFDraftGeneratorProps {
@@ -37,10 +37,80 @@ const MONTHS = [
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
+const getEaster = (year: number) => {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+};
+
+const getHolidays = (month: number, year: number) => {
+    const holidays: { day: number, name: string }[] = [];
+    
+    // Fixed holidays
+    const fixed: Record<number, string>[] = [
+        {}, // dummy
+        { 1: "Ano Novo" }, // Jan
+        {}, // Feb
+        {}, // Mar
+        { 21: "Tiradentes" }, // Apr
+        { 1: "Dia do Trabalho" }, // May
+        {}, // Jun
+        { 9: "Revolução Constitucionalista (SP)" }, // Jul (Optional, but often relevant)
+        {}, // Aug
+        { 7: "Independência do Brasil" }, // Sep
+        { 12: "Nossa Sra. Aparecida" }, // Oct
+        { 2: "Finados", 15: "Proclamação da República", 20: "Consciência Negra" }, // Nov
+        { 25: "Natal" } // Dec
+    ];
+
+    if (fixed[month]) {
+        Object.entries(fixed[month]).forEach(([day, name]) => {
+            holidays.push({ day: parseInt(day), name });
+        });
+    }
+
+    // Movable holidays
+    const easter = getEaster(year);
+    
+    const addMovable = (date: Date, name: string) => {
+        if (date.getMonth() + 1 === month) {
+            holidays.push({ day: date.getDate(), name });
+        }
+    };
+
+    const goodFriday = new Date(easter);
+    goodFriday.setDate(easter.getDate() - 2);
+    addMovable(goodFriday, "Sexta-feira Santa");
+
+    const carnival = new Date(easter);
+    carnival.setDate(easter.getDate() - 47);
+    addMovable(carnival, "Carnaval");
+
+    const corpusChristi = new Date(easter);
+    corpusChristi.setDate(easter.getDate() + 60);
+    addMovable(corpusChristi, "Corpus Christi");
+
+    return holidays.sort((a, b) => a.day - b.day);
+};
+
 const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const [selectedCondoId, setSelectedCondoId] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
     const [selectedYear] = useState<number>(new Date().getFullYear());
+
+    const holidays = getHolidays(selectedMonth, selectedYear);
 
     // NF values
     const [valorBruto, setValorBruto] = useState<number>(0);
@@ -120,7 +190,22 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                 </div>
 
                 {/* Selectors */}
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                    {/* Holidays Display */}
+                    {holidays.length > 0 && (
+                        <div className="flex items-center gap-2 mr-4 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
+                            <Calendar className="w-4 h-4 text-amber-400" />
+                            <div className="flex gap-2">
+                                {holidays.map((h, i) => (
+                                    <div key={i} className="flex flex-col">
+                                        <span className="text-[10px] font-black text-amber-500 leading-none">DIA {h.day}</span>
+                                        <span className="text-[9px] text-amber-200 uppercase font-medium leading-none">{h.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="relative">
                         <select
                             className="appearance-none bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-white text-sm focus:ring-2 focus:ring-amber-500 outline-none min-w-[220px]"
