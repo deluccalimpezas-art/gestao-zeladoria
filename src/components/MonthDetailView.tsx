@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -904,13 +904,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                     <Wallet className="w-5 h-5 text-emerald-400" /> Resumo Estratégico
                                 </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                    <SummaryCard title="Cnd. (Bruto)" value={currentTotals.bruto} color="text-blue-400" icon={<Building2 className="w-4 h-4" />} />
-                                    <SummaryCard title="Funcionários" value={currentTotals.salarios} color="text-red-400" icon={<Users className="w-4 h-4" />} />
-                                    <SummaryCard title="Impostos (+ INSS)" value={currentTotals.impostos + currentTotals.inss} color="text-red-400" icon={<ShieldCheck className="w-4 h-4" />} />
-                                    <SummaryCard title="Rescisões/Férias" value={currentTotals.rescisoes} color="text-red-400" icon={<UserMinus className="w-4 h-4" />} />
-                                    <SummaryCard title="Outros Gastos" value={currentTotals.gastos} color="text-red-400" icon={<FileText className="w-4 h-4" />} />
-                                    <SummaryCard title="Lucro Líquido" value={lucroCalculado} color="text-emerald-400" icon={<TrendingUp className="w-4 h-4" />} />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <SummaryCard title="Entrada" value={currentTotals.bruto} color="text-blue-400" icon={<ArrowUpCircle className="w-4 h-4" />} />
+                                    <SummaryCard title="Saída" value={currentTotals.inss + currentTotals.salarios + currentTotals.impostos + currentTotals.gastos} color="text-red-400" icon={<ArrowDownCircle className="w-4 h-4" />} />
+                                    <SummaryCard title="Lucro" value={lucroCalculado} color={lucroCalculado >= 0 ? "text-emerald-400" : "text-rose-500"} icon={<TrendingUp className="w-4 h-4" />} />
                                 </div>
                             </section>
 
