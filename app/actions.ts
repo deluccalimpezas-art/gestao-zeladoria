@@ -170,7 +170,8 @@ export async function upsertFuncionario(data: any) {
                 condominioNome: (condominio || '').toString(),
                 deleted: deleted ?? false,
                 contratoPdf: contratoPdf ? Buffer.from(contratoPdf.split(',')[1] || contratoPdf, 'base64') : undefined,
-                contratoNome: contratoNome || undefined
+                contratoNome: contratoNome || undefined,
+                observacao
             },
         });
         return { success: true, data: result };
@@ -231,7 +232,8 @@ export async function getFinanceMonths() {
                 receitaLiquida: (mc.valorCobrado || 0) * 0.89,
                 pagamentoFeito: mc.pago,
                 valorContrato: mc.valorCobrado || 0,
-                condominioId: mc.condominioId || undefined
+                condominioId: mc.condominioId || undefined,
+                observacao: mc.observacao || ''
             }));
 
             const mappedFuncs = m.funcionarios.map((mf: any) => ({
@@ -244,7 +246,8 @@ export async function getFinanceMonths() {
                 statusClt: mf.statusClt,
                 salarioBase: mf.salarioBase || 0,
                 rescisaoFerias: mf.rescisaoFerias || 0,
-                funcionarioId: mf.funcionarioId || undefined
+                funcionarioId: mf.funcionarioId || undefined,
+                observacao: mf.observacao || ''
             }));
 
             const mappedGastos = m.gastos.map((mg: any) => ({
@@ -318,7 +321,8 @@ export async function createFinanceMonth(nome: string) {
                         nome: c.nome,
                         cnpj: c.cnpj,
                         valorCobrado: c.valorContrato || 0,
-                        condominioId: c.id
+                        condominioId: c.id,
+                        observacao: c.observacao || ''
                     }))
                 });
             }
@@ -338,7 +342,8 @@ export async function createFinanceMonth(nome: string) {
                         valorPago: (f as any).salarioBase || 0,
                         statusClt: (f as any).statusClt,
                         rescisaoFerias: 0,
-                        funcionarioId: f.id
+                        funcionarioId: f.id,
+                        observacao: (f as any).observacao || ''
                     }))
                 });
             }
@@ -350,7 +355,8 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: i.nome,
                         valor: i.valor || 0,
-                        pago: false
+                        pago: false,
+                        observacao: i.observacao || ''
                     }))
                 });
             }
@@ -1288,17 +1294,18 @@ export async function getRHImpostos() {
 
 export async function upsertRHImposto(data: any) {
     try {
-        const { id, nome, valor, vencimento } = data;
+        const { id, nome, valor, vencimento, observacao } = data;
         const validId = (id && id !== '00000000-0000-0000-0000-000000000000' && id.length > 10) ? id : undefined;
         
         const result = await (prisma as any).rHImposto.upsert({
             where: { id: id || '00000000-0000-0000-0000-000000000000' },
-            update: { nome, valor: parseFloat(valor) || 0, vencimento },
+            update: { nome, valor: parseFloat(valor) || 0, vencimento, observacao },
             create: { 
                 id: validId,
                 nome, 
                 valor: parseFloat(valor) || 0, 
-                vencimento 
+                vencimento,
+                observacao
             }
         });
         return { success: true, data: result };

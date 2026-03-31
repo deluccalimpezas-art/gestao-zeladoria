@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -27,7 +27,37 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('name');
-    const [expandedNoteRows, setExpandedNoteRows] = useState<Set<string>>(new Set());
+    const [noteModal, setNoteModal] = useState<{
+        isOpen: boolean;
+        type: 'condo' | 'func' | 'tax';
+        index: number;
+        title: string;
+        value: string;
+    }>({
+        isOpen: false,
+        type: 'condo',
+        index: 0,
+        title: '',
+        value: ''
+    });
+
+    const openNoteModal = (type: 'condo' | 'func' | 'tax', index: number, title: string, value: string) => {
+        setNoteModal({
+            isOpen: true,
+            type,
+            index,
+            title,
+            value: value || ''
+        });
+    };
+
+    const saveNoteModal = () => {
+        if (noteModal.type === 'condo') updateCondo(noteModal.index, 'observacao', noteModal.value);
+        else if (noteModal.type === 'func') updateFunc(noteModal.index, 'observacao', noteModal.value);
+        else if (noteModal.type === 'tax') updateImposto(noteModal.index, 'observacao', noteModal.value);
+        
+        setNoteModal(prev => ({ ...prev, isOpen: false }));
+    };
     const [isGastoModalOpen, setIsGastoModalOpen] = useState(false);
     const [editingGastoIndex, setEditingGastoIndex] = useState<number | null>(null);
     const [gastoFormData, setGastoFormData] = useState<Partial<MonthlyGastoData>>({
@@ -37,13 +67,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         data: new Date().toISOString().split('T')[0]
     });
 
-    const toggleNoteRow = (key: string) => {
-        setExpandedNoteRows(prev => {
-            const next = new Set(prev);
-            if (next.has(key)) next.delete(key); else next.add(key);
-            return next;
-        });
-    };
+
 
     const onSaveRef = useRef(onSave);
     useEffect(() => {
@@ -571,7 +595,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             return new Date(year, month - 1, day).getTime();
         };
 
-        return [...(localMonth.impostos || [])].sort((a, b) => parseDate(a.vencimento) - parseDate(b.vencimento));
+        return (localMonth.impostos || [])
+            .map((imp, originalIndex) => ({ ...imp, originalIndex }))
+            .sort((a, b) => parseDate(a.vencimento) - parseDate(b.vencimento));
     }, [localMonth.impostos]);
 
     const allNfFeita = useMemo(() => sortedCondos.length > 0 && sortedCondos.every(c => c.nfFeita), [sortedCondos]);
@@ -749,11 +775,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => toggleNoteRow(`func-${func.originalIndex}`)}
-                        className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`func-${func.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (func.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
+                        onClick={() => openNoteModal('func', func.originalIndex, func.nome, func.observacao || '')}
+                        className={`p-1.5 rounded-lg transition-all ${func.observacao ? 'text-amber-400 bg-amber-400/10 shadow-sm border border-amber-400/20' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'}`}
                         title="Observação"
                     >
-                        <StickyNote className="w-3.5 h-3.5" />
+                        <StickyNote className={`w-3.5 h-3.5 ${func.observacao ? 'animate-pulse' : ''}`} />
                     </button>
                 </td>
                 <td className="px-1 py-2 text-center">
@@ -766,19 +792,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </button>
                 </td>
             </tr>
-            {expandedNoteRows.has(`func-${func.originalIndex}`) && (
-                <tr className="bg-slate-900/40">
-                    <td colSpan={10} className="px-4 py-2">
-                        <textarea
-                            value={func.observacao || ''}
-                            onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
-                            rows={2}
-                            placeholder={`Observação sobre ${func.nome || 'este funcionário'}...`}
-                            className="w-full bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/40 resize-none transition-all"
-                        />
-                    </td>
-                </tr>
-            )}
         </React.Fragment>
     );
 
@@ -1044,11 +1057,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     </td>
                                                     <td className="px-1 py-2 text-center">
                                                         <button
-                                                            onClick={() => toggleNoteRow(`condo-${condo.originalIndex}`)}
-                                                            className={`p-1.5 rounded-lg transition-all ${expandedNoteRows.has(`condo-${condo.originalIndex}`) ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : (condo.observacao ? 'text-amber-400 bg-amber-400/10' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800')}`}
+                                                            onClick={() => openNoteModal('condo', condo.originalIndex, condo.nome, condo.observacao || '')}
+                                                            className={`p-1.5 rounded-lg transition-all ${condo.observacao ? 'text-amber-400 bg-amber-400/10 shadow-sm border border-amber-400/20' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'}`}
                                                             title="Observação"
                                                         >
-                                                            <StickyNote className="w-3.5 h-3.5" />
+                                                            <StickyNote className={`w-3.5 h-3.5 ${condo.observacao ? 'animate-pulse' : ''}`} />
                                                         </button>
                                                     </td>
                                                     <td className="px-2 py-2 text-center">
@@ -1061,21 +1074,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         </button>
                                                     </td>
                                                 </tr>
-                                                {expandedNoteRows.has(`condo-${condo.originalIndex}`) && (
-                                                    <tr className="bg-slate-900/40">
-                                                        <td colSpan={10} className="px-4 py-2">
-                                                            <textarea
-                                                                value={condo.observacao || ''}
-                                                                onChange={(e) => updateCondo(condo.originalIndex, 'observacao', e.target.value)}
-                                                                rows={2}
-                                                                placeholder={`Observação sobre ${condo.nome || 'este condomínio'}...`}
-                                                                className="w-full bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-2 text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 resize-none transition-all"
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                                </React.Fragment>
-                                            ))}
+                                                    </React.Fragment>
+                                                ))}
                                         </tbody>
                                     </table>
                                 </div>
@@ -1348,45 +1348,54 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-6 py-4">Vencimento</th>
                                             <th className={`px-2 py-4 text-center w-10 transition-colors ${allImpostosPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
                                             <th className="px-6 py-4 text-right">Valor Pago</th>
+                                            <th className="px-1 py-4 text-center w-8"></th>
                                             <th className="px-6 py-4 w-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
-                                        {sortedImpostos?.map((imp, idx) => (
-                                            <tr key={idx} className="hover:bg-slate-700/10">
+                                        {sortedImpostos?.map((imp) => (
+                                            <tr key={imp.originalIndex} className="hover:bg-slate-700/10">
                                                 <td className="px-6 py-3 text-white font-medium">
                                                     <input
                                                         value={imp.nome}
-                                                        onChange={(e) => updateImposto(idx, 'nome', e.target.value)}
+                                                        onChange={(e) => updateImposto(imp.originalIndex, 'nome', e.target.value)}
                                                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-amber-500 rounded px-1 w-full"
                                                     />
                                                 </td>
                                                 <td className="px-6 py-3">
                                                     <input
                                                         value={imp.vencimento || ''}
-                                                        onChange={(e) => updateImposto(idx, 'vencimento', e.target.value)}
+                                                        onChange={(e) => updateImposto(imp.originalIndex, 'vencimento', e.target.value)}
                                                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-amber-500 rounded px-1 w-full text-slate-400"
                                                     />
                                                 </td>
                                                 <td className="px-2 py-3 text-center">
                                                     <button
-                                                        onClick={() => updateImposto(idx, 'pagamentoFeito', !imp.pagamentoFeito)}
+                                                        onClick={() => updateImposto(imp.originalIndex, 'pagamentoFeito', !imp.pagamentoFeito)}
                                                         className={`w-4 h-4 rounded-full transition-all mx-auto ${imp.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
                                                     />
                                                 </td>
                                                 <td className="px-6 py-3 text-right">
                                                     <CurrencyField
-                                                        value={imp.valor || 0}
-                                                        onChange={(val) => updateImposto(idx, 'valor', val)}
+                                        value={imp.valor || 0}
+                                                        onChange={(val) => updateImposto(imp.originalIndex, 'valor', val)}
                                                         textColor="text-red-400"
                                                         width="w-32"
                                                     />
                                                 </td>
-                                                <td className="px-6 py-3 text-center">
+                                                <td className="px-1 py-3 text-center">
                                                     <button
-                                                        onClick={() => removeImposto(idx)}
-                                                        className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"
-                                                        title="Remover"
+                                                        onClick={() => openNoteModal('tax', imp.originalIndex, imp.nome, imp.observacao || '')}
+                                                        className={`p-1.5 rounded-lg transition-all ${imp.observacao ? 'text-amber-400 bg-amber-400/10 shadow-sm border border-amber-400/20' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'}`}
+                                                        title="Observação"
+                                                    >
+                                                        <StickyNote className={`w-3.5 h-3.5 ${imp.observacao ? 'animate-pulse' : ''}`} />
+                                                    </button>
+                                                </td>
+                                                <td className="px-6 py-3">
+                                                    <button
+                                                        onClick={() => removeImposto(imp.originalIndex)}
+                                                        className="p-1 text-slate-600 hover:text-red-400 transition-colors"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -1924,6 +1933,51 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </button>
                 </div>
             </Modal>
+
+            {/* Modal de Observação (Quadro) */}
+            {noteModal.isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-slate-900 border border-slate-700/50 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300">
+                        <div className="px-6 py-4 bg-slate-800/50 border-b border-slate-700/50 flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-amber-400">
+                                <StickyNote className="w-5 h-5" />
+                                <h3 className="font-black text-xs uppercase tracking-widest text-slate-300">
+                                    Observação: <span className="text-white">{noteModal.title}</span>
+                                </h3>
+                            </div>
+                            <button 
+                                onClick={() => setNoteModal(prev => ({ ...prev, isOpen: false }))}
+                                className="p-2 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <textarea
+                                value={noteModal.value}
+                                onChange={(e) => setNoteModal(prev => ({ ...prev, value: e.target.value }))}
+                                placeholder="Digite aqui sua observação..."
+                                className="w-full bg-slate-950/50 border border-slate-700/50 rounded-2xl px-4 py-4 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 min-h-[150px] resize-none transition-all"
+                                autoFocus
+                            />
+                        </div>
+                        <div className="px-6 py-4 bg-slate-800/30 flex justify-end gap-3">
+                            <button 
+                                onClick={() => setNoteModal(prev => ({ ...prev, isOpen: false }))}
+                                className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={saveNoteModal}
+                                className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 transition-all"
+                            >
+                                Salvar Alteração
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

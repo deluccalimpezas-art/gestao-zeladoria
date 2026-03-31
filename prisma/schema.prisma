@@ -47,6 +47,7 @@ model Funcionario {
   deleted                Boolean             @default(false)
   contratoPdf            Bytes?
   contratoNome           String?
+  observacao             String?
   pagamentos             MonthlyFuncionario[]
 }
 
@@ -95,6 +96,7 @@ model RHImposto {
   nome       String
   valor      Float    @default(0)
   vencimento String?
+  observacao String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

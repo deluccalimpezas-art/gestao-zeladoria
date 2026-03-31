@@ -177,6 +177,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             dataAdmissao: newEmployee.dataAdmissao || '',
             vencimentoFerias: newEmployee.vencimentoFerias || '',
             fimContratoExperiencia: newEmployee.fimContratoExperiencia || '',
+            observacao: newEmployee.observacao || '',
             deleted: false
         };
         const res = await onSave({ ...data, funcionarios: [fresh, ...data.funcionarios] });
@@ -210,7 +211,8 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
             id: crypto.randomUUID(), 
             nome: newRHImposto.nome, 
             valor: newRHImposto.valor, 
-            vencimento: "" 
+            vencimento: "",
+            observacao: (newRHImposto as any).observacao || ''
         };
         await onSave({ ...data, impostos: [...(data.impostos || []), fresh] });
         setIsAddImpostoOpen(false);
@@ -758,6 +760,7 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                 <tr>
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Nome do Imposto</th>
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Valor Padrão</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Observações</th>
                                     <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Ações</th>
                                 </tr>
                             </thead>
@@ -803,6 +806,19 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                                     {formatCurrency(imp.valor)}
                                                 </div>
                                             )}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <input 
+                                                type="text" 
+                                                defaultValue={imp.observacao || ''}
+                                                onBlur={async (e) => {
+                                                    if (e.target.value === (imp.observacao || '')) return;
+                                                    const updated = data.impostos.map(i => i.id === imp.id ? { ...i, observacao: e.target.value } : i);
+                                                    await onSave({ ...data, impostos: updated });
+                                                }}
+                                                placeholder="Sem observações..."
+                                                className="bg-transparent border-none text-slate-400 text-xs focus:ring-1 focus:ring-amber-500 rounded px-1 outline-none w-full"
+                                            />
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button 
@@ -864,6 +880,16 @@ export function CompanyRHView({ data, onSave }: CompanyRHViewProps) {
                                     type="number" value={newRHImposto.valor} 
                                     onChange={e => setNewRHImposto({...newRHImposto, valor: parseFloat(e.target.value) || 0})}
                                     className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-amber-500/50 outline-none font-bold"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Observações</label>
+                                <textarea 
+                                    value={(newRHImposto as any).observacao || ''} 
+                                    onChange={e => setNewRHImposto({...newRHImposto, observacao: e.target.value} as any)}
+                                    rows={2}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-2xl px-5 py-3.5 text-sm text-white focus:ring-2 focus:ring-amber-500/50 outline-none resize-none"
+                                    placeholder="Observações do imposto..."
                                 />
                             </div>
                         </div>
