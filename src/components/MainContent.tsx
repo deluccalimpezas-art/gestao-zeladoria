@@ -36,7 +36,6 @@ import { ExpenseTrackerView } from './ExpenseTrackerView';
 import { PersonalFinanceView } from './PersonalFinanceView';
 import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
-import NFDraftGenerator from './NFDraftGenerator';
 import PosObrasView from './PosObrasView';
 import { NotesView } from './NotesView';
 import { Modal } from '@/components/Modal';
@@ -87,29 +86,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
 
     const [importConfirm, setImportConfirm] = useState<{ monthName: string } | null>(null);
     const [startEmpty, setStartEmpty] = useState(false);
-    
-    // Config for pre-filling NF Generator
-    const [nfGeneratorConfig, setNfGeneratorConfig] = useState<{
-        condoId: string;
-        month: number;
-        year: number;
-    } | null>(null);
-
-    const handleOpenNFGenerator = (condoId: string, monthName: string) => {
-        // Parse month name (e.g. "Março 2026")
-        const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-        const parts = monthName.split(' ');
-        const mName = parts[0];
-        const year = parts.length > 1 ? parseInt(parts[1]) : new Date().getFullYear();
-        const monthIndex = monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase()) + 1;
-
-        setNfGeneratorConfig({
-            condoId,
-            month: monthIndex > 0 ? monthIndex : new Date().getMonth() + 1,
-            year: !isNaN(year) ? year : new Date().getFullYear()
-        });
-        setActiveTab('geradores');
-    };
     const employeesCount = useMemo(() => masterRH.funcionarios.length, [masterRH.funcionarios]);
 
     const allEmployeeAlerts = useMemo(() => {
@@ -412,7 +388,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                             onDuplicateMonth={(month: any) => setDuplicateContext({ sourceMonthId: month.id })}
                             onCreateFromRHBase={() => setIsNewMonthModalOpen(true)}
                             hasRHBase={masterRH.condominios.length > 0}
-                            onOpenNF={handleOpenNFGenerator}
                         />
                     ) : activeTab === 'condominios' ? (
                         <RHManagerView
@@ -453,25 +428,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                     ) : activeTab === 'cronograma' ? (
                         <ScheduleView />
                     ) : activeTab === 'geradores' ? (
-                        nfGeneratorConfig ? (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <button 
-                                    onClick={() => setNfGeneratorConfig(null)}
-                                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group mb-6 px-2"
-                                >
-                                    <ChevronRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
-                                    <span className="text-sm font-black uppercase tracking-widest">Voltar para Planilha</span>
-                                </button>
-                                <NFDraftGenerator 
-                                    condominios={masterRH.condominios} 
-                                    initialCondoId={nfGeneratorConfig.condoId}
-                                    initialMonth={nfGeneratorConfig.month}
-                                    initialYear={nfGeneratorConfig.year}
-                                />
-                            </div>
-                        ) : (
-                            <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
-                        )
+                        <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
                     ) : activeTab === 'documentos' ? (
                         <DocumentGenerator months={financeMonths} />
                     ) : activeTab === 'gestao_pessoal' ? (

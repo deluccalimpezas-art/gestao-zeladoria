@@ -3,12 +3,12 @@ import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingD
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
+import NFDraftGenerator from './NFDraftGenerator';
 
 interface MonthDetailViewProps {
     month: MonthlyFinanceData;
     onBack: () => void;
     onSave: (updated: MonthlyFinanceData) => void;
-    onOpenNF?: (condoId: string, monthName: string) => void;
 }
 
 type TabType = 'visao_geral' | 'condominios' | 'folha' | 'rescisoes' | 'impostos' | 'gastos';
@@ -20,11 +20,20 @@ const formatCurrency = (value: number) => {
     }).format(value).replace(/\s/g, '');
 };
 
-export function MonthDetailView({ month, onBack, onSave, onOpenNF }: MonthDetailViewProps) {
+export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
     const [localMonth, setLocalMonth] = useState<MonthlyFinanceData>(month);
     const [history, setHistory] = useState<MonthlyFinanceData[]>([month]);
     const [historyIndex, setHistoryIndex] = useState(0);
+
+    const [isFullNfGeneratorOpen, setIsFullNfGeneratorOpen] = useState(false);
+    const [fullNfGeneratorCondoId, setFullNfGeneratorCondoId] = useState<string | null>(null);
+
+    const handleOpenFullNF = (condoId: string) => {
+        setFullNfGeneratorCondoId(condoId);
+        setIsFullNfGeneratorOpen(true);
+    };
+
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('name');
@@ -1021,15 +1030,13 @@ export function MonthDetailView({ month, onBack, onSave, onOpenNF }: MonthDetail
                                                             >
                                                                 <FileText className="w-3.5 h-3.5" />
                                                             </button>
-                                                            {onOpenNF && (
-                                                                <button
-                                                                    onClick={() => onOpenNF(condo.id!, localMonth.monthName)}
-                                                                    className="p-1.5 bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white rounded-lg transition-all"
-                                                                    title="Gerar Nota Fiscal Completa"
-                                                                >
-                                                                    <Receipt className="w-3.5 h-3.5" />
-                                                                </button>
-                                                            )}
+                                                            <button
+                                                                onClick={() => handleOpenFullNF(condo.id!)}
+                                                                className="p-1.5 bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white rounded-lg transition-all"
+                                                                title="Gerar Nota Fiscal Completa"
+                                                            >
+                                                                <Receipt className="w-3.5 h-3.5" />
+                                                            </button>
                                                         </div>
                                                     </td>
                                                     <td className="px-1 py-2 text-center">
@@ -1990,6 +1997,32 @@ export function MonthDetailView({ month, onBack, onSave, onOpenNF }: MonthDetail
                     </div>
                 </div>
             )}
+            
+            {/* Modal Gerador de NF Completo */}
+            <Modal
+                isOpen={isFullNfGeneratorOpen}
+                onClose={() => setIsFullNfGeneratorOpen(false)}
+                title={`Gerador de Nota Fiscal - ${localMonth.monthName}`}
+                maxWidth="6xl"
+            >
+                <div className="bg-slate-900 rounded-xl overflow-hidden min-h-[80vh]">
+                    <NFDraftGenerator
+                        condominios={localMonth.condominios.map(c => ({
+                            id: c.id,
+                            nome: c.nome,
+                            valorContrato: c.contratoBase || 0,
+                            administradora: c.administradora
+                        })) as any}
+                        initialCondoId={fullNfGeneratorCondoId || undefined}
+                        initialMonth={(() => {
+                            const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                            const mName = localMonth.monthName.split(' ')[0];
+                            return monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase()) + 1;
+                        })()}
+                        initialYear={parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear()}
+                    />
+                </div>
+            </Modal>
         </div>
     );
 }
