@@ -27,10 +27,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [historyIndex, setHistoryIndex] = useState(0);
 
     const [isFullNfGeneratorOpen, setIsFullNfGeneratorOpen] = useState(false);
-    const [fullNfGeneratorCondoId, setFullNfGeneratorCondoId] = useState<string | null>(null);
+    const [fullNfGeneratorCondoName, setFullNfGeneratorCondoName] = useState<string | null>(null);
 
-    const handleOpenFullNF = (condoId: string) => {
-        setFullNfGeneratorCondoId(condoId);
+    const handleOpenFullNF = (condoName: string) => {
+        setFullNfGeneratorCondoName(condoName);
         setIsFullNfGeneratorOpen(true);
     };
 
@@ -1031,7 +1031,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                 <FileText className="w-3.5 h-3.5" />
                                                             </button>
                                                             <button
-                                                                onClick={() => handleOpenFullNF(condo.id!)}
+                                                                onClick={() => handleOpenFullNF(condo.nome)}
                                                                 className="p-1.5 bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white rounded-lg transition-all"
                                                                 title="Gerar Nota Fiscal Completa"
                                                             >
@@ -2013,13 +2013,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             valorContrato: c.valorContrato || 0,
                             administradora: c.administradora
                         })) as any}
-                        initialCondoId={fullNfGeneratorCondoId || undefined}
+                        initialCondoId={fullNfGeneratorCondoName || undefined}
                         initialMonth={(() => {
                             const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                             const mName = localMonth.monthName.split(' ')[0];
-                            return monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase()) + 1;
+                            const idx = monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase());
+                            // If we are in March (idx 2), we want Issuance Month to be April (4)
+                            // MONTHS array is 1-indexed for the generator, so idx+1 is March, idx+2 is April.
+                            let issuanceMonth = idx + 2;
+                            if (issuanceMonth > 12) issuanceMonth = 1;
+                            return issuanceMonth;
                         })()}
-                        initialYear={parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear()}
+                        initialYear={(() => {
+                            const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                            const mName = localMonth.monthName.split(' ')[0];
+                            const idx = monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase());
+                            let year = parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear();
+                            if (idx === 11) year += 1; // December -> January of next year
+                            return year;
+                        })()}
                     />
                 </div>
             </Modal>
