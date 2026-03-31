@@ -901,7 +901,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <SummaryCard title="Entrada" value={currentTotals.bruto} color="text-blue-400" icon={<ArrowUpCircle className="w-4 h-4" />} />
                                     <SummaryCard title="Saída" value={currentTotals.inss + currentTotals.salarios + currentTotals.impostos + currentTotals.gastos + currentTotals.rescisoes} color="text-red-400" icon={<ArrowDownCircle className="w-4 h-4" />} />
-                                    <SummaryCard title="Lucro" value={currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos + currentTotals.rescisoes)} color={lucroCalculado >= 0 ? "text-emerald-400" : "text-rose-500"} icon={<TrendingUp className="w-4 h-4" />} />
+                                    <SummaryCard 
+                                        title="Lucro" 
+                                        value={currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos + currentTotals.rescisoes)} 
+                                        color={lucroCalculado >= 0 ? "text-emerald-400" : "text-rose-500"} 
+                                        icon={<TrendingUp className="w-4 h-4" />}
+                                        subtitle={currentTotals.bruto > 0 ? `${((currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos + currentTotals.rescisoes)) / currentTotals.bruto * 100).toFixed(1)}% de margem` : '0% de margem'}
+                                    />
                                 </div>
                             </section>
 
@@ -2078,7 +2084,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
     );
 }
 
-function SummaryCard({ title, value, color = "text-white", icon }: { title: string, value: string | number, color?: string, icon?: React.ReactNode }) {
+function SummaryCard({ title, value, color = "text-white", icon, subtitle }: { title: string, value: string | number, color?: string, icon?: React.ReactNode, subtitle?: string }) {
     const displayValue = typeof value === 'number' ? formatCurrency(value) : value;
     return (
         <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-4 rounded-2xl flex flex-col gap-2 group hover:border-indigo-500/30 transition-all min-w-0">
@@ -2086,7 +2092,10 @@ function SummaryCard({ title, value, color = "text-white", icon }: { title: stri
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest truncate">{title}</span>
                 {icon && <div className={`${color} opacity-40 group-hover:opacity-100 transition-opacity shrink-0`}>{icon}</div>}
             </div>
-            <p className={`text-lg sm:text-xl font-black ${color} truncate`} title={displayValue.toString()}>{displayValue}</p>
+            <div className="flex flex-col gap-0.5 overflow-hidden">
+                <p className={`text-lg sm:text-xl font-black ${color} truncate`} title={displayValue.toString()}>{displayValue}</p>
+                {subtitle && <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter truncate opacity-80">{subtitle}</p>}
+            </div>
         </div>
     );
 }

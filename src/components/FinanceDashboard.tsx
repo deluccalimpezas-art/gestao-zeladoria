@@ -196,6 +196,12 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                                                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Lucro</span>
                                                     <span className="text-sm font-black text-emerald-400 tracking-tight">{formatCurrency(lucro)}</span>
                                                 </div>
+                                                <div className="flex justify-between items-center px-1 border-t border-slate-700/30 pt-1.5 mt-0.5">
+                                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Margem</span>
+                                                    <span className={`text-[10px] font-black ${lucro >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                        {month.receitaBruta > 0 ? ((lucro / month.receitaBruta) * 100).toFixed(1) : '0'}%
+                                                    </span>
+                                                </div>
                                             </div>
                                         </button>
                                         <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
