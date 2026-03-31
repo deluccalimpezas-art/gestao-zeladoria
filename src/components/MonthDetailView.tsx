@@ -2007,10 +2007,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             >
                 <div className="bg-slate-900 rounded-xl overflow-hidden min-h-[80vh]">
                     <NFDraftGenerator
-                        condominios={localMonth.condominios.map(c => ({
+                        condominios={(localMonth.condominios || []).map(c => ({
                             id: c.id,
                             nome: c.nome,
-                            valorContrato: c.contratoBase || 0,
+                            valorContrato: c.valorContrato || 0,
                             administradora: c.administradora
                         })) as any}
                         initialCondoId={fullNfGeneratorCondoId || undefined}
