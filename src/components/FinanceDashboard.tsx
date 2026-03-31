@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { DollarSign, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus, ArrowUpDown } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { DollarSign, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus, ArrowUpDown, Move } from 'lucide-react';
 import { MonthlyFinanceChart } from './MonthlyFinanceChart';
 import type { MonthlyFinanceData } from '../modelsFinance';
+import { updateFinanceMonthsOrder } from '../../app/actions';
 import dynamic from 'next/dynamic';
 const MonthDetailView = dynamic(() => import('./MonthDetailView').then(mod => mod.MonthDetailView), {
     ssr: false,
@@ -21,13 +22,15 @@ interface FinanceDashboardProps {
 export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase }: FinanceDashboardProps) {
     const [selectedMonth, setSelectedMonth] = useState<MonthlyFinanceData | null>(null);
     const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+    const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+    const [localMonths, setLocalMonths] = useState<MonthlyFinanceData[]>([]);
 
-    const monthsInPt = React.useMemo(() => [
+    const monthsInPt = useMemo(() => [
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ], []);
 
-    const sortedMonths = React.useMemo(() => {
+    const sortedMonths = useMemo(() => {
         return [...monthsData].sort((a, b) => {
             const [mA, yA] = a.monthName.split(' ');
             const [mB, yB] = b.monthName.split(' ');
@@ -36,6 +39,35 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
             return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
         });
     }, [monthsData, sortOrder, monthsInPt]);
+
+    useEffect(() => {
+        setLocalMonths(sortedMonths);
+    }, [sortedMonths]);
+
+    const handleDragStart = (idx: number) => {
+        setDraggedIdx(idx);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = async (targetIdx: number) => {
+        if (draggedIdx === null || draggedIdx === targetIdx) return;
+        
+        const newList = [...localMonths];
+        const [movedItem] = newList.splice(draggedIdx, 1);
+        newList.splice(targetIdx, 0, movedItem);
+        
+        setLocalMonths(newList);
+        setDraggedIdx(null);
+
+        // Persist order
+        const ids = newList.map(m => m.id).filter(id => !!id) as string[];
+        if (ids.length > 0) {
+            await updateFinanceMonthsOrder(ids);
+        }
+    };
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
@@ -124,12 +156,22 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                              </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {sortedMonths.map((month, idx) => {
+                            {localMonths.map((month, idx) => {
                                 const totalSaida = (month.totalSalarios || 0) + (month.totalImpostos || 0) + (month.totalGastos || 0) + (month.totalRescisao || 0);
                                 const lucro = month.lucroEstimado ?? (month.receitaLiquida - totalSaida);
 
                                 return (
-                                    <div key={idx} className="relative group">
+                                    <div 
+                                        key={month.id || idx} 
+                                        className={`relative group transition-all duration-300 ${draggedIdx === idx ? 'opacity-30 scale-95' : 'opacity-100 scale-100'}`}
+                                        draggable
+                                        onDragStart={() => handleDragStart(idx)}
+                                        onDragOver={handleDragOver}
+                                        onDrop={() => handleDrop(idx)}
+                                    >
+                                        <div className="absolute top-1/2 -left-3 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-slate-600 hover:text-indigo-400 z-10 hidden sm:block">
+                                            <Move className="w-4 h-4" />
+                                        </div>
                                         <button
                                             onClick={() => setSelectedMonth(month)}
                                             className="w-full bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/30 hover:bg-slate-800/80 rounded-3xl p-6 shadow-xl flex flex-col text-left transition-all active:scale-95 group"

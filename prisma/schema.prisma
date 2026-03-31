@@ -55,6 +55,7 @@ model FinanceMonth {
   id           String               @id @default(uuid())
   nome         String               @unique
   fechado      Boolean              @default(false)
+  order        Int                  @default(0)
   created_at   DateTime             @default(now())
   condominios  MonthlyCondominio[]
   funcionarios MonthlyFuncionario[]

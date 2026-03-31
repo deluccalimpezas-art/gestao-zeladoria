@@ -218,6 +218,7 @@ export async function getFinanceMonths() {
                 gastos: true,
             },
             orderBy: [
+                { order: 'asc' },
                 { created_at: 'desc' }
             ]
         });
@@ -664,6 +665,25 @@ export async function deleteFinanceMonth(monthName: string) {
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
+    }
+}
+
+export async function updateFinanceMonthsOrder(orderedIds: string[]) {
+    try {
+        console.log("Atualizando ordem dos meses:", orderedIds);
+        await prisma.$transaction(
+            orderedIds.map((id, index) =>
+                prisma.financeMonth.update({
+                    where: { id },
+                    data: { order: index }
+                })
+            )
+        );
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro updateFinanceMonthsOrder:", e);
+        return { success: false, error: e.message };
     }
 }
 
