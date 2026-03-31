@@ -183,14 +183,13 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
             {/* Header + Selectors */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 bg-slate-800/60 p-5 rounded-2xl border border-slate-700">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <FileText className="w-6 h-6 text-amber-400" />
-                        Gerador de Nota Fiscal
-                    </h1>
-                    <div className="flex items-center gap-4 mt-1">
-                        <p className="text-slate-400 text-sm">Selecione o condomínio e o mês para gerar a NF e o e-mail automaticamente.</p>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <FileText className="w-6 h-6 text-amber-400" />
+                            Gerador de Nota Fiscal
+                        </div>
                         
-                        {/* Holidays Display Popover - Moved here to not shift selectors */}
+                        {/* Holidays Display Popover - Moved left and text removed */}
                         {holidays.length > 0 && (
                             <div className="relative">
                                 <button 
@@ -224,7 +223,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
                                 )}
                             </div>
                         )}
-                    </div>
+                    </h1>
                 </div>
 
                 {/* Selectors */}
