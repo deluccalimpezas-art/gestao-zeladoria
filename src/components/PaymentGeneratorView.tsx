@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FileText, Printer, Users, Wallet, Calendar, AlertCircle, Building2, Search, ChevronDown } from 'lucide-react';
 import type { FuncionarioData } from '../modelsFinance';
 import { MONTHS, getHolidays } from '@/lib/holidayUtils';
+import { getMonthlyFinanceByMonth, updateMonthlyFuncionario } from '../../app/actions';
 
 interface PaymentGeneratorViewProps {
     employees: FuncionarioData[];
@@ -20,8 +21,10 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-    const [selectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [showHolidays, setShowHolidays] = useState(false);
+    const [monthlyFuncs, setMonthlyFuncs] = useState<any[]>([]);
+    const [isSavingSync, setIsSavingSync] = useState<string | null>(null);
 
     const holidays = getHolidays(selectedMonth, selectedYear);
 
@@ -98,6 +101,69 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
         };
     }, [selectedEmployeeId, employees, paymentData]);
 
+    // Fetch monthly data when month/year changes
+    useEffect(() => {
+        const fetchMonthlyData = async () => {
+            const monthName = `${MONTHS[selectedMonth - 1]} ${selectedYear}`;
+            console.log(`Buscando dados mensais (Folha): ${monthName}`);
+            const result = await getMonthlyFinanceByMonth(monthName);
+            if (result.success && result.data) {
+                const funcs = result.data.funcionarios || [];
+                setMonthlyFuncs(funcs);
+                
+                // Auto-fill paymentData for employees that have records in this month
+                const newPaymentData = { ...paymentData };
+                let changed = false;
+                
+                funcs.forEach((mf: any) => {
+                    if (mf.funcionarioId && (!paymentData[mf.funcionarioId] || paymentData[mf.funcionarioId].salarioBase === 0)) {
+                        newPaymentData[mf.funcionarioId] = {
+                            faltas: 0,
+                            salarioBase: mf.valorPago || 0,
+                            extras: mf.horasExtras || 0,
+                            salaofestas: 0
+                        };
+                        changed = true;
+                    }
+                });
+                
+                if (changed) setPaymentData(newPaymentData);
+            } else {
+                setMonthlyFuncs([]);
+            }
+        };
+        fetchMonthlyData();
+    }, [selectedMonth, selectedYear]);
+
+    const handleSaveToFinance = async (employeeId: string, recordId: string) => {
+        const data = paymentData[employeeId];
+        if (!data) return;
+
+        setIsSavingSync(employeeId);
+        try {
+            const result = await updateMonthlyFuncionario(recordId, {
+                valorPago: data.salarioBase,
+                horasExtras: data.extras,
+                observacao: employees.find(e => e.id === employeeId)?.observacao // or separate obs
+            });
+            if (result.success) {
+                // Refresh monthly data
+                const monthName = `${MONTHS[selectedMonth - 1]} ${selectedYear}`;
+                const refresh = await getMonthlyFinanceByMonth(monthName);
+                if (refresh.success && refresh.data) {
+                    setMonthlyFuncs(refresh.data.funcionarios || []);
+                }
+                alert('Dados atualizados na planilha financeira!');
+            } else {
+                alert('Erro ao salvar: ' + result.error);
+            }
+        } catch (error: any) {
+            alert('Erro: ' + error.message);
+        } finally {
+            setIsSavingSync(null);
+        }
+    };
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -124,7 +190,6 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-end justify-between gap-6 no-print">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-4">
@@ -133,7 +198,6 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                             Gerador de Holerites
                         </div>
                         
-                        {/* Holidays Display Popover */}
                         {holidays.length > 0 && (
                             <div className="relative">
                                 <button 
@@ -171,7 +235,6 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                     <p className="text-slate-400 text-sm mt-1">Gere recibos de pagamento com cálculo automático de faltas.</p>
                 </div>
 
-                {/* Month/Year Selectors */}
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <select
@@ -189,7 +252,6 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
-                {/* Employee Selection */}
                 <div className="space-y-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -215,6 +277,12 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                 <div className="text-left">
                                     <p className="font-bold text-sm">{emp.nome}</p>
                                     <p className="text-[10px] text-slate-500 uppercase tracking-wider">{emp.condominio || 'Sem Alocação'}</p>
+                                    {monthlyFuncs.some(mf => mf.funcionarioId === emp.id) && (
+                                        <div className="mt-3 flex items-center gap-1.5 px-3 py-1 text-[9px] font-black uppercase tracking-tighter bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-md">
+                                            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                                            Na Planilha: {MONTHS[selectedMonth-1]}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs font-mono">{formatCurrency(paymentData[emp.id!]?.salarioBase || emp.salario)}</p>
@@ -224,11 +292,9 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                     </div>
                 </div>
 
-                {/* Calculation Area */}
                 <div className="lg:col-span-2 space-y-6">
                     {selectedEmployeeRecord ? (
                         <div className="space-y-6 animate-in slide-in-from-right-4">
-                            {/* Editor Card */}
                             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-6">
                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                     <AlertCircle className="w-4 h-4 text-emerald-400" /> Configuração do Pagamento
@@ -300,124 +366,56 @@ export function PaymentGeneratorView({ employees }: PaymentGeneratorViewProps) {
                                 >
                                     <Printer className="w-4 h-4" /> Visualizar / Imprimir Holerite
                                 </button>
-                            </div>
 
-                            {/* Live Preview (Web Style) */}
-                            <div className="bg-white text-slate-900 rounded-sm shadow-2xl p-8 border border-slate-200 pointer-events-none scale-[0.9] origin-top">
-                                <div className="border-2 border-slate-900 p-4 space-y-4 text-black">
-                                    <div className="flex justify-between items-start border-b border-slate-300 pb-4">
-                                        <div className="flex flex-col items-center">
-                                            <div className="flex items-baseline gap-0 transform scale-75 origin-top">
-                                                <span className="text-4xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
-                                                <span className="text-4xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
-                                            </div>
-                                            <div className="text-[18px] text-[#00CEE4] -mt-2 italic font-serif opacity-90">
-                                                Gestão em Limpeza
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[10px] font-bold text-slate-500 mb-1">RECIBO DE PAGAMENTO DE SALÁRIO</p>
-                                            <p className="text-xs font-bold uppercase">{MONTHS[selectedMonth-1]} DE {selectedYear}</p>
-                                        </div>
+                                {selectedEmployeeRecord && (
+                                    <div className="mt-6 flex flex-col gap-3">
+                                        {(() => {
+                                            const mFunc = monthlyFuncs.find(mf => mf.funcionarioId === selectedEmployeeId);
+                                            if (!mFunc) return null;
+
+                                            const isDifferent = 
+                                                mFunc.valorPago !== (paymentData[selectedEmployeeId!]?.salarioBase || selectedEmployeeRecord.salario) ||
+                                                mFunc.horasExtras !== (paymentData[selectedEmployeeId!]?.extras || 0);
+
+                                            return (
+                                                <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-700 space-y-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sincronização: {MONTHS[selectedMonth-1]}</p>
+                                                        {isDifferent ? (
+                                                            <span className="text-[10px] font-black text-amber-500 uppercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Diferente da Planilha</span>
+                                                        ) : (
+                                                            <span className="text-[10px] font-black text-emerald-500 uppercase bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Sincronizado</span>
+                                                        )}
+                                                    </div>
+
+                                                    {isDifferent && (
+                                                        <button
+                                                            onClick={() => handleSaveToFinance(selectedEmployeeId!, mFunc.id)}
+                                                            disabled={isSavingSync === selectedEmployeeId}
+                                                            className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 text-slate-900 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-95"
+                                                        >
+                                                            {isSavingSync === selectedEmployeeId ? 'Salvando...' : 'Atualizar na Planilha Financeira'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4 text-[10px]">
-                                        <div>
-                                            <p className="font-bold text-slate-400 uppercase">Funcionário</p>
-                                            <p className="text-sm font-black">{selectedEmployeeRecord.nome}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-400 uppercase">Alocação</p>
-                                            <p className="text-sm font-black">{selectedEmployeeRecord.condominio || 'Geral'}</p>
-                                        </div>
-                                    </div>
-
-                                    <table className="w-full text-left text-[11px] border-collapse mt-4">
-                                        <thead>
-                                            <tr className="bg-slate-100 border-y border-slate-300">
-                                                <th className="p-2">Descrição</th>
-                                                <th className="p-2 text-center">Ref.</th>
-                                                <th className="p-2 text-right">Vencimentos</th>
-                                                <th className="p-2 text-right">Descontos</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr className="border-b border-slate-100 italic">
-                                                <td className="p-2">Salário Base</td>
-                                                <td className="p-2 text-center">30d</td>
-                                                <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.salario)}</td>
-                                                <td className="p-2 text-right">-</td>
-                                            </tr>
-                                            {selectedEmployeeRecord.extras > 0 && (
-                                                <tr className="border-b border-slate-100 italic">
-                                                    <td className="p-2">Adicionais / Horas Extras</td>
-                                                    <td className="p-2 text-center">-</td>
-                                                    <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.extras)}</td>
-                                                    <td className="p-2 text-right">-</td>
-                                                </tr>
-                                            )}
-                                            {selectedEmployeeRecord.salaofestas > 0 && (
-                                                <tr className="border-b border-slate-100 italic">
-                                                    <td className="p-2">Limpeza Salão de Festas</td>
-                                                    <td className="p-2 text-center">-</td>
-                                                    <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
-                                                    <td className="p-2 text-right">-</td>
-                                                </tr>
-                                            )}
-                                            {selectedEmployeeRecord.faltas > 0 && (
-                                                <tr className="border-b border-slate-100 italic text-red-600">
-                                                    <td className="p-2">Faltas não justificadas</td>
-                                                    <td className="p-2 text-center">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
-                                                    <td className="p-2 text-right">-</td>
-                                                    <td className="p-2 text-right">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr className="bg-slate-50 font-black">
-                                                <td colSpan={2} className="p-2 text-right uppercase">Totais</td>
-                                                <td className="p-2 text-right text-indigo-900">{formatCurrency(selectedEmployeeRecord.salario + selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</td>
-                                                <td className="p-2 text-right text-red-600">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-
-                                    <div className="flex justify-end mt-4">
-                                        <div className="bg-indigo-900 text-white p-4 rounded-sm text-right min-w-[200px]">
-                                            <p className="text-[10px] font-bold uppercase opacity-80">Valor Líquido a Receber</p>
-                                            <p className="text-2xl font-black">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-8 mt-12 pt-8 border-t border-slate-200">
-                                        <div className="text-center space-y-1">
-                                            <div className="border-t border-slate-400 w-full pt-2"></div>
-                                            <p className="text-[8px] uppercase font-bold text-slate-400">Assinatura da Empresa</p>
-                                        </div>
-                                        <div className="text-center space-y-1">
-                                            <div className="border-t border-slate-400 w-full pt-2"></div>
-                                            <p className="text-[8px] uppercase font-bold text-slate-400">Assinatura do Funcionário</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     ) : (
-                        <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-20 text-center space-y-4">
-                            <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto border border-slate-700">
-                                <Users className="w-10 h-10 text-slate-600" />
-                            </div>
-                            <h2 className="text-xl font-bold text-white">Selecione um Funcionário</h2>
-                            <p className="text-slate-500 max-w-sm mx-auto">Escolha um colaborador na lista ao lado para calcular o pagamento e gerar o holerite.</p>
+                        <div className="bg-slate-800/30 border border-dashed border-slate-700 rounded-3xl p-16 text-center space-y-4">
+                            <Users className="w-12 h-12 text-slate-700 mx-auto" />
+                            <h3 className="text-white font-black uppercase tracking-widest text-sm">Selecione um Funcionário</h3>
+                            <p className="text-slate-500 text-xs max-w-[240px] mx-auto leading-relaxed">Clique em um colaborador na lista ao lado para gerar o holerite.</p>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Print Only Layout */}
             {selectedEmployeeRecord && (
                 <div id="printable-holerite" className="hidden print:block bg-white text-slate-900 p-0 m-0 w-full overflow-hidden">
-                    {/* Duplicate Pay Stub for 2 copies per page */}
                     {[1, 2].map((copy) => (
                         <div key={copy} className={`border border-slate-300 p-4 space-y-1 ${copy === 1 ? 'border-b border-dashed mb-16 pb-6' : 'mt-12 pt-6'}`}>
                             <div className="flex justify-between items-start border-b border-slate-200 pb-1">

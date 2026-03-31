@@ -599,6 +599,56 @@ export async function saveFinanceMonth(data: any) {
     }
 }
 
+// Granular updates for Generators
+export async function getMonthlyFinanceByMonth(monthName: string) {
+    try {
+        const month = await prisma.financeMonth.findUnique({
+            where: { nome: monthName },
+            include: {
+                condominios: true,
+                funcionarios: true
+            }
+        });
+        return { success: true, data: month };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function updateMonthlyCondominio(id: string, data: { valorCobrado?: number, observacao?: string }) {
+    try {
+        const result = await (prisma as any).monthlyCondominio.update({
+            where: { id },
+            data: {
+                valorCobrado: data.valorCobrado,
+                observacao: data.observacao
+            }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function updateMonthlyFuncionario(id: string, data: { valorPago?: number, horasExtras?: number, rescisaoFerias?: number, observacao?: string }) {
+    try {
+        const result = await (prisma as any).monthlyFuncionario.update({
+            where: { id },
+            data: {
+                valorPago: data.valorPago,
+                horasExtras: data.horasExtras,
+                rescisaoFerias: data.rescisaoFerias,
+                observacao: data.observacao
+            }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function deleteFinanceMonth(monthName: string) {
     try {
         const month = await prisma.financeMonth.findUnique({
