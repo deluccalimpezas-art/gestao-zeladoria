@@ -121,6 +121,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
     const [copiedDesc, setCopiedDesc] = useState(false);
     const [copiedEmail, setCopiedEmail] = useState(false);
     const [copiedSubject, setCopiedSubject] = useState(false);
+    const [showHolidays, setShowHolidays] = useState(false);
 
     const RETENCAO_RATE = 0.11;
     const retencao = valorBruto * RETENCAO_RATE;
@@ -191,18 +192,39 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
 
                 {/* Selectors */}
                 <div className="flex flex-wrap items-center gap-3">
-                    {/* Holidays Display */}
+                    {/* Holidays Display Popover */}
                     {holidays.length > 0 && (
-                        <div className="flex items-center gap-2 mr-4 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
-                            <Calendar className="w-4 h-4 text-amber-400" />
-                            <div className="flex gap-2">
-                                {holidays.map((h, i) => (
-                                    <div key={i} className="flex flex-col">
-                                        <span className="text-[10px] font-black text-amber-500 leading-none">DIA {h.day}</span>
-                                        <span className="text-[9px] text-amber-200 uppercase font-medium leading-none">{h.name}</span>
+                        <div className="relative">
+                            <button 
+                                onClick={() => setShowHolidays(!showHolidays)}
+                                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-all shadow-lg ${showHolidays ? 'bg-amber-500 text-slate-900 border-amber-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'}`}
+                                title="Ver feriados do mês"
+                            >
+                                <Calendar className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Feriados {holidays.length}</span>
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showHolidays ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {showHolidays && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setShowHolidays(false)} />
+                                    <div className="absolute top-full mt-2 left-0 z-20 bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-2xl min-w-[240px] animate-in zoom-in-95 fade-in duration-200">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 border-b border-slate-800 pb-2 flex items-center gap-2">
+                                            <Calendar className="w-3.5 h-3.5" /> Feriados {MONTHS[selectedMonth-1]}
+                                        </p>
+                                        <div className="space-y-3">
+                                            {holidays.map((h, i) => (
+                                                <div key={i} className="flex items-center gap-3">
+                                                    <div className="bg-amber-500 text-slate-950 font-black text-[11px] w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                                        {h.day}
+                                                    </div>
+                                                    <span className="text-xs text-slate-200 font-bold uppercase tracking-tight">{h.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
+                                </>
+                            )}
                         </div>
                     )}
 
