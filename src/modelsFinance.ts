@@ -72,6 +72,7 @@ export interface RHImpostoData {
     nome: string;
     valor: number;
     vencimento?: string;
+    observacao?: string;
 }
 
 export interface MonthlyFinanceData {
