@@ -6,6 +6,9 @@ import { getMonthlyFinanceByMonth, updateMonthlyCondominio } from '../../app/act
 
 interface NFDraftGeneratorProps {
     condominios: CondominioData[];
+    initialCondoId?: string;
+    initialMonth?: number;
+    initialYear?: number;
 }
 
 const ADMIN_EMAILS: Record<string, string> = {
@@ -34,10 +37,15 @@ const parseCurrency = (str: string): number => {
     return parseFloat(cleaned) || 0;
 };
 
-const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ condominios }) => {
-    const [selectedCondoId, setSelectedCondoId] = useState<string>('');
-    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-    const [selectedYear] = useState<number>(new Date().getFullYear());
+const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ 
+    condominios, 
+    initialCondoId = '', 
+    initialMonth = new Date().getMonth() + 1,
+    initialYear = new Date().getFullYear()
+}) => {
+    const [selectedCondoId, setSelectedCondoId] = useState<string>(initialCondoId);
+    const [selectedMonth, setSelectedMonth] = useState<number>(initialMonth);
+    const [selectedYear, setSelectedYear] = useState<number>(initialYear);
 
     const holidays = getHolidays(selectedMonth, selectedYear);
 

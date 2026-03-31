@@ -15,9 +15,10 @@ interface FinanceDashboardProps {
     onDuplicateMonth: (month: MonthlyFinanceData) => void;
     onCreateFromRHBase: () => void;
     hasRHBase: boolean;
+    onOpenNF?: (condoId: string, monthName: string) => void;
 }
 
-export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase }: FinanceDashboardProps) {
+export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, onUpdateMonth, onDuplicateMonth, onCreateFromRHBase, hasRHBase, onOpenNF }: FinanceDashboardProps) {
     const [selectedMonth, setSelectedMonth] = useState<MonthlyFinanceData | null>(null);
 
     const formatCurrency = (value: number) => {
@@ -34,6 +35,7 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                 onSave={(updated) => {
                     onUpdateMonth(updated);
                 }}
+                onOpenNF={onOpenNF}
             />
         );
     }

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -8,6 +8,7 @@ interface MonthDetailViewProps {
     month: MonthlyFinanceData;
     onBack: () => void;
     onSave: (updated: MonthlyFinanceData) => void;
+    onOpenNF?: (condoId: string, monthName: string) => void;
 }
 
 type TabType = 'visao_geral' | 'condominios' | 'folha' | 'rescisoes' | 'impostos' | 'gastos';
@@ -19,7 +20,7 @@ const formatCurrency = (value: number) => {
     }).format(value).replace(/\s/g, '');
 };
 
-export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
+export function MonthDetailView({ month, onBack, onSave, onOpenNF }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
     const [localMonth, setLocalMonth] = useState<MonthlyFinanceData>(month);
     const [history, setHistory] = useState<MonthlyFinanceData[]>([month]);
@@ -1012,13 +1013,24 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         </div>
                                                     </td>
                                                     <td className="px-1 py-2 text-center">
-                                                        <button
-                                                            onClick={() => openNfModal(condo.originalIndex)}
-                                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center mx-auto ${condo.notaFiscal && condo.notaFiscal.valor > 0 ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
-                                                            title="Detalhes da Nota Fiscal"
-                                                        >
-                                                            <FileText className="w-3.5 h-3.5" />
-                                                        </button>
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <button
+                                                                onClick={() => openNfModal(condo.originalIndex)}
+                                                                className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${condo.notaFiscal && condo.notaFiscal.valor > 0 ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                                                                title="Resumo da Nota Fiscal"
+                                                            >
+                                                                <FileText className="w-3.5 h-3.5" />
+                                                            </button>
+                                                            {onOpenNF && (
+                                                                <button
+                                                                    onClick={() => onOpenNF(condo.id!, localMonth.monthName)}
+                                                                    className="p-1.5 bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white rounded-lg transition-all"
+                                                                    title="Gerar Nota Fiscal Completa"
+                                                                >
+                                                                    <Receipt className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-1 py-2 text-center">
                                                         <button
