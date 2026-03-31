@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DollarSign, Users, Building, ArrowRight, CalendarDays, Trash2, Copy, Plus } from 'lucide-react';
+import { MonthlyFinanceChart } from './MonthlyFinanceChart';
 import type { MonthlyFinanceData } from '../modelsFinance';
 import dynamic from 'next/dynamic';
 const MonthDetailView = dynamic(() => import('./MonthDetailView').then(mod => mod.MonthDetailView), {
@@ -90,8 +91,15 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
             )}
 
             {monthsData.length > 0 && (
-                <>
+                <div className="space-y-12">
+                    {/* Gráfico de Performance */}
+                    <MonthlyFinanceChart monthsData={monthsData} />
+
                     {/* Bloco: Visão de Meses Detalhada */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between px-2">
+                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Meses Individuais</h3>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {monthsData.map((month, idx) => {
                                 const totalSaida = (month.totalSalarios || 0) + (month.totalImpostos || 0) + (month.totalGastos || 0) + (month.totalRescisao || 0);
@@ -145,9 +153,9 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                             );
                         })}
                     </div>
-                </>
-            )
-            }
+                    </div>
+                </div>
+            )}
         </div >
     );
 }
