@@ -321,6 +321,7 @@ export async function createFinanceMonth(nome: string) {
                         monthId: newMonth.id,
                         nome: c.nome,
                         cnpj: c.cnpj,
+                        administradora: c.administradora,
                         valorCobrado: c.valorContrato || 0,
                         condominioId: c.id,
                         observacao: c.observacao || ''
@@ -393,6 +394,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
                     monthId: newMonth.id,
                     nome: c.nome,
                     cnpj: c.cnpj,
+                    administradora: c.administradora,
                     valorCobrado: c.valorCobrado,
                     pago: false,
                     condominioId: c.condominioId,
@@ -469,6 +471,7 @@ export async function saveFinanceMonth(data: any) {
                     update: {
                         nome: c.nome,
                         cnpj: c.cnpj,
+                        administradora: c.administradora,
                         valorCobrado: c.receitaBruta || 0,
                         pago: c.pagamentoFeito || false,
                         condominioId: c.condominioId,
@@ -479,6 +482,7 @@ export async function saveFinanceMonth(data: any) {
                         monthId: id,
                         nome: c.nome,
                         cnpj: c.cnpj,
+                        administradora: c.administradora,
                         valorCobrado: c.receitaBruta || 0,
                         pago: c.pagamentoFeito || false,
                         condominioId: c.condominioId,
@@ -606,10 +610,24 @@ export async function getMonthlyFinanceByMonth(monthName: string) {
         const month = await prisma.financeMonth.findUnique({
             where: { nome: monthName },
             include: {
-                condominios: true,
+                condominios: {
+                    include: {
+                        condominio: true
+                    }
+                },
                 funcionarios: true
             }
         });
+
+        if (month) {
+            // Flatten administradora from relation if the field is null (legacy data)
+            const mappedCondos = month.condominios.map((mc: any) => ({
+                ...mc,
+                administradora: mc.administradora || mc.condominio?.administradora || null
+            }));
+            return { success: true, data: { ...month, condominios: mappedCondos } };
+        }
+
         return { success: true, data: month };
     } catch (e: any) {
         return { success: false, error: e.message };
