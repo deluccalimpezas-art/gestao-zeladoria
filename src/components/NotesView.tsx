@@ -187,12 +187,14 @@ export function NotesView({ initialNotes }: NotesViewProps) {
                                 onChange={e => setEditingNote(prev => ({ ...prev, title: e.target.value }))}
                                 className="w-full bg-transparent border-none outline-none text-2xl font-bold text-white placeholder:opacity-30"
                                 autoFocus
+                                spellCheck={false}
                             />
                             <textarea 
                                 placeholder="Comece a escrever aqui..."
                                 value={editingNote.content || ''}
                                 onChange={e => setEditingNote(prev => ({ ...prev, content: e.target.value }))}
                                 className="w-full bg-transparent border-none outline-none text-slate-300 placeholder:opacity-20 flex-1 min-h-[300px] resize-none leading-relaxed"
+                                spellCheck={false}
                             />
                         </div>
 
