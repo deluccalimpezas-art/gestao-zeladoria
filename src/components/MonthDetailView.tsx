@@ -2030,18 +2030,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                             const mName = localMonth.monthName.split(' ')[0];
                             const idx = monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase());
-                            // If we are in March (idx 2), we want Issuance Month to be April (4)
-                            // MONTHS array is 1-indexed for the generator, so idx+1 is March, idx+2 is April.
-                            let issuanceMonth = idx + 2;
-                            if (issuanceMonth > 12) issuanceMonth = 1;
-                            return issuanceMonth;
+                            return idx + 1;
                         })()}
                         initialYear={(() => {
-                            const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                            const mName = localMonth.monthName.split(' ')[0];
-                            const idx = monthsInPt.findIndex(m => m.toLowerCase() === mName.toLowerCase());
-                            let year = parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear();
-                            if (idx === 11) year += 1; // December -> January of next year
+                            const year = parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear();
                             return year;
                         })()}
                     />
