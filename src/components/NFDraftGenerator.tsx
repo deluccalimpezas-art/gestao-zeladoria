@@ -222,6 +222,12 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                             </div>
                         )}
                     </h1>
+                    {currentCondo && (
+                        <div className="mt-2 flex flex-col">
+                            <span className="text-lg font-bold text-slate-200">{currentCondo.nome}</span>
+                            <span className="text-xs font-mono text-slate-500">{formatCNPJ(currentCondo.cnpj)}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -325,10 +331,6 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                             </div>
                                         )}
                                     </div>
-                                </div>
-                                <div className="flex items-center justify-between px-5 py-3">
-                                    <span className="text-sm text-slate-400">CNPJ</span>
-                                    <span className="font-bold text-slate-300">{formatCNPJ(currentCondo?.cnpj)}</span>
                                 </div>
                                 <div className="flex items-center justify-between px-5 py-3">
                                     <span className="text-sm text-slate-400">Retenção INSS (11%)</span>
