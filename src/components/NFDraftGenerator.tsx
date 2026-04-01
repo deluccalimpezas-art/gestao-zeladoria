@@ -65,6 +65,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
     const [copiedDesc, setCopiedDesc] = useState(false);
     const [copiedEmail, setCopiedEmail] = useState(false);
     const [copiedSubject, setCopiedSubject] = useState(false);
+    const [copiedCnpj, setCopiedCnpj] = useState(false);
     const [showHolidays, setShowHolidays] = useState(false);
     const [monthlyRecordId, setMonthlyRecordId] = useState<string | null>(null);
     const [isSavingSync, setIsSavingSync] = useState(false);
@@ -223,9 +224,19 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                         )}
                     </h1>
                     {currentCondo && (
-                        <div className="mt-2 flex flex-col">
+                        <div className="mt-2 flex flex-col gap-2">
                             <span className="text-lg font-bold text-slate-200">{currentCondo.nome}</span>
-                            <span className="text-xs font-mono text-slate-500">{formatCNPJ(currentCondo.cnpj)}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-base font-black font-mono text-sky-400 bg-sky-400/10 px-3 py-1 rounded-lg border border-sky-400/30 shadow-lg shadow-sky-400/10">
+                                    {formatCNPJ(currentCondo.cnpj)}
+                                </span>
+                                <CopyButton 
+                                    text={formatCNPJ(currentCondo.cnpj)} 
+                                    copied={copiedCnpj} 
+                                    onCopy={() => copyText(formatCNPJ(currentCondo.cnpj), setCopiedCnpj)}
+                                    label="Copiar CNPJ"
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
