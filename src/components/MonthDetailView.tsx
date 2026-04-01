@@ -2021,6 +2021,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         condominios={(localMonth.condominios || []).map(c => ({
                             id: c.id,
                             nome: c.nome,
+                            cnpj: c.cnpj,
                             valorContrato: c.valorContrato || 0,
                             administradora: c.administradora
                         })) as any}

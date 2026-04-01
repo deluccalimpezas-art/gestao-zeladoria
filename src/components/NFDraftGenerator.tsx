@@ -37,6 +37,13 @@ const parseCurrency = (str: string): number => {
     return parseFloat(cleaned) || 0;
 };
 
+const formatCNPJ = (cnpj?: string) => {
+    if (!cnpj) return '';
+    const digits = cnpj.replace(/\D/g, '');
+    if (digits.length !== 14) return cnpj;
+    return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+};
+
 const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({ 
     condominios, 
     initialCondoId = '', 
@@ -318,6 +325,10 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                             </div>
                                         )}
                                     </div>
+                                </div>
+                                <div className="flex items-center justify-between px-5 py-3">
+                                    <span className="text-sm text-slate-400">CNPJ</span>
+                                    <span className="font-bold text-slate-300">{formatCNPJ(currentCondo?.cnpj)}</span>
                                 </div>
                                 <div className="flex items-center justify-between px-5 py-3">
                                     <span className="text-sm text-slate-400">Retenção INSS (11%)</span>
