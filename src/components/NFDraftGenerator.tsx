@@ -66,6 +66,8 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
     const [copiedEmail, setCopiedEmail] = useState(false);
     const [copiedSubject, setCopiedSubject] = useState(false);
     const [copiedCnpj, setCopiedCnpj] = useState(false);
+    const [copiedEmailBody, setCopiedEmailBody] = useState(false);
+    const [copiedFileName, setCopiedFileName] = useState(false);
     const [showHolidays, setShowHolidays] = useState(false);
     const [monthlyRecordId, setMonthlyRecordId] = useState<string | null>(null);
     const [isSavingSync, setIsSavingSync] = useState(false);
@@ -158,6 +160,10 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
 
     const emailBody = currentCondo
         ? `Bom dia, espero que esteja bem!\n\nEm anexo, envio a Nota Fiscal referente aos serviços de zeladoria do ${currentCondo.nome} do mês de ${mesReferenciaCurto}.\n\nCaso tenha alguma dúvida ou precise de mais informações, estou à disposição para ajudar.\n\nAtenciosamente,\nDeLucca Gestão em Limpeza`
+        : '';
+
+    const suggestedFileName = currentCondo 
+        ? `NFe ${currentCondo.nome} ${mesReferencia.replace(' de ', ' ').toLowerCase()}` 
         : '';
 
     const copyText = useCallback((text: string, setter: (v: boolean) => void) => {
@@ -347,10 +353,6 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                     <span className="text-sm text-slate-400">Retenção INSS (11%)</span>
                                     <span className="font-bold text-rose-400">{formatCurrency(retencao)}</span>
                                 </div>
-                                <div className="flex items-center justify-between px-5 py-4 bg-emerald-500/5">
-                                    <span className="text-sm font-bold text-emerald-400/80">Valor Líquido</span>
-                                    <span className="text-lg font-black text-emerald-400">{formatCurrency(valorLiquido)}</span>
-                                </div>
                             </div>
                         </div>
 
@@ -395,6 +397,21 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                         {emailSubject}
                                     </div>
                                 </div>
+
+                                <div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Nome do Arquivo NF</label>
+                                        <CopyButton 
+                                            text={suggestedFileName} 
+                                            copied={copiedFileName} 
+                                            onCopy={() => copyText(suggestedFileName, setCopiedFileName)}
+                                            label="Copiar"
+                                        />
+                                    </div>
+                                    <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm text-white font-mono break-all">
+                                        {suggestedFileName}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -422,7 +439,15 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                             </div>
 
                             <div className="p-6 bg-slate-900/30 border-t border-slate-700/50">
-                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 italic">Corpo do E-mail Sugerido</h4>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Corpo do E-mail Sugerido</h4>
+                                    <CopyButton 
+                                        text={emailBody} 
+                                        copied={copiedEmailBody} 
+                                        onCopy={() => copyText(emailBody, setCopiedEmailBody)}
+                                        label="Copiar Texto"
+                                    />
+                                </div>
                                 <div className="text-xs text-slate-400 whitespace-pre-line leading-relaxed">
                                     {emailBody}
                                 </div>
