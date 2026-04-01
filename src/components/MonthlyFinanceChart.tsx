@@ -57,7 +57,7 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
     };
 
     return (
-        <div className="bg-slate-800/20 border border-slate-700/30 rounded-[1.5rem] p-6 shadow-xl relative overflow-hidden backdrop-blur-md animate-in fade-in duration-1000">
+        <div className="bg-slate-800/20 border border-slate-700/30 rounded-[1.5rem] p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 relative z-10">
                 <div>
                     <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-2">
@@ -87,19 +87,6 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
                 </div>
 
                 <svg viewBox="0 -10 100 200" preserveAspectRatio="none" className="w-full h-full overflow-visible">
-                    {chartData.map((_, i) => (
-                        i % 2 === 1 && (
-                            <rect 
-                                key={`band-${i}`}
-                                x={getX(i-1)} 
-                                y="-10" 
-                                width={getX(i) - getX(i-1)} 
-                                height="210" 
-                                fill="#ffffff" 
-                                fillOpacity="0.03"
-                            />
-                        )
-                    ))}
 
                     {[0, 0.25, 0.5, 0.75, 1].map((p, i) => (
                         <line 
@@ -117,8 +104,6 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
                         fill="none" 
                         stroke="#3b82f6" 
                         strokeWidth="1.2" 
-                        strokeLinejoin="round" 
-                        strokeLinecap="round"
                     />
 
                     <polyline 
@@ -126,16 +111,8 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
                         fill="none" 
                         stroke="#14b8a6" 
                         strokeWidth="1.5" 
-                        strokeLinejoin="round" 
-                        strokeLinecap="round"
                     />
 
-                    {chartData.map((d, i) => (
-                        <React.Fragment key={`dots-${i}`}>
-                            <circle cx={getX(i)} cy={getY(d.faturamento)} r="0.6" fill="#3b82f6" />
-                            <circle cx={getX(i)} cy={getY(d.lucro)} r="0.8" fill="#14b8a6" />
-                        </React.Fragment>
-                    ))}
                 </svg>
 
                 <div className="absolute left-0 right-0 -bottom-8 flex justify-between">
