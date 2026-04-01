@@ -698,7 +698,7 @@ export async function updateFinanceMonthsOrder(orderedIds: string[]) {
             orderedIds.map((id, index) =>
                 prisma.financeMonth.update({
                     where: { id },
-                    data: { order: index }
+                    data: { order: index } as any
                 })
             )
         );
