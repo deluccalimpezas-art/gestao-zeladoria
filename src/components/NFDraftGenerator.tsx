@@ -15,7 +15,7 @@ const ADMIN_EMAILS: Record<string, string> = {
     'UP': 'contato@upcondominios.com',
     'VIBRA': 'financeiro@vibracondominios.com.br',
     'VIP': 'contato@vipscondominios.com.br',
-    'JN': 'financeiro@jncondominios.com.br',
+    'JN': 'adm01@jncondominios.com.br',
     'REM': 'financeiro1@rmcontabilidadesc.com.br',
     'RM': 'financeiro1@rmcontabilidadesc.com.br',
 };

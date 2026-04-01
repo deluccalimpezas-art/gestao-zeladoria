@@ -212,7 +212,11 @@ export async function getFinanceMonths() {
     try {
         const months = await (prisma as any).financeMonth.findMany({
             include: {
-                condominios: true,
+                condominios: {
+                    include: {
+                        condominio: true
+                    }
+                },
                 funcionarios: true,
                 impostos: true,
                 gastos: true,
@@ -234,6 +238,7 @@ export async function getFinanceMonths() {
                 pagamentoFeito: mc.pago,
                 valorContrato: mc.valorCobrado || 0,
                 condominioId: mc.condominioId || undefined,
+                administradora: mc.administradora || mc.condominio?.administradora || null,
                 observacao: mc.observacao || ''
             }));
 
