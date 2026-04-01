@@ -46,10 +46,6 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
     const range = maxVal - minVal;
 
     const getY = (val: number) => 180 - ((val - minVal) / range) * 160;
-    const getX = (idx: number) => (idx / (chartData.length - 1)) * 100;
-
-    const faturamentoPoints = chartData.map((d, i) => `${getX(i)},${getY(d.faturamento)}`).join(' ');
-    const lucroPoints = chartData.map((d, i) => `${getX(i)},${getY(d.lucro)}`).join(' ');
 
     const formatShortCurrency = (val: number) => {
         if (Math.abs(val) >= 1000) return `${(val / 1000).toFixed(0)}k`;
@@ -99,19 +95,42 @@ export function MonthlyFinanceChart({ monthsData }: MonthlyFinanceChartProps) {
                         />
                     ))}
 
-                    <polyline 
-                        points={faturamentoPoints} 
-                        fill="none" 
-                        stroke="#3b82f6" 
-                        strokeWidth="1.2" 
-                    />
+                    {chartData.map((d, i) => {
+                        const groupWidth = 100 / (chartData.length || 1);
+                        const barWidth = groupWidth * 0.35;
+                        const xBase = (i / chartData.length) * 100 + (groupWidth - barWidth * 2) / 2;
 
-                    <polyline 
-                        points={lucroPoints} 
-                        fill="none" 
-                        stroke="#14b8a6" 
-                        strokeWidth="1.5" 
-                    />
+                        const yFat = getY(d.faturamento);
+                        const hFat = Math.max(0, 180 - yFat);
+                        
+                        const yLucro = getY(d.lucro);
+                        const hLucro = Math.max(0, 180 - yLucro);
+
+                        return (
+                            <React.Fragment key={`bars-${i}`}>
+                                {/* Faturamento Bar */}
+                                <rect 
+                                    x={xBase} 
+                                    y={yFat} 
+                                    width={barWidth} 
+                                    height={hFat} 
+                                    fill="#3b82f6" 
+                                    rx="0.5"
+                                    className="transition-all duration-500 hover:fill-blue-400"
+                                />
+                                {/* Lucro Bar */}
+                                <rect 
+                                    x={xBase + barWidth + 0.5} 
+                                    y={yLucro} 
+                                    width={barWidth} 
+                                    height={hLucro} 
+                                    fill="#14b8a6" 
+                                    rx="0.5"
+                                    className="transition-all duration-500 hover:fill-teal-400"
+                                />
+                            </React.Fragment>
+                        );
+                    })}
 
                 </svg>
 
