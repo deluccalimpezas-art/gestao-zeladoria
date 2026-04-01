@@ -66,6 +66,8 @@ model FinanceMonth {
 model MonthlyCondominio {
   id           String       @id @default(uuid())
   valorCobrado Float
+  nfFeita      Boolean      @default(false)
+  nfEnviada    Boolean      @default(false)
   pago         Boolean      @default(false)
   monthId      String
   condominioId String?
@@ -80,6 +82,7 @@ model MonthlyCondominio {
 model MonthlyFuncionario {
   id            String       @id @default(uuid())
   valorPago     Float
+  pago          Boolean      @default(false)
   horasExtras   Float        @default(0)
   rescisaoFerias Float?      @default(0)
   monthId       String

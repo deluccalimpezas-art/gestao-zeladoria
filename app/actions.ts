@@ -478,6 +478,8 @@ export async function saveFinanceMonth(data: any) {
                         cnpj: c.cnpj,
                         administradora: c.administradora,
                         valorCobrado: c.receitaBruta || 0,
+                        nfFeita: c.nfFeita || false,
+                        nfEnviada: c.nfEnviada || false,
                         pago: c.pagamentoFeito || false,
                         condominioId: c.condominioId,
                         observacao: c.observacao
@@ -489,6 +491,8 @@ export async function saveFinanceMonth(data: any) {
                         cnpj: c.cnpj,
                         administradora: c.administradora,
                         valorCobrado: c.receitaBruta || 0,
+                        nfFeita: c.nfFeita || false,
+                        nfEnviada: c.nfEnviada || false,
                         pago: c.pagamentoFeito || false,
                         condominioId: c.condominioId,
                         observacao: c.observacao
@@ -514,6 +518,7 @@ export async function saveFinanceMonth(data: any) {
                         nome: f.nome,
                         condominio: f.condominio,
                         valorPago: f.salario || 0,
+                        pago: f.pagamentoFeito || false,
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
@@ -526,6 +531,7 @@ export async function saveFinanceMonth(data: any) {
                         nome: f.nome,
                         condominio: f.condominio,
                         valorPago: f.salario || 0,
+                        pago: f.pagamentoFeito || false,
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
@@ -639,13 +645,22 @@ export async function getMonthlyFinanceByMonth(monthName: string) {
     }
 }
 
-export async function updateMonthlyCondominio(id: string, data: { valorCobrado?: number, observacao?: string }) {
+export async function updateMonthlyCondominio(id: string, data: { 
+    valorCobrado?: number, 
+    observacao?: string,
+    nfFeita?: boolean,
+    nfEnviada?: boolean,
+    pago?: boolean
+}) {
     try {
         const result = await (prisma as any).monthlyCondominio.update({
             where: { id },
             data: {
                 valorCobrado: data.valorCobrado,
-                observacao: data.observacao
+                observacao: data.observacao,
+                nfFeita: data.nfFeita,
+                nfEnviada: data.nfEnviada,
+                pago: data.pago
             }
         });
         revalidatePath('/');
@@ -655,7 +670,13 @@ export async function updateMonthlyCondominio(id: string, data: { valorCobrado?:
     }
 }
 
-export async function updateMonthlyFuncionario(id: string, data: { valorPago?: number, horasExtras?: number, rescisaoFerias?: number, observacao?: string }) {
+export async function updateMonthlyFuncionario(id: string, data: { 
+    valorPago?: number, 
+    horasExtras?: number, 
+    rescisaoFerias?: number, 
+    observacao?: string,
+    pago?: boolean
+}) {
     try {
         const result = await (prisma as any).monthlyFuncionario.update({
             where: { id },
@@ -663,7 +684,8 @@ export async function updateMonthlyFuncionario(id: string, data: { valorPago?: n
                 valorPago: data.valorPago,
                 horasExtras: data.horasExtras,
                 rescisaoFerias: data.rescisaoFerias,
-                observacao: data.observacao
+                observacao: data.observacao,
+                pago: data.pago
             }
         });
         revalidatePath('/');
