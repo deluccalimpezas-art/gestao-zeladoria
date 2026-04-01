@@ -140,11 +140,7 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
 
             {monthsData.length > 0 && (
                 <div className="space-y-12">
-                    {/* Gráfico de Performance */}
-                    <MonthlyFinanceChart monthsData={monthsData} />
-
-                    {/* Bloco: Visão de Meses Detalhada */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 pt-4">
                         <div className="flex items-center justify-between px-2">
                              <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">Meses Individuais</h3>
                              <button 
