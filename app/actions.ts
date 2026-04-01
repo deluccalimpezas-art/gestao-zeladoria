@@ -233,8 +233,10 @@ export async function getFinanceMonths() {
                 nome: mc.nome,
                 cnpj: mc.cnpj || '',
                 receitaBruta: mc.valorCobrado || 0,
-                inssRetido: (mc.valorCobrado || 0) * 0.11,
-                receitaLiquida: (mc.valorCobrado || 0) * 0.89,
+                inssRetido: (mc.valorCobrado || 0) * (m.inssRate || 0.11),
+                receitaLiquida: (mc.valorCobrado || 0) - ((mc.valorCobrado || 0) * (m.inssRate || 0.11)),
+                nfFeita: mc.nfFeita || false,
+                nfEnviada: mc.nfEnviada || false,
                 pagamentoFeito: mc.pago,
                 valorContrato: mc.valorCobrado || 0,
                 condominioId: mc.condominioId || undefined,
@@ -252,6 +254,7 @@ export async function getFinanceMonths() {
                 statusClt: mf.statusClt,
                 salarioBase: mf.salarioBase || 0,
                 rescisaoFerias: mf.rescisaoFerias || 0,
+                pagamentoFeito: mf.pago,
                 funcionarioId: mf.funcionarioId || undefined,
                 observacao: mf.observacao || ''
             }));
@@ -266,7 +269,7 @@ export async function getFinanceMonths() {
             }));
 
             const totalBruto = mappedCondos.reduce((acc: number, c: any) => acc + c.receitaBruta, 0);
-            const totalInss = totalBruto * 0.11;
+            const totalInss = mappedCondos.reduce((acc: number, c: any) => acc + c.inssRetido, 0);
             const totalLiquida = totalBruto - totalInss;
             const totalSalarios = mappedFuncs.reduce((acc: number, f: any) => acc + f.totalReceber, 0);
             const totalImpostos = m.impostos.reduce((acc: number, i: any) => acc + i.valor, 0);
@@ -634,9 +637,16 @@ export async function getMonthlyFinanceByMonth(monthName: string) {
             // Flatten administradora from relation if the field is null (legacy data)
             const mappedCondos = month.condominios.map((mc: any) => ({
                 ...mc,
-                administradora: mc.administradora || mc.condominio?.administradora || null
+                administradora: mc.administradora || mc.condominio?.administradora || null,
+                pagamentoFeito: mc.pago,
+                receitaBruta: mc.valorCobrado
             }));
-            return { success: true, data: { ...month, condominios: mappedCondos } };
+            const mappedFuncs = month.funcionarios.map((mf: any) => ({
+                ...mf,
+                pagamentoFeito: mf.pago,
+                salario: mf.valorPago
+            }));
+            return { success: true, data: { ...month, condominios: mappedCondos, funcionarios: mappedFuncs } };
         }
 
         return { success: true, data: month };
