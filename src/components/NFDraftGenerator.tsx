@@ -355,6 +355,24 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                 </div>
                             </div>
                         </div>
+                        
+                        {/* Suggested Filename - Now between cards */}
+                        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 shadow-lg shadow-amber-500/5 flex items-center justify-between group hover:border-amber-500/40 transition-all">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[10px] font-black text-amber-500/60 uppercase tracking-widest italic flex items-center gap-2">
+                                    <FileText className="w-3 h-3" /> Sugestão: Nome do Arquivo NF
+                                </label>
+                                <div className="text-sm text-white font-mono font-bold">
+                                    {suggestedFileName}
+                                </div>
+                            </div>
+                            <CopyButton 
+                                text={suggestedFileName} 
+                                copied={copiedFileName} 
+                                onCopy={() => copyText(suggestedFileName, setCopiedFileName)}
+                                label="Copiar Nome"
+                            />
+                        </div>
 
                         {/* Email Card */}
                         <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl overflow-hidden shadow-lg hover:border-slate-600/50 transition-all">
@@ -395,21 +413,6 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                                     </div>
                                     <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm text-white">
                                         {emailSubject}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Nome do Arquivo NF</label>
-                                        <CopyButton 
-                                            text={suggestedFileName} 
-                                            copied={copiedFileName} 
-                                            onCopy={() => copyText(suggestedFileName, setCopiedFileName)}
-                                            label="Copiar"
-                                        />
-                                    </div>
-                                    <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm text-white font-mono break-all">
-                                        {suggestedFileName}
                                     </div>
                                 </div>
                             </div>
