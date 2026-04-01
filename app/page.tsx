@@ -1,3 +1,4 @@
+// Deploy trigger: sync schema and cleanup
 import { getCondominios, getFinanceMonths, getFuncionarios, getNotes, getRHImpostos } from './actions'
 import MainContent from '@/components/MainContent'
 
