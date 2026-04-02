@@ -424,15 +424,15 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     useEffect(() => {
         // Sincroniza props -> local apenas se os dados recebidos forem 
-        // significativamente diferentes do que acabamos de salvar.
-        // Isso evita que a revalidação do servidor (que pode vir atrasada) 
-        // sobrescreva o que o usuário ainda está digitando localmente.
+        // significativamente diferentes do que acabamos de salvar E não houver alterações pendentes.
+        if (hasChanges) return;
+
         const incoming = JSON.stringify(data);
         if (incoming !== lastSavedData) {
             setLocalData(data);
             setLastSavedData(incoming);
         }
-    }, [data, lastSavedData]);
+    }, [data, lastSavedData, hasChanges]);
 
     useEffect(() => {
         if (!hasChanges) return;
@@ -461,25 +461,27 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
         };
     }, [localData, hasChanges]);
 
-    const updateCondo = (index: number, field: keyof CondominioData, value: any) => {
+    const updateCondo = (id: string, field: keyof CondominioData, value: any) => {
         setLocalData(prev => {
-            const newList = [...prev.condominios];
-            const updatedCondo = { ...newList[index], [field]: value };
-            
-            if (field === 'inicio' && typeof value === 'string' && value.length >= 8) {
-                let day = 0, month = 0, year = 0;
-                const partsBar = value.split('/');
-                if (partsBar.length === 3) {
-                    day = parseInt(partsBar[0]);
-                    month = parseInt(partsBar[1]);
-                    year = parseInt(partsBar[2]);
-                    if (day > 0 && month > 0 && year > 0) {
-                        updatedCondo.termino = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year + 1}`;
+            const newList = prev.condominios.map(c => {
+                if (c.id === id) {
+                    const updated = { ...c, [field]: value };
+                    
+                    if (field === 'inicio' && typeof value === 'string' && value.length >= 8) {
+                        const partsBar = value.split('/');
+                        if (partsBar.length === 3) {
+                            const day = parseInt(partsBar[0]);
+                            const month = parseInt(partsBar[1]);
+                            const year = parseInt(partsBar[2]);
+                            if (day > 0 && month > 0 && year > 0) {
+                                updated.termino = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year + 1}`;
+                            }
+                        }
                     }
+                    return updated;
                 }
-            }
-            
-            newList[index] = updatedCondo;
+                return c;
+            });
             setHasChanges(true);
             return { ...prev, condominios: newList };
         });
@@ -695,8 +697,7 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                 isSortedByProfit={sortBy === 'lucro' || sortBy === 'margem'}
                                 employees={localData.funcionarios.filter(f => f.condominioId === condo.id && !f.deleted)}
                                 onUpdate={(field, val) => {
-                                    const idx = localData.condominios.findIndex(c => c.id === condo.id);
-                                    updateCondo(idx, field, val);
+                                    updateCondo(condo.id!, field, val);
                                 }}
                                 onRemove={() => removeCondo(condo.id!)}
                             />

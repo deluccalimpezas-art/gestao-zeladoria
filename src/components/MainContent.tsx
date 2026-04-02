@@ -47,7 +47,8 @@ import {
     duplicateFinanceMonth,
     deleteFinanceMonth,
     saveMasterRH,
-    saveFinanceMonth
+    saveFinanceMonth,
+    getMonthlyFinanceByMonth
 } from '../../app/actions';
 
 interface MainContentProps {
@@ -204,6 +205,35 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                 setDuplicateContext(null);
                 setDupMonthName("");
                 router.refresh();
+            }
+        });
+    };
+
+    const handleImportFromMonth = async () => {
+        if (!importConfirm) return;
+        
+        startTransition(async () => {
+            const res = await getMonthlyFinanceByMonth(importConfirm.monthName);
+            if (res.success && res.data) {
+                const monthData = res.data;
+                const updated = { ...masterRH };
+                
+                monthData.condominios.forEach((mc: any) => {
+                    const idx = updated.condominios.findIndex(c => c.nome === mc.nome || (mc.condominioId && c.id === mc.condominioId));
+                    if (idx > -1) {
+                        updated.condominios[idx] = { 
+                            ...updated.condominios[idx], 
+                            administradora: mc.administradora,
+                            cnpj: mc.cnpj
+                        };
+                    }
+                });
+
+                setMasterRH(updated);
+                setImportConfirm(null);
+                alert("Dados importados localmente. Lembre-se de clicar em 'Salvar' no Master RH para persistir.");
+            } else {
+                alert("Erro ao importar: " + res.error);
             }
         });
     };
@@ -503,7 +533,17 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
 
                 {importConfirm && (
                     <Modal isOpen={true} onClose={() => setImportConfirm(null)} title="Confirmar Importação">
-                        <div className="p-4 text-slate-300">Deseja importar de {importConfirm.monthName}?</div>
+                        <div className="space-y-4 p-2 text-slate-300">
+                            <div className="text-sm">Deseja importar nomes de administradoras e CNPJs do mês <strong>{importConfirm.monthName}</strong> para o cadastro principal?</div>
+                            <div className="text-[10px] text-slate-500 italic">*Isso atualizará os dados localmente, você precisará clicar em salvar no Master RH para persistir.</div>
+                            <button 
+                                onClick={handleImportFromMonth} 
+                                disabled={isPending}
+                                className={`w-full text-white rounded-xl py-3 text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${isPending ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20'}`}
+                            >
+                                {isPending ? 'Importando...' : 'Confirmar Importação'}
+                            </button>
+                        </div>
                     </Modal>
                 )}
             </main>
