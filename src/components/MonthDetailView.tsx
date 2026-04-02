@@ -45,7 +45,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-    const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status'>('name');
+    const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status' | 'admin'>('name');
     const [noteModal, setNoteModal] = useState<{
         isOpen: boolean;
         type: 'condo' | 'func' | 'tax';
@@ -210,8 +210,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [newImpData, setNewImpData] = useState({ nome: '', valor: 0, vencimento: '' });
 
     const [isAddRescisaoModalOpen, setIsAddRescisaoModalOpen] = useState(false);
-    const [selectedFuncForRescisao, setSelectedFuncForRescisao] = useState<number | 'new' | null>(null);
-    const [tempRescisaoValue, setTempRescisaoValue] = useState(0);
+    const [newRescisaoData, setNewRescisaoData] = useState({ 
+        nome: '', 
+        condominio: '', 
+        tipo: 'Rescisão' as 'Rescisão' | 'Férias',
+        valor: 0 
+    });
 
 
     const handleSaveNewCondo = () => {
@@ -270,18 +274,26 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
 
     const handleSaveRescisao = () => {
-        if (selectedFuncForRescisao === null) return;
-
-        if (selectedFuncForRescisao === 'new') {
-            alert("Para adicionar um lançamento avulso, primeiro adicione o colaborador na aba de Funcionários e depois vincule o valor.");
-            return;
-        }
-
-        updateFunc(selectedFuncForRescisao as number, 'rescisaoFerias', tempRescisaoValue);
+        if (!newRescisaoData.nome) return alert("Nome é obrigatório");
         
+        const fresh: FuncionarioData = {
+            id: crypto.randomUUID(),
+            nome: newRescisaoData.nome,
+            condominio: newRescisaoData.condominio,
+            salario: 0,
+            horasExtras: 0,
+            vales: 0,
+            faltas: 0,
+            cargo: newRescisaoData.tipo,
+            rescisaoFerias: newRescisaoData.valor,
+            totalReceber: 0,
+            pagamentoFeito: false
+        };
+        
+        const newList = [...(localMonth.funcionarios || []), fresh];
+        updateHistory({ ...localMonth, funcionarios: newList });
         setIsAddRescisaoModalOpen(false);
-        setSelectedFuncForRescisao(null);
-        setTempRescisaoValue(0);
+        setNewRescisaoData({ nome: '', condominio: '', tipo: 'Rescisão', valor: 0 });
     };
 
     const updateCondo = (index: number, field: keyof CondominioData, value: string | number | boolean) => {
@@ -568,6 +580,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         switch (condoSortMethod) {
             case 'name':
                 return base.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            case 'admin':
+                return base.sort((a, b) => (a.administradora || '').localeCompare(b.administradora || ''));
             case 'status':
                 return base.sort((a, b) => {
                     if (a.pagamentoFeito === b.pagamentoFeito) return (a.nome || '').localeCompare(b.nome || '');
@@ -741,31 +755,31 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
                     />
                 </td>
-                <td className="px-1 py-2 text-right">
+                <td className="px-1 py-2 text-right w-24">
                     <CurrencyField
                         value={func.salario || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
                         textColor="text-white"
-                        width="w-24"
+                        width="w-full"
                     />
                 </td>
-                <td className="px-1 py-2 text-right">
+                <td className="px-1 py-2 text-right w-24">
                     <CurrencyField
                         value={func.horasExtras || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
                         textColor="text-emerald-400"
-                        width="w-24"
+                        width="w-full"
                     />
                 </td>
-                <td className="px-1 py-2 text-right">
+                <td className="px-1 py-2 text-right w-24">
                     <CurrencyField
                         value={func.vales || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
                         textColor="text-red-400"
-                        width="w-24"
+                        width="w-full"
                     />
                 </td>
-                <td className="px-1 py-2 text-center">
+                <td className="px-1 py-2 text-center w-20">
                     <input
                         type="number"
                         value={func.faltas || 0}
@@ -970,6 +984,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Líquido Unificado</p>
                                             <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
+                                        </div>
+                                        <div className="h-8 w-px bg-slate-700 mx-2"></div>
+                                        <div className="flex flex-col gap-1.5 min-w-[140px]">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ordenar por:</p>
+                                            <div className="flex bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/50">
+                                                {[
+                                                    { id: 'name', label: 'Nome' },
+                                                    { id: 'value', label: 'Valor' },
+                                                    { id: 'admin', label: 'Admin' }
+                                                ].map(opt => (
+                                                    <button
+                                                        key={opt.id}
+                                                        onClick={() => setCondoSortMethod(opt.id as any)}
+                                                        className={`flex-1 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tight transition-all ${condoSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    >
+                                                        {opt.label}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 ml-auto">
@@ -1202,10 +1235,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <tr>
                                             <th className="px-1 py-3">Colaboradora</th>
                                             <th className="px-1 py-3">Condomínio</th>
-                                            <th className="px-1 py-3 text-right text-slate-400">Salário</th>
-                                            <th className="px-1 py-3 text-right text-emerald-400">Extras</th>
-                                            <th className="px-1 py-3 text-right text-red-400">Vales</th>
-                                            <th className="px-1 py-3 text-center text-slate-400">Faltas</th>
+                                            <th className="px-1 py-3 text-right text-slate-400 w-24">Salário</th>
+                                            <th className="px-1 py-3 text-right text-emerald-400 w-24">Extras</th>
+                                            <th className="px-1 py-3 text-right text-red-400 w-24">Vales</th>
+                                            <th className="px-1 py-3 text-center text-slate-400 w-20">Faltas</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 w-6 text-center" title="Observação"></th>
@@ -1855,49 +1888,69 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             </Modal>
 
             {/* Modal de Lançamento de Rescisão/Férias */}
+            {/* Modal de Lançamento de Rescisão/Férias (Novo) */}
             <Modal
                 isOpen={isAddRescisaoModalOpen}
                 onClose={() => setIsAddRescisaoModalOpen(false)}
                 title="Lançar Rescisão ou Férias"
             >
-                <div className="space-y-6">
-                    <p className="text-sm text-slate-400">Selecione um colaborador da lista mensal para aplicar o valor de rescisão ou férias.</p>
-                    
+                <div className="space-y-6 p-2">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Colaborador</label>
-                        <select 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 appearance-none"
-                            value={selectedFuncForRescisao || ''}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === 'new') setSelectedFuncForRescisao('new');
-                                else setSelectedFuncForRescisao(parseInt(val));
-                            }}
-                        >
-                            <option value="">Selecione...</option>
-                            {sortedFuncs.map(f => (
-                                <option key={f.originalIndex} value={f.originalIndex}>{f.nome} ({f.condominio})</option>
-                            ))}
-                            <option value="new">+ Adicionar Lançamento Avulso</option>
-                        </select>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nome do Colaborador</label>
+                        <input 
+                            type="text" 
+                            placeholder="Nome completo" 
+                            value={newRescisaoData.nome} 
+                            onChange={e => setNewRescisaoData({...newRescisaoData, nome: e.target.value})} 
+                            className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
+                        />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Valor do Pagamento (R$)</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</label>
                         <input 
-                            type="number" 
-                            step="0.01"
-                            placeholder="0,00"
-                            value={tempRescisaoValue} 
-                            onChange={e => setTempRescisaoValue(parseFloat(e.target.value) || 0)} 
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
+                            type="text" 
+                            placeholder="Nome do Condomínio" 
+                            value={newRescisaoData.condominio} 
+                            onChange={e => setNewRescisaoData({...newRescisaoData, condominio: e.target.value})} 
+                            className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
                         />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tipo</label>
+                            <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                                <button 
+                                    onClick={() => setNewRescisaoData({...newRescisaoData, tipo: 'Rescisão'})}
+                                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all ${newRescisaoData.tipo === 'Rescisão' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    Rescisão
+                                </button>
+                                <button 
+                                    onClick={() => setNewRescisaoData({...newRescisaoData, tipo: 'Férias'})}
+                                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase transition-all ${newRescisaoData.tipo === 'Férias' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    Férias
+                                </button>
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Valor (R$)</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0,00"
+                                value={newRescisaoData.valor} 
+                                onChange={e => setNewRescisaoData({...newRescisaoData, valor: parseFloat(e.target.value) || 0})} 
+                                className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm font-bold text-indigo-400 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all" 
+                            />
+                        </div>
                     </div>
 
                     <button 
                         onClick={handleSaveRescisao}
-                        disabled={selectedFuncForRescisao === null}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] mt-4"
                     >
                         Confirmar Lançamento
                     </button>
