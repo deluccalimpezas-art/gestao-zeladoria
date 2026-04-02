@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Building2, Search, Plus, Trash2, ChevronDown, ChevronUp, Calendar, UploadCloud, FileText, CheckCircle2, Loader2, Users, TrendingUp, ArrowUpDown, Check, AlertTriangle } from 'lucide-react';
 import type { MasterRHData, CondominioData, FuncionarioData } from '../modelsFinance';
+import { ADMIN_CONFIGS } from '../lib/adminConfigs';
 
 interface CondoCardProps {
     condo: CondominioData;
@@ -115,14 +116,23 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
                             </span>
                         </div>
                         <div className="flex items-center md:col-span-2">
-                            <input
-                                value={condo.administradora || ''}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('administradora', e.target.value)}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-300 font-medium text-xs ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="Administradora"
-                            />
+                            {isExpanded ? (
+                                <select
+                                    value={condo.administradora || ''}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => onUpdate('administradora', e.target.value)}
+                                    className="bg-slate-800/50 border border-slate-700/50 rounded px-2 py-1.5 w-full text-slate-300 font-medium text-xs outline-none focus:ring-1 focus:ring-indigo-500 transition-all appearance-none"
+                                >
+                                    <option value="">Selecione Adm</option>
+                                    {ADMIN_CONFIGS.map(adm => (
+                                        <option key={adm.name} value={adm.name}>{adm.name}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <div className="px-2 py-0.5 w-full text-slate-300 font-medium text-xs truncate">
+                                    {condo.administradora || 'Sem Adm'}
+                                </div>
+                            )}
                         </div>
                         <div className="flex items-center md:col-span-2">
                             <input
