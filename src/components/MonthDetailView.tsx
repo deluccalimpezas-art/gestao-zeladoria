@@ -3,6 +3,7 @@ import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingD
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
+import { ADMIN_CONFIGS } from '../lib/adminConfigs';
 import NFDraftGenerator from './NFDraftGenerator';
 import { PaymentGeneratorView } from './PaymentGeneratorView';
 
@@ -201,7 +202,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     // Modais de Adição
     const [isAddCondoModalOpen, setIsAddCondoModalOpen] = useState(false);
-    const [newCondoData, setNewCondoData] = useState({ nome: '', receitaBruta: 0, inssRetido: 0 });
+    const [newCondoData, setNewCondoData] = useState({ nome: '', administradora: '', receitaBruta: 0, inssRetido: 0 });
 
     const [isAddFuncModalOpen, setIsAddFuncModalOpen] = useState(false);
     const [newFuncData, setNewFuncData] = useState({ nome: '', condominio: '', salario: 0 });
@@ -234,7 +235,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const newList = [...(localMonth.condominios || []), fresh];
         updateHistory({ ...localMonth, condominios: newList });
         setIsAddCondoModalOpen(false);
-        setNewCondoData({ nome: '', receitaBruta: 0, inssRetido: 0 });
+        setNewCondoData({ nome: '', administradora: '', receitaBruta: 0, inssRetido: 0 });
     };
 
     const handleSaveNewFunc = () => {
@@ -1057,11 +1058,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                     placeholder="Nome"
                                                                     title={condo.nome}
                                                                 />
-                                                                {condo.administradora && (
-                                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-700/50 text-slate-400 border border-slate-700">
-                                                                        {condo.administradora}
-                                                                    </span>
-                                                                )}
+                                                                <select
+                                                                    value={condo.administradora || ''}
+                                                                    onChange={(e) => updateCondo(condo.originalIndex, 'administradora', e.target.value)}
+                                                                    className="bg-slate-800/80 border border-slate-700/50 rounded px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-slate-400 outline-none focus:ring-1 focus:ring-indigo-500"
+                                                                >
+                                                                    <option value="">Adm</option>
+                                                                    {ADMIN_CONFIGS.map(adm => (
+                                                                        <option key={adm.name} value={adm.name}>{adm.name}</option>
+                                                                    ))}
+                                                                </select>
                                                             </div>
                                                             <div className="flex items-center gap-1 px-1">
                                                                 <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter shrink-0">CNPJ:</span>
@@ -1649,14 +1655,29 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 title="Novo Condomínio no Mês"
             >
                 <div className="space-y-6">
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome do Condomínio</label>
-                        <input 
-                            type="text" value={newCondoData.nome} 
-                            onChange={e => setNewCondoData({...newCondoData, nome: e.target.value})}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
-                            placeholder="Ex: Condomínio Solar"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nome do Condomínio</label>
+                            <input 
+                                type="text" value={newCondoData.nome} 
+                                onChange={e => setNewCondoData({...newCondoData, nome: e.target.value})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                                placeholder="Ex: Condomínio Solar"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Administradora</label>
+                            <select
+                                value={newCondoData.administradora}
+                                onChange={e => setNewCondoData({...newCondoData, administradora: e.target.value})}
+                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none"
+                            >
+                                <option value="">Selecione...</option>
+                                {ADMIN_CONFIGS.map(adm => (
+                                    <option key={adm.name} value={adm.name}>{adm.name}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">

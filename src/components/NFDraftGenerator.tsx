@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, Copy, Check, Briefcase, Mail, DollarSign, ChevronDown, Calendar } from 'lucide-react';
 import { CondominioData } from '@/modelsFinance';
 import { MONTHS, getHolidays } from '@/lib/holidayUtils';
+import { ADMIN_CONFIGS, getAdminEmail } from '../lib/adminConfigs';
 import { getMonthlyFinanceByMonth, updateMonthlyCondominio } from '../../app/actions';
 
 interface NFDraftGeneratorProps {
@@ -11,23 +12,6 @@ interface NFDraftGeneratorProps {
     initialYear?: number;
 }
 
-const ADMIN_EMAILS: Record<string, string> = {
-    'UP': 'contato@upcondominios.com',
-    'VIBRA': 'financeiro@vibracondominios.com.br',
-    'VIP': 'contato@vipscondominios.com.br',
-    'JN': 'adm01@jncondominios.com.br',
-    'REM': 'financeiro1@rmcontabilidadesc.com.br',
-    'RM': 'financeiro1@rmcontabilidadesc.com.br',
-};
-
-const getAdminEmail = (administradora?: string): string | null => {
-    if (!administradora) return null;
-    const upper = administradora.trim().toUpperCase();
-    for (const [key, email] of Object.entries(ADMIN_EMAILS)) {
-        if (upper.includes(key)) return email;
-    }
-    return null;
-};
 
 const formatCurrency = (value: number): string =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value).replace(/\s/g, '');
