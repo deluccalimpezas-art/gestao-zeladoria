@@ -983,27 +983,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <div className="h-8 w-px bg-slate-700"></div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Líquido Unificado</p>
-                                            <div className="flex items-center gap-3">
-                                                <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
-                                                
-                                                {/* Novo Seletor de Ordenação Compacto com Setas */}
-                                                <div className="flex bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/50 ml-2">
-                                                    {[
-                                                        { id: 'name', icon: <ArrowUpDown className="w-3.5 h-3.5" />, title: 'Ordem Alfabética' },
-                                                        { id: 'value', icon: <ArrowDownWideNarrow className="w-3.5 h-3.5" />, title: 'Maior Valor' },
-                                                        { id: 'admin', icon: <ArrowUpNarrowWide className="w-3.5 h-3.5" />, title: 'Administradora' }
-                                                    ].map(opt => (
-                                                        <button
-                                                            key={opt.id}
-                                                            onClick={() => setCondoSortMethod(opt.id as any)}
-                                                            className={`p-1.5 rounded-md transition-all ${condoSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                                            title={opt.title}
-                                                        >
-                                                            {opt.icon}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
+                                            <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 ml-auto">
@@ -1043,8 +1023,24 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                 <th className="px-2 py-3 text-right text-slate-400 w-28">Bruto</th>
                                                 <th className="px-2 py-3 text-right text-slate-400 w-28">INSS</th>
                                                 <th className="px-2 py-3 text-right font-bold text-slate-400 w-28">Líquido</th>
-                                                                <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
-                                                <th className="px-2 py-3 w-8"></th>
+                                                <th className="px-1 py-3 text-right" colSpan={3}>
+                                                    <div className="flex bg-slate-800 p-0.5 rounded-md border border-slate-700/50 w-fit ml-auto">
+                                                        {[
+                                                            { id: 'name', icon: <ArrowUpDown className="w-3 h-3" />, title: 'Ordem Alfabética' },
+                                                            { id: 'value', icon: <ArrowDownWideNarrow className="w-3 h-3" />, title: 'Maior Valor' },
+                                                            { id: 'admin', icon: <ArrowUpNarrowWide className="w-3 h-3" />, title: 'Administradora' }
+                                                        ].map(opt => (
+                                                            <button
+                                                                key={opt.id}
+                                                                onClick={() => setCondoSortMethod(opt.id as any)}
+                                                                className={`p-1 rounded-md transition-all ${condoSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                                title={opt.title}
+                                                            >
+                                                                {opt.icon}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-700/50">
