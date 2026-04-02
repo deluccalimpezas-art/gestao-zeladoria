@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -983,25 +983,26 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <div className="h-8 w-px bg-slate-700"></div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Líquido Unificado</p>
-                                            <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
-                                        </div>
-                                        <div className="h-8 w-px bg-slate-700 mx-2"></div>
-                                        <div className="flex flex-col gap-1.5 min-w-[140px]">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ordenar por:</p>
-                                            <div className="flex bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/50">
-                                                {[
-                                                    { id: 'name', label: 'Nome' },
-                                                    { id: 'value', label: 'Valor' },
-                                                    { id: 'admin', label: 'Admin' }
-                                                ].map(opt => (
-                                                    <button
-                                                        key={opt.id}
-                                                        onClick={() => setCondoSortMethod(opt.id as any)}
-                                                        className={`flex-1 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tight transition-all ${condoSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                                                    >
-                                                        {opt.label}
-                                                    </button>
-                                                ))}
+                                            <div className="flex items-center gap-3">
+                                                <p className="text-2xl font-black text-blue-400">{formatCurrency(currentTotals.liquida)}</p>
+                                                
+                                                {/* Novo Seletor de Ordenação Compacto com Setas */}
+                                                <div className="flex bg-slate-800/80 p-0.5 rounded-lg border border-slate-700/50 ml-2">
+                                                    {[
+                                                        { id: 'name', icon: <ArrowUpDown className="w-3.5 h-3.5" />, title: 'Ordem Alfabética' },
+                                                        { id: 'value', icon: <ArrowDownWideNarrow className="w-3.5 h-3.5" />, title: 'Maior Valor' },
+                                                        { id: 'admin', icon: <ArrowUpNarrowWide className="w-3.5 h-3.5" />, title: 'Administradora' }
+                                                    ].map(opt => (
+                                                        <button
+                                                            key={opt.id}
+                                                            onClick={() => setCondoSortMethod(opt.id as any)}
+                                                            className={`p-1.5 rounded-md transition-all ${condoSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                            title={opt.title}
+                                                        >
+                                                            {opt.icon}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
