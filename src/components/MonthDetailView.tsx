@@ -727,36 +727,37 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const renderFuncRow = (func: any) => (
         <React.Fragment key={func.originalIndex}>
             <tr className="hover:bg-slate-700/10 h-14">
-                <td className="px-2 py-2">
+                <td className="px-1 py-2">
                     <input
                         value={func.nome}
                         onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium text-xs"
                     />
                 </td>
-                <td className="px-2 py-2 text-slate-400">
+                <td className="px-1 py-2 text-slate-400">
                     <input
                         value={func.condominio}
                         onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
                         className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
                     />
                 </td>
-                <td className="px-2 py-2 text-right">
+                <td className="px-1 py-2 text-right">
                     <CurrencyField
                         value={func.salario || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
                         textColor="text-white"
+                        width="w-24"
                     />
                 </td>
-                <td className="px-3 py-3 text-right">
+                <td className="px-1 py-2 text-right">
                     <CurrencyField
                         value={func.horasExtras || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
                         textColor="text-emerald-400"
-                        width="w-28"
+                        width="w-24"
                     />
                 </td>
-                <td className="px-2 py-2 text-right">
+                <td className="px-1 py-2 text-right">
                     <CurrencyField
                         value={func.vales || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
@@ -1018,13 +1019,20 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <tr className="hover:bg-slate-700/10 group h-14">
                                                     <td className="px-2 py-2">
                                                         <div className="flex flex-col gap-0.5 w-full max-w-[250px]">
-                                                            <input
-                                                                value={condo.nome}
-                                                                onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-black text-sm uppercase tracking-tight truncate"
-                                                                placeholder="Nome"
-                                                                title={condo.nome}
-                                                            />
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                <input
+                                                                    value={condo.nome}
+                                                                    onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
+                                                                    className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-auto text-white font-black text-sm uppercase tracking-tight truncate max-w-[180px]"
+                                                                    placeholder="Nome"
+                                                                    title={condo.nome}
+                                                                />
+                                                                {condo.administradora && (
+                                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-700/50 text-slate-400 border border-slate-700">
+                                                                        {condo.administradora}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                             <div className="flex items-center gap-1 px-1">
                                                                 <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter shrink-0">CNPJ:</span>
                                                                 <input
@@ -1192,12 +1200,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <table className="w-full text-left text-sm text-slate-300">
                                     <thead className="bg-slate-900/50 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-700">
                                         <tr>
-                                            <th className="px-2 py-3">Colaboradora</th>
-                                            <th className="px-2 py-3">Condomínio</th>
-                                            <th className="px-2 py-3 text-right">Salário</th>
-                                            <th className="px-2 py-3 text-right text-emerald-400">Extras</th>
-                                            <th className="px-2 py-3 text-right text-red-400">Vales</th>
-                                            <th className="px-1 py-3 text-center">Faltas</th>
+                                            <th className="px-1 py-3">Colaboradora</th>
+                                            <th className="px-1 py-3">Condomínio</th>
+                                            <th className="px-1 py-3 text-right text-slate-400">Salário</th>
+                                            <th className="px-1 py-3 text-right text-emerald-400">Extras</th>
+                                            <th className="px-1 py-3 text-right text-red-400">Vales</th>
+                                            <th className="px-1 py-3 text-center text-slate-400">Faltas</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 w-6 text-center" title="Observação"></th>
@@ -1280,11 +1288,26 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             rescisoesFuncs.map((func) => (
                                                 <tr key={func.originalIndex} className="hover:bg-slate-700/10 h-16 group">
                                                     <td className="px-4 py-2">
-                                                        <div className="text-sm font-bold text-white mb-0.5">{func.nome}</div>
-                                                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">{func.cargo || 'Operacional'}</div>
+                                                        <input
+                                                            value={func.nome}
+                                                            onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
+                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-sm font-bold text-white mb-0.5"
+                                                            placeholder="Nome"
+                                                        />
+                                                        <input
+                                                            value={func.cargo || 'Rescisão/Férias'}
+                                                            onChange={(e) => updateFunc(func.originalIndex, 'cargo', e.target.value)}
+                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-[10px] text-slate-500 uppercase tracking-wider"
+                                                            placeholder="Tipo (Ex: Rescisão)"
+                                                        />
                                                     </td>
                                                     <td className="px-4 py-2">
-                                                        <span className="px-2 py-1 bg-slate-900 rounded-lg text-xs text-slate-400 border border-slate-700">{func.condominio}</span>
+                                                        <input
+                                                            value={func.condominio}
+                                                            onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
+                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 bg-slate-900 text-xs text-slate-400 border border-slate-700 min-w-[120px]"
+                                                            placeholder="Condomínio"
+                                                        />
                                                     </td>
                                                     <td className="px-4 py-2 text-right">
                                                         <CurrencyField
