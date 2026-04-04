@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState, useRef } from 'react';
-import { PenTool, Printer, Building2, MapPin, Edit3, RotateCcw, Sparkles, StickyNote } from 'lucide-react';
+import { PenTool, Printer, Building2, MapPin, Edit3, RotateCcw, Sparkles, StickyNote, Bold, Type, ChevronUp, ChevronDown } from 'lucide-react';
 
 export function ProposalGeneratorView() {
-    const [clientName, setClientName] = useState('Cond. Summer Ville');
+    const [clientName, setClientName] = useState('Residencial Summer Ville');
     const [clientAddress, setClientAddress] = useState('Itapema/SC');
     const [customObservations, setCustomObservations] = useState('');
     
@@ -38,10 +38,43 @@ export function ProposalGeneratorView() {
             if (el) {
                 setManualHtml(el.innerHTML);
                 setIsManualMode(true);
+                // We'll set the innerHTML in useEffect to avoid jumping
             }
         } else {
             if (window.confirm("Sair do modo de edição manual irá descartar suas alterações personalizadas e voltar ao modelo automático. Deseja continuar?")) {
                 setIsManualMode(false);
+            }
+        }
+    };
+
+    React.useEffect(() => {
+        if (isManualMode && editableRef.current && manualHtml) {
+            if (editableRef.current.innerHTML !== manualHtml) {
+                editableRef.current.innerHTML = manualHtml;
+            }
+        }
+    }, [isManualMode]);
+
+    const execCommand = (command: string, value: string | null = null) => {
+        document.execCommand(command, false, value || undefined);
+        handleManualChange();
+    };
+
+    const adjustFontSize = (delta: number) => {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const parent = range.commonAncestorContainer.parentElement;
+            if (parent) {
+                const currentSize = window.getComputedStyle(parent).fontSize;
+                const newSize = (parseInt(currentSize) + delta) + 'px';
+                document.execCommand('fontSize', false, '3'); // dummy to create font tag or span
+                // execCommand fontSize is very limited (1-7). 
+                // Better approach for precision:
+                const span = document.createElement('span');
+                span.style.fontSize = newSize;
+                range.surroundContents(span);
+                handleManualChange();
             }
         }
     };
@@ -300,13 +333,41 @@ export function ProposalGeneratorView() {
                         style={{ width: '210mm', margin: '0 auto' }}
                     >
                         {isManualMode ? (
-                            <div 
-                                ref={editableRef}
-                                contentEditable
-                                onInput={handleManualChange}
-                                className="outline-none focus:ring-2 focus:ring-amber-500/20 rounded min-h-[200mm]"
-                                dangerouslySetInnerHTML={{ __html: manualHtml }}
-                            />
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 p-2 bg-slate-100 rounded-lg border border-slate-200 no-print">
+                                    <button 
+                                        onClick={() => execCommand('bold')}
+                                        className="p-2 hover:bg-slate-200 rounded transition-colors text-slate-700"
+                                        title="Negrito"
+                                    >
+                                        <Bold className="w-4 h-4" />
+                                    </button>
+                                    <div className="w-px h-4 bg-slate-300 mx-1" />
+                                    <button 
+                                        onClick={() => adjustFontSize(2)}
+                                        className="flex items-center gap-1 p-2 hover:bg-slate-200 rounded transition-colors text-slate-700 font-bold"
+                                        title="Aumentar Fonte"
+                                    >
+                                        <Type className="w-4 h-4" />
+                                        <ChevronUp className="w-3 h-3" />
+                                    </button>
+                                    <button 
+                                        onClick={() => adjustFontSize(-2)}
+                                        className="flex items-center gap-1 p-2 hover:bg-slate-200 rounded transition-colors text-slate-700"
+                                        title="Diminuir Fonte"
+                                    >
+                                        <Type className="w-4 h-4" />
+                                        <ChevronDown className="w-3 h-3" />
+                                    </button>
+                                </div>
+                                <div 
+                                    ref={editableRef}
+                                    contentEditable
+                                    onInput={handleManualChange}
+                                    className="outline-none focus:ring-2 focus:ring-amber-500/20 rounded min-h-[200mm] p-4 bg-white"
+                                    suppressContentEditableWarning
+                                />
+                            </div>
                         ) : (
                             <div id="proposal-content-area" className="flex flex-col space-y-6 text-sm">
                                 {/* Letterhead */}
@@ -331,13 +392,13 @@ export function ProposalGeneratorView() {
                                     PROPOSTA DE PRESTAÇÃO DE SERVIÇOS
                                 </h1>
 
-                                <div className="flex justify-between items-end bg-slate-50 p-6 rounded-lg border border-slate-100 mb-8 gap-4 overflow-hidden">
+                                <div className="flex justify-between items-end bg-slate-50 p-6 rounded-lg border border-slate-100 mb-8 gap-16 overflow-hidden">
                                     <div className="flex-shrink-0">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Informações do Cliente</p>
-                                        <p className="font-bold text-slate-900 whitespace-nowrap">Nome: {clientName}</p>
+                                        <p className="font-bold text-slate-900 whitespace-nowrap">Condominio: {clientName}</p>
                                     </div>
                                     <div className="flex-grow text-right min-w-0">
-                                        <p className="font-bold text-slate-900 whitespace-nowrap overflow-visible">Endereço: {clientAddress}</p>
+                                        <p className="font-bold text-slate-900 whitespace-nowrap overflow-visible"> {clientAddress}</p>
                                     </div>
                                 </div>
 
