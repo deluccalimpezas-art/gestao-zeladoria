@@ -348,10 +348,10 @@ export function ProposalGeneratorView() {
                                                                             if (!zeladoraFound) {
                                                                                 zeladoraFound = true;
                                                                                 return item.count > 1 
-                                                                                    ? `${item.count} Funcionárias (01 Zeladora e ${String(item.count - 1).padStart(2, '0')} Auxiliares)` 
-                                                                                    : 'Uma zeladora';
+                                                                                    ? `${item.count} Funcionárias (1 Zeladora e ${String(item.count - 1).padStart(1, '0')} Auxiliares)` 
+                                                                                    : '1 zeladora';
                                                                             }
-                                                                            return item.count > 1 ? `${item.count} Auxiliares de limpeza` : 'Uma Auxiliar de limpeza';
+                                                                            return item.count > 1 ? `${item.count} Auxiliares de limpeza` : '1 Auxiliar de limpeza';
                                                                         })()} - 44h semanais
                                                                     </p>
                                                                     <div className="text-xs text-slate-600 space-y-1 ml-4">
@@ -364,7 +364,7 @@ export function ProposalGeneratorView() {
                                                             ) : item.type === '22h' ? (
                                                                 <>
                                                                     <p className="font-bold text-slate-900 italic">
-                                                                        {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Auxiliares de limpeza` : 'Uma Auxiliar de limpeza'} - 22h semanais
+                                                                        {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Auxiliares de limpeza` : '1 Auxiliar de limpeza'} - 22h semanais
                                                                     </p>
                                                                     <div className="text-xs text-slate-600 space-y-1 ml-4">
                                                                         <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
