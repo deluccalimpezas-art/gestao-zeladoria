@@ -1,13 +1,16 @@
 'use client'
 
 import React, { useState, useRef } from 'react';
-import { PenTool, Printer, Building2, MapPin, Edit3, RotateCcw, Sparkles } from 'lucide-react';
+import { PenTool, Printer, Building2, MapPin, Edit3, RotateCcw, Sparkles, StickyNote } from 'lucide-react';
 
 export function ProposalGeneratorView() {
     const [clientName, setClientName] = useState('Cond. Summer Ville');
     const [clientAddress, setClientAddress] = useState('Itapema/SC');
+    const [customObservations, setCustomObservations] = useState('');
     
     // Service Item Interface
+// ...
+// (skipping lines for clarity, but I'll provide the full ReplacementContent in the tool call)
     interface ServiceItem {
         id: string;
         type: '44h' | '22h' | 'manual';
@@ -271,6 +274,19 @@ export function ProposalGeneratorView() {
                         </div>
                     </div>
 
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4 no-print">
+                        <h2 className="text-white font-black uppercase tracking-widest text-xs flex items-center gap-2">
+                            <StickyNote className="w-4 h-4 text-amber-400" />
+                            Observações Adicionais
+                        </h2>
+                        <textarea 
+                            value={customObservations}
+                            onChange={(e) => setCustomObservations(e.target.value)}
+                            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-3 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-all font-medium text-sm min-h-[100px]"
+                            placeholder="Ex: Atendimento 24h, inclusão de jardinagem, etc..."
+                        />
+                    </div>
+
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 italic text-sm text-amber-200/80 leading-relaxed shadow-lg">
                         "O orçamento é a primeira impressão da nossa qualidade. Certifique-se de que os valores estão corretos antes de imprimir."
                     </div>
@@ -348,10 +364,10 @@ export function ProposalGeneratorView() {
                                                                             if (!zeladoraFound) {
                                                                                 zeladoraFound = true;
                                                                                 return item.count > 1 
-                                                                                    ? `${item.count} Funcionárias (1 Zeladora e ${String(item.count - 1).padStart(1, '0')} Auxiliares)` 
+                                                                                    ? `${item.count} Funcionárias (1 zeladora e ${String(item.count - 1).padStart(1, '0')} auxiliares)` 
                                                                                     : '1 zeladora';
                                                                             }
-                                                                            return item.count > 1 ? `${item.count} Auxiliares de limpeza` : '1 Auxiliar de limpeza';
+                                                                            return item.count > 1 ? `${item.count} auxiliares de limpeza` : '1 auxiliar de limpeza';
                                                                         })()} - 44h semanais
                                                                     </p>
                                                                     <div className="text-xs text-slate-600 space-y-1 ml-4">
@@ -364,7 +380,7 @@ export function ProposalGeneratorView() {
                                                             ) : item.type === '22h' ? (
                                                                 <>
                                                                     <p className="font-bold text-slate-900 italic">
-                                                                        {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Auxiliares de limpeza` : '1 Auxiliar de limpeza'} - 22h semanais
+                                                                        {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} auxiliares de limpeza` : '1 auxiliar de limpeza'} - 22h semanais
                                                                     </p>
                                                                     <div className="text-xs text-slate-600 space-y-1 ml-4">
                                                                         <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
@@ -407,9 +423,16 @@ export function ProposalGeneratorView() {
                                     </ul>
                                 </div>
 
-                                <div className="bg-amber-50 p-4 border-l-4 border-amber-400 text-xs italic text-slate-700 mt-16 rounded-r-lg">
-                                    <span className="font-bold block mb-1">Observação:</span>
-                                    Este orçamento contempla apenas a prestação de serviços, não incluindo materiais de limpeza ou equipamentos.
+                                <div className="bg-amber-50 p-4 border-l-4 border-amber-400 text-xs italic text-slate-700 mt-16 rounded-r-lg space-y-3">
+                                    <div>
+                                        <span className="font-bold block mb-1">Observação:</span>
+                                        Este orçamento contempla apenas a prestação de serviços, não incluindo materiais de limpeza ou equipamentos.
+                                    </div>
+                                    {customObservations && (
+                                        <div className="pt-2 border-t border-amber-200/50 whitespace-pre-wrap">
+                                            {customObservations}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="pt-8">
