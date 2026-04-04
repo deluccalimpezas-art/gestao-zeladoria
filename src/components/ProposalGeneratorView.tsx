@@ -336,46 +336,57 @@ export function ProposalGeneratorView() {
                                     <h3 className="font-bold uppercase tracking-widest text-xs border-b border-slate-100 pb-2">Proposta Comercial</h3>
                                     <div className="bg-slate-50 p-6 rounded-lg border border-slate-100 space-y-6">
                                         <div className="space-y-6">
-                                            {serviceItems.map((item, idx) => (
-                                                <div key={item.id} className="flex justify-between items-start border-b border-slate-200/50 pb-6 last:border-0 last:pb-0">
-                                                    <div className="space-y-2">
-                                                        {item.type === '44h' ? (
-                                                            <>
-                                                                <p className="font-bold text-slate-900 italic">
-                                                                    {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Funcionárias` : 'Uma zeladora'} - 44h semanais
-                                                                </p>
-                                                                <div className="text-xs text-slate-600 space-y-1 ml-4">
-                                                                    <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
-                                                                    <p>Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
-                                                                    <p className="font-bold text-slate-800 pt-1">Sábado:</p>
-                                                                    <p>Período matutino (08:00 às 12:00)</p>
+                                            {(() => {
+                                                let zeladoraFound = false;
+                                                return serviceItems.map((item, idx) => (
+                                                    <div key={item.id} className="flex justify-between items-start border-b border-slate-200/50 pb-6 last:border-0 last:pb-0">
+                                                        <div className="space-y-2">
+                                                            {item.type === '44h' ? (
+                                                                <>
+                                                                    <p className="font-bold text-slate-900 italic">
+                                                                        {String.fromCharCode(65 + idx)}) {(() => {
+                                                                            if (!zeladoraFound) {
+                                                                                zeladoraFound = true;
+                                                                                return item.count > 1 
+                                                                                    ? `${item.count} Funcionárias (01 Zeladora e ${String(item.count - 1).padStart(2, '0')} Auxiliares)` 
+                                                                                    : 'Uma zeladora';
+                                                                            }
+                                                                            return item.count > 1 ? `${item.count} Auxiliares de limpeza` : 'Uma Auxiliar de limpeza';
+                                                                        })()} - 44h semanais
+                                                                    </p>
+                                                                    <div className="text-xs text-slate-600 space-y-1 ml-4">
+                                                                        <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
+                                                                        <p>Período Integral (08:00 às 12:00, 13:00 às 17:00)</p>
+                                                                        <p className="font-bold text-slate-800 pt-1">Sábado:</p>
+                                                                        <p>Período matutino (08:00 às 12:00)</p>
+                                                                    </div>
+                                                                </>
+                                                            ) : item.type === '22h' ? (
+                                                                <>
+                                                                    <p className="font-bold text-slate-900 italic">
+                                                                        {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Auxiliares de limpeza` : 'Uma Auxiliar de limpeza'} - 22h semanais
+                                                                    </p>
+                                                                    <div className="text-xs text-slate-600 space-y-1 ml-4">
+                                                                        <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
+                                                                        <p>Período matutino (08:00 às 12:00)</p>
+                                                                        <p className="font-bold text-slate-800 pt-1">Sábado:</p>
+                                                                        <p>Período matutino (08:00 às 10:00)</p>
+                                                                    </div>
+                                                                </>
+                                                            ) : (
+                                                                <div className="space-y-1">
+                                                                    <p className="font-bold text-slate-900 italic">
+                                                                        {String.fromCharCode(65 + idx)}) {item.customLabel || 'Serviço Personalizado'} {item.count > 1 ? `(${item.count}x)` : ''}
+                                                                    </p>
+                                                                    {item.customValue && (
+                                                                        <p className="text-xs text-slate-500 ml-4 italic">Valor unitário: R$ {item.customValue}</p>
+                                                                    )}
                                                                 </div>
-                                                            </>
-                                                        ) : item.type === '22h' ? (
-                                                            <>
-                                                                <p className="font-bold text-slate-900 italic">
-                                                                    {String.fromCharCode(65 + idx)}) {item.count > 1 ? `${item.count} Funcionárias` : 'Uma Auxiliar de limpeza'} - 22h semanais
-                                                                </p>
-                                                                <div className="text-xs text-slate-600 space-y-1 ml-4">
-                                                                    <p className="font-bold text-slate-800">Segunda à sexta-feira:</p>
-                                                                    <p>Período matutino (08:00 às 12:00)</p>
-                                                                    <p className="font-bold text-slate-800 pt-1">Sábado:</p>
-                                                                    <p>Período matutino (08:00 às 10:00)</p>
-                                                                </div>
-                                                            </>
-                                                        ) : (
-                                                            <div className="space-y-1">
-                                                                <p className="font-bold text-slate-900 italic">
-                                                                    {String.fromCharCode(65 + idx)}) {item.customLabel || 'Serviço Personalizado'} {item.count > 1 ? `(${item.count}x)` : ''}
-                                                                </p>
-                                                                {item.customValue && (
-                                                                    <p className="text-xs text-slate-500 ml-4 italic">Valor unitário: R$ {item.customValue}</p>
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ));
+                                            })()}
                                         </div>
 
                                         <div className="pt-4 border-t-2 border-slate-200 flex flex-col items-end">
