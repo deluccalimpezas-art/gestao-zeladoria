@@ -315,13 +315,13 @@ export function ProposalGeneratorView() {
                                     PROPOSTA DE PRESTAÇÃO DE SERVIÇOS
                                 </h1>
 
-                                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-6 rounded-lg border border-slate-100 mb-8">
-                                    <div>
+                                <div className="flex justify-between items-end bg-slate-50 p-6 rounded-lg border border-slate-100 mb-8 gap-4 overflow-hidden">
+                                    <div className="flex-shrink-0">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Informações do Cliente</p>
-                                        <p className="font-bold text-slate-900">Nome: {clientName}</p>
+                                        <p className="font-bold text-slate-900 whitespace-nowrap">Nome: {clientName}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-slate-900">Endereço: {clientAddress}</p>
+                                    <div className="flex-grow text-right min-w-0">
+                                        <p className="font-bold text-slate-900 whitespace-nowrap overflow-visible">Endereço: {clientAddress}</p>
                                     </div>
                                 </div>
 
