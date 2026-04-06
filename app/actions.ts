@@ -337,26 +337,8 @@ export async function createFinanceMonth(nome: string) {
                 });
             }
 
-            const funcs = await tx.funcionario.findMany({ 
-                where: { deleted: false },
-                include: { condominio: true } 
-            });
-            console.log("Funcionários encontrados na base:", funcs.length);
-            if (funcs.length > 0) {
-                await tx.monthlyFuncionario.createMany({
-                    data: funcs.map(f => ({
-                        monthId: newMonth.id,
-                        nome: f.nome,
-                        condominio: (f as any).condominioNome || f.condominio?.nome || '',
-                        salarioBase: (f as any).salarioBase || 0,
-                        valorPago: (f as any).salarioBase || 0,
-                        statusClt: (f as any).statusClt,
-                        rescisaoFerias: 0,
-                        funcionarioId: f.id,
-                        observacao: (f as any).observacao || ''
-                    }))
-                });
-            }
+            // Skip employee auto-import as requested (User prefers mass import tool)
+            console.log("Pulo da importação de funcionários (conforme solicitado)");
 
             const rhImpostos = await (tx as any).rHImposto.findMany();
             if (rhImpostos.length > 0) {
@@ -411,21 +393,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
             });
         }
 
-        if (source.funcionarios.length > 0) {
-            await prisma.monthlyFuncionario.createMany({
-                data: source.funcionarios.map((f: any) => ({
-                    monthId: newMonth.id,
-                    nome: f.nome,
-                    condominio: f.condominio,
-                    salarioBase: f.salarioBase,
-                    valorPago: f.valorPago,
-                    horasExtras: f.horasExtras,
-                    statusClt: f.statusClt,
-                    funcionarioId: f.funcionarioId,
-                    observacao: f.observacao
-                }))
-            });
-        }
+        // Skip employee duplication as requested
 
         if (source.impostos.length > 0) {
             await prisma.monthlyImposto.createMany({
