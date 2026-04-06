@@ -608,19 +608,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         return sortedFuncs.filter(f => (f.rescisaoFerias || 0) > 0);
     }, [sortedFuncs]);
 
-    const gestaoFuncs = useMemo(() => sortedFuncs.filter(f => ['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
-    const operacionalFuncs = useMemo(() => sortedFuncs.filter(f => !['Gerente', 'Volante', 'RH'].includes(f.condominio || '')), [sortedFuncs]);
-
     const teamStats = useMemo(() => {
-        const gestaoTotal = gestaoFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
-        const operacionalTotal = operacionalFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
         return {
-            gestaoCount: gestaoFuncs.length,
-            gestaoTotal,
-            operacionalCount: operacionalFuncs.length,
-            operacionalTotal
+            totalCount: sortedFuncs.length,
+            totalValue: sortedFuncs.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0)
         };
-    }, [gestaoFuncs, operacionalFuncs]);
+    }, [sortedFuncs]);
 
 
     const sortedImpostos = useMemo(() => {
@@ -1007,7 +1000,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
                             className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
                         >
-                            <Users2 className="w-3.5 h-3.5" /> Operacional (Funcs)
+                            <Users2 className="w-3.5 h-3.5" /> Colaboradores
                         </button>
                     </div>
 
@@ -1060,7 +1053,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <span className="text-xs uppercase font-medium text-slate-400">Condomínios</span>
                                         </div>
                                         <div className="p-4 bg-slate-800 rounded-lg border border-indigo-500/30 flex flex-col items-center justify-center">
-                                            <h4 className="text-3xl font-black text-white mb-1">{teamStats.gestaoCount + teamStats.operacionalCount}</h4>
+                                            <h4 className="text-3xl font-black text-white mb-1">{teamStats.totalCount}</h4>
                                             <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-widest">Colaboradores</span>
                                         </div>
                                     </div>
@@ -1328,16 +1321,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <div className="flex items-center gap-4">
                                     <div className="text-right">
                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
-                                            Custo Gestão <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.gestaoCount}</span>
+                                            Total Colaboradores <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.totalCount}</span>
                                         </p>
-                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.gestaoTotal)}</p>
-                                    </div>
-                                    <div className="h-8 w-px bg-slate-700"></div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
-                                            Custo Operacional <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.operacionalCount}</span>
-                                        </p>
-                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.operacionalTotal)}</p>
+                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.totalValue)}</p>
                                     </div>
                                     <div className="h-8 w-px bg-slate-700"></div>
                                     <div className="text-right">
@@ -1371,26 +1357,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
-                                        {gestaoFuncs.length > 0 && (
-                                            <>
-                                                <tr className="bg-indigo-900/10">
-                                                    <td colSpan={11} className="px-4 py-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest border-y border-indigo-500/20">
-                                                        Equipe de Gestão
-                                                    </td>
-                                                </tr>
-                                                {gestaoFuncs.map(renderFuncRow)}
-                                            </>
-                                        )}
-                                        {operacionalFuncs.length > 0 && (
-                                            <>
-                                                <tr className="bg-slate-900/20">
-                                                    <td colSpan={11} className="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-y border-slate-700/30">
-                                                        Equipe Operacional
-                                                    </td>
-                                                </tr>
-                                                {operacionalFuncs.map(renderFuncRow)}
-                                            </>
-                                        )}
+                                        {sortedFuncs.map(renderFuncRow)}
                                     </tbody>
                                     <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
                                         <tr className="text-white font-bold">
