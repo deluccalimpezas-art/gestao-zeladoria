@@ -92,6 +92,7 @@ model MonthlyFuncionario {
   salarioBase   Float        @default(0)
   statusClt     String?
   observacao    String?
+  contaConfirmada Boolean      @default(false)
   funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
   month         FinanceMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
 }

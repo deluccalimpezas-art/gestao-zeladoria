@@ -56,6 +56,7 @@ export interface FuncionarioData {
     observacao?: string;
     podeRegistrar?: boolean;
     rescisaoFerias?: number;
+    contaConfirmada?: boolean;
 }
 
 export interface ImpostoData {

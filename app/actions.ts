@@ -255,6 +255,7 @@ export async function getFinanceMonths() {
                 salarioBase: mf.salarioBase || 0,
                 rescisaoFerias: mf.rescisaoFerias || 0,
                 pagamentoFeito: mf.pago,
+                contaConfirmada: mf.contaConfirmada || false,
                 funcionarioId: mf.funcionarioId || undefined,
                 observacao: mf.observacao || ''
             }));
@@ -351,6 +352,7 @@ export async function createFinanceMonth(nome: string) {
                         salarioBase: (f as any).salarioBase || 0,
                         valorPago: (f as any).salarioBase || 0,
                         statusClt: (f as any).statusClt,
+                        contaConfirmada: (f as any).contaConfirmada || false,
                         rescisaoFerias: 0,
                         funcionarioId: f.id,
                         observacao: (f as any).observacao || ''
@@ -421,6 +423,7 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
                     valorPago: f.valorPago,
                     horasExtras: f.horasExtras,
                     statusClt: f.statusClt,
+                    contaConfirmada: f.contaConfirmada || false,
                     funcionarioId: f.funcionarioId,
                     observacao: f.observacao
                 }))
@@ -525,6 +528,7 @@ export async function saveFinanceMonth(data: any) {
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
+                        contaConfirmada: f.contaConfirmada || false,
                         funcionarioId: f.funcionarioId,
                         observacao: f.observacao
                     },
@@ -538,6 +542,7 @@ export async function saveFinanceMonth(data: any) {
                         horasExtras: f.horasExtras || 0,
                         rescisaoFerias: f.rescisaoFerias || 0,
                         statusClt: f.statusClt,
+                        contaConfirmada: f.contaConfirmada || false,
                         funcionarioId: f.funcionarioId,
                         observacao: f.observacao
                     }
@@ -644,6 +649,7 @@ export async function getMonthlyFinanceByMonth(monthName: string) {
             const mappedFuncs = month.funcionarios.map((mf: any) => ({
                 ...mf,
                 pagamentoFeito: mf.pago,
+                contaConfirmada: mf.contaConfirmada || false,
                 salario: mf.valorPago
             }));
             return { success: true, data: { ...month, condominios: mappedCondos, funcionarios: mappedFuncs } };
@@ -685,7 +691,8 @@ export async function updateMonthlyFuncionario(id: string, data: {
     horasExtras?: number, 
     rescisaoFerias?: number, 
     observacao?: string,
-    pago?: boolean
+    pago?: boolean,
+    contaConfirmada?: boolean
 }) {
     try {
         const result = await (prisma as any).monthlyFuncionario.update({
@@ -695,7 +702,8 @@ export async function updateMonthlyFuncionario(id: string, data: {
                 horasExtras: data.horasExtras,
                 rescisaoFerias: data.rescisaoFerias,
                 observacao: data.observacao,
-                pago: data.pago
+                pago: data.pago,
+                contaConfirmada: data.contaConfirmada
             }
         });
         revalidatePath('/');
