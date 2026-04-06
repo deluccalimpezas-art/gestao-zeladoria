@@ -10,6 +10,7 @@ interface NFDraftGeneratorProps {
     initialCondoId?: string;
     initialMonth?: number;
     initialYear?: number;
+    onUpdateSuccess?: (newValue: number) => void;
 }
 
 
@@ -32,7 +33,8 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
     condominios, 
     initialCondoId = '', 
     initialMonth = new Date().getMonth() + 1,
-    initialYear = new Date().getFullYear()
+    initialYear = new Date().getFullYear(),
+    onUpdateSuccess
 }) => {
     const [selectedCondoId, setSelectedCondoId] = useState<string>(initialCondoId);
     const [selectedMonth, setSelectedMonth] = useState<number>(initialMonth);
@@ -123,6 +125,7 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
             });
             if (result.success) {
                 setLastSyncedValue(valorBruto);
+                if (onUpdateSuccess) onUpdateSuccess(valorBruto);
                 alert('Valor atualizado na planilha financeira com sucesso!');
             } else {
                 alert('Erro ao atualizar planilha: ' + result.error);

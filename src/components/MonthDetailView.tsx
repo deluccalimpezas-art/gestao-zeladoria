@@ -202,7 +202,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     // Modais de Adição
     const [isAddCondoModalOpen, setIsAddCondoModalOpen] = useState(false);
-    const [newCondoData, setNewCondoData] = useState({ nome: '', receitaBruta: 0, inssRetido: 0 });
+    const [newCondoData, setNewCondoData] = useState({ nome: '', receitaBruta: 0, inssRetido: 0, administradora: '' });
 
     const [isAddFuncModalOpen, setIsAddFuncModalOpen] = useState(false);
     const [newFuncData, setNewFuncData] = useState({ nome: '', condominio: '', salario: 0 });
@@ -228,6 +228,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             receitaBruta: newCondoData.receitaBruta,
             inssRetido: newCondoData.inssRetido,
             receitaLiquida: newCondoData.receitaBruta - newCondoData.inssRetido,
+            administradora: newCondoData.administradora,
             nfFeita: false,
             nfEnviada: false,
             pagamentoFeito: false
@@ -235,7 +236,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const newList = [...(localMonth.condominios || []), fresh];
         updateHistory({ ...localMonth, condominios: newList });
         setIsAddCondoModalOpen(false);
-        setNewCondoData({ nome: '', receitaBruta: 0, inssRetido: 0 });
+        setNewCondoData({ nome: '', receitaBruta: 0, inssRetido: 0, administradora: '' });
     };
 
     const handleSaveNewFunc = () => {
@@ -783,14 +784,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-right w-24">
                     <CurrencyField
-                        value={func.horasExtras || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
-                        textColor="text-emerald-400"
-                        width="w-full"
-                    />
-                </td>
-                <td className="px-1 py-2 text-right w-24">
-                    <CurrencyField
                         value={func.vales || 0}
                         onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
                         textColor="text-red-400"
@@ -805,10 +798,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
                     />
                 </td>
+                <td className="px-1 py-2 text-right w-24">
+                    <CurrencyField
+                        value={func.horasExtras || 0}
+                        onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
+                        textColor="text-emerald-400"
+                        width="w-full"
+                    />
+                </td>
                 <td className="px-1 py-2 text-center">
                     <button
                         onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
                         className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
+                    />
+                </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
+                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm' : 'bg-slate-700/40'}`}
+                        title="Conta Confirmada"
                     />
                 </td>
                 <td className="px-2 py-2 text-right">
@@ -1251,12 +1259,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-1 py-3">Colaboradora</th>
                                             <th className="px-1 py-3">Condomínio</th>
                                             <th className="px-1 py-3 text-right text-slate-400 w-24">Salário</th>
-                                            <th className="px-1 py-3 text-right text-emerald-400 w-24">Extras</th>
-                                            <th className="px-1 py-3 text-right text-red-400 w-24">Vales</th>
+                                            <th className="px-1 py-3 text-right text-slate-400 w-24">Vales</th>
                                             <th className="px-1 py-3 text-center text-slate-400 w-20">Faltas</th>
-                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`}>Pagt.</th>
+                                            <th className="px-1 py-3 text-right text-slate-400 w-24">Extras</th>
+                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
+                                            <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
-                                            <th className="px-1 py-3 w-6 text-center" title="Observação"></th>
+                                            <th className="px-1 py-3 w-8 text-center" title="Holerite de Texto">Hol.</th>
+                                            <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
                                             <th className="px-1 py-3 w-8"></th>
                                         </tr>
                                     </thead>
@@ -1694,9 +1704,22 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             />
                         </div>
                     </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Administradora</label>
+                        <select 
+                            value={newCondoData.administradora}
+                            onChange={e => setNewCondoData({...newCondoData, administradora: e.target.value})}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none appearance-none"
+                        >
+                            <option value="">Nenhuma / Direto</option>
+                            {Object.keys(ADMIN_CONFIGS).map(admin => (
+                                <option key={admin} value={admin}>{admin}</option>
+                            ))}
+                        </select>
+                    </div>
                     <button 
                         onClick={handleSaveNewCondo}
-                        className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-600/20 transition-all"
+                        className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-600/20 transition-all mt-4"
                     >
                         Cadastrar Condomínio
                     </button>
@@ -2127,6 +2150,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             const year = parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear();
                             return year;
                         })()}
+                        onUpdateSuccess={(newValue) => {
+                            const condoIdx = (localMonth.condominios || []).findIndex(c => c.nome === fullNfGeneratorCondoName);
+                            if (condoIdx !== -1) {
+                                updateCondo(condoIdx, 'receitaBruta', newValue);
+                            }
+                        }}
                     />
                 </div>
             </Modal>
