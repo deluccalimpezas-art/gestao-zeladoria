@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow, Copy } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Users2, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow, Copy, FileDown, Zap, BarChart3, Building } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -13,7 +13,7 @@ interface MonthDetailViewProps {
     onSave: (updated: MonthlyFinanceData) => void;
 }
 
-type TabType = 'visao_geral' | 'condominios' | 'folha' | 'rescisoes' | 'impostos' | 'gastos';
+type TabType = 'visao_geral' | 'condominios' | 'folha' | 'rescisoes' | 'impostos' | 'gastos' | 'gerador';
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -24,6 +24,7 @@ const formatCurrency = (value: number) => {
 
 export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
+    const [dashboardMode, setDashboardMode] = useState<'financeiro' | 'operacional'>('financeiro');
     const [localMonth, setLocalMonth] = useState<MonthlyFinanceData>(month);
     const [history, setHistory] = useState<MonthlyFinanceData[]>([month]);
     const [historyIndex, setHistoryIndex] = useState(0);
@@ -205,6 +206,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [newCondoData, setNewCondoData] = useState({ nome: '', receitaBruta: 0, inssRetido: 0, administradora: '' });
 
     const [isAddFuncModalOpen, setIsAddFuncModalOpen] = useState(false);
+    const [isMassImportModalOpen, setIsMassImportModalOpen] = useState(false);
+    const [importText, setImportText] = useState('');
     const [newFuncData, setNewFuncData] = useState({ nome: '', condominio: '', salario: 0 });
 
     const [isAddImpModalOpen, setIsAddImpModalOpen] = useState(false);
@@ -445,15 +448,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const list = [...(localMonth.funcionarios || [])];
         const updated = { ...list[index], [field]: value };
 
-        // Auto-calculate: Total = Salário + Horas Extras - Vales - (Faltas × Salário/30)
+        // Auto-calculate: Total = Salário + Horas Extras - Vales - Faltas (R$)
         // Keep rescisao separate from the employee's main "Total a Receber"
         if (field === 'salario' || field === 'horasExtras' || field === 'vales' || field === 'faltas') {
             const sal = Number(field === 'salario' ? value : updated.salario) || 0;
             const extras = Number(field === 'horasExtras' ? value : updated.horasExtras) || 0;
             const vales = Number(field === 'vales' ? value : updated.vales) || 0;
             const faltas = Number(field === 'faltas' ? value : updated.faltas) || 0;
-            const descontoFaltas = (sal / 30) * faltas;
-            updated.totalReceber = Math.max(0, sal + extras - vales - descontoFaltas);
+            updated.totalReceber = Math.max(0, sal + extras - vales - faltas);
         }
 
         list[index] = updated;
@@ -740,15 +742,84 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }
     };
 
+    const handleMassImport = () => {
+        if (!importText.trim()) return;
+
+        // Simple parser for the format:
+        // Name
+        // Salario base: R$X
+        // + Extras: R$X
+        // - Faltas: R$X
+        // - Vales: R$X
+        // = LÍQUIDO: R$X
+        
+        const blocks = importText.split('\n\n').filter(b => b.trim());
+        const list = [...(localMonth.funcionarios || [])];
+        let importedCount = 0;
+
+        blocks.forEach(block => {
+            const lines = block.split('\n').map(l => l.trim());
+            if (lines.length < 2) return;
+
+            const nome = lines[0];
+            const getVal = (regex: RegExp) => {
+                const match = block.match(regex);
+                if (match) {
+                    return parseFloat(match[1].replace(/\./g, '').replace(',', '.')) || 0;
+                }
+                return 0;
+            };
+
+            const sal = getVal(/Salario base: R\$\s*([\d.,]+)/i);
+            const extras = getVal(/\+ Extras: R\$\s*([\d.,]+)/i);
+            const faltas = getVal(/- Faltas: R\$\s*([\d.,]+)/i);
+            const vales = getVal(/- Vales: R\$\s*([\d.,]+)/i);
+
+            // Find existing or create new
+            const idx = list.findIndex(f => f.nome.toLowerCase() === nome.toLowerCase());
+            if (idx !== -1) {
+                list[idx] = {
+                    ...list[idx],
+                    salario: sal,
+                    horasExtras: extras,
+                    faltas: faltas,
+                    vales: vales,
+                    totalReceber: Math.max(0, sal + extras - faltas - vales)
+                };
+                importedCount++;
+            } else {
+                // For new employees, they might not have a condo yet, but we'll add them to 'Operacional' or 'Unassigned'
+                list.push({
+                    nome,
+                    condominio: 'Importado',
+                    salario: sal,
+                    horasExtras: extras,
+                    faltas: faltas,
+                    vales: vales,
+                    totalReceber: Math.max(0, sal + extras - faltas - vales),
+                    pagamentoFeito: false,
+                    contaConfirmada: false
+                } as any);
+                importedCount++;
+            }
+        });
+
+        const totalSalarios = list.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+        updateHistory({ ...localMonth, funcionarios: list, totalSalarios });
+        setHasChanges(true);
+        setIsMassImportModalOpen(false);
+        setImportText('');
+        alert(`${importedCount} funcionários processados com sucesso!`);
+    };
+
     const handleCopyHolerite = async (func: any) => {
         const base = Number(func.salario) || 0;
         const extras = Number(func.horasExtras) || 0;
         const vales = Number(func.vales) || 0;
-        const faltasDias = Number(func.faltas) || 0;
-        const descontoFaltas = (base / 30) * faltasDias;
+        const faltas = Number(func.faltas) || 0;
         const total = Number(func.totalReceber) || 0;
 
-        const text = `${func.nome}\n\nSalario:${formatCurrency(base)}\nExtras:${formatCurrency(extras)}\nFaltas:${formatCurrency(descontoFaltas)}\nvales:${formatCurrency(vales)}\n\nTOTAL:${formatCurrency(total)}`;
+        const text = `${func.nome}\n\nSalario:${formatCurrency(base)}\nExtras:${formatCurrency(extras)}\nFaltas:${formatCurrency(faltas)}\nvales:${formatCurrency(vales)}\n\nTOTAL:${formatCurrency(total)}`;
         
         try {
             await navigator.clipboard.writeText(text);
@@ -790,12 +861,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         width="w-full"
                     />
                 </td>
-                <td className="px-1 py-2 text-center w-20">
-                    <input
-                        type="number"
+                <td className="px-1 py-2 text-right w-24">
+                    <CurrencyField
                         value={func.faltas || 0}
-                        onChange={(e) => updateFunc(func.originalIndex, 'faltas', parseInt(e.target.value) || 0)}
-                        className="bg-slate-900/50 border-none outline-none focus:ring-2 focus:ring-amber-500 rounded px-1 py-1 w-12 text-center text-amber-500 font-bold text-xs"
+                        onChange={(val) => updateFunc(func.originalIndex, 'faltas', val)}
+                        textColor="text-amber-500"
+                        width="w-full"
                     />
                 </td>
                 <td className="px-1 py-2 text-right w-24">
@@ -923,13 +994,39 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             </div>
 
             <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
-                <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-900/20 px-4 pt-4 hide-scrollbar">
-                    <TabButton active={activeTab === 'visao_geral'} onClick={() => setActiveTab('visao_geral')} icon={<Activity className="w-4 h-4" />} label="Visão Geral" />
-                    <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
-                    <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Funcionários" />
-                    <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
-                    <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos e Taxas" />
-                    <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
+                <div className="flex flex-col border-b border-slate-700 bg-slate-900/40">
+                    {/* Dashboard Mode Selector */}
+                    <div className="flex gap-4 p-4 border-b border-slate-700/50">
+                        <button 
+                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('visao_geral'); }}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'financeiro' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <Building2 className="w-3.5 h-3.5" /> Financeiro (Condos)
+                        </button>
+                        <button 
+                            onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
+                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <Users2 className="w-3.5 h-3.5" /> Operacional (Funcs)
+                        </button>
+                    </div>
+
+                    <div className="flex overflow-x-auto px-4 pt-2 hide-scrollbar">
+                        {dashboardMode === 'financeiro' ? (
+                            <>
+                                <TabButton active={activeTab === 'visao_geral'} onClick={() => setActiveTab('visao_geral')} icon={<Activity className="w-4 h-4" />} label="Visão Geral" />
+                                <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
+                                <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos e Taxas" />
+                                <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
+                            </>
+                        ) : (
+                            <>
+                                <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
+                                <TabButton active={activeTab === 'gerador'} onClick={() => setActiveTab('gerador')} icon={<FileText className="w-4 h-4" />} label="Holerites (Geral)" />
+                                <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex-1 bg-slate-800 min-h-[500px]">
@@ -1249,7 +1346,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </div>
                                 </div>
                                 <button onClick={() => setIsAddFuncModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2">
-                                    <Plus className="w-4 h-4" /> Adicionar Colaborador
+                                    <Plus className="w-4 h-4" /> Adicionar Individual
+                                </button>
+                                <button onClick={() => setIsMassImportModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-emerald-600/20 flex items-center gap-2">
+                                    <FileDown className="w-4 h-4" /> Importar Planilha (Texto)
                                 </button>
                             </div>
                             <div className="overflow-x-auto">
@@ -1310,6 +1410,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </div>
                     )}
 
+
+                    {activeTab === 'gerador' && (
+                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500">
+                             <PaymentGeneratorView 
+                                employees={localMonth.funcionarios || []} 
+                             />
+                        </div>
+                    )}
 
                     {activeTab === 'rescisoes' && (
                         <div className="flex flex-col">
@@ -1722,6 +1830,50 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         className="w-full bg-amber-600 hover:bg-amber-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-600/20 transition-all mt-4"
                     >
                         Cadastrar Condomínio
+                    </button>
+                </div>
+            </Modal>
+
+            {/* Modal: Mass Import Employees */}
+            <Modal
+                isOpen={isMassImportModalOpen}
+                onClose={() => setIsMassImportModalOpen(false)}
+                title="Importar Dados de Funcionários (Texto)"
+            >
+                <div className="space-y-6">
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                        Cole abaixo os blocos de texto dos funcionários seguindo o formato sugerido. 
+                        O sistema irá buscar funcionários pelo nome e atualizar seus valores.
+                    </p>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase ml-1">Cole aqui o Texto</label>
+                        <textarea 
+                            value={importText}
+                            onChange={e => setImportText(e.target.value)}
+                            className="w-full h-80 bg-slate-900 border border-slate-700/50 rounded-xl px-4 py-3 text-white outline-none font-mono text-[11px] leading-relaxed focus:ring-2 focus:ring-emerald-500/30 transition-all"
+                            placeholder={"Zurami\nSalario base: R$2.500,00\n+ Extras: R$0,00\n- Faltas: R$0,00\n- Vales: R$0,00\n= LÍQUIDO: R$2.500,00\n\nPróximo Funcionário..."}
+                        />
+                    </div>
+
+                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl">
+                        <h5 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Dica de Formato</h5>
+                        <pre className="text-[9px] text-slate-400 leading-tight">
+                            Nome do Funcionário{"\n"}
+                            Salario base: R$ 2.500,00{"\n"}
+                            + Extras: R$ 100,00{"\n"}
+                            - Faltas: R$ 0,00{"\n"}
+                            - Vales: R$ 50,00{"\n"}
+                            {"\n"}
+                            (Deixe uma linha em branco entre funcionários)
+                        </pre>
+                    </div>
+
+                    <button 
+                        onClick={handleMassImport}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Zap className="w-4 h-4 fill-white/20" /> Processar e Importar
                     </button>
                 </div>
             </Modal>
@@ -2140,6 +2292,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             administradora: c.administradora
                         })) as any}
                         initialCondoId={fullNfGeneratorCondoName || undefined}
+                        onUpdateSuccess={(newValue) => {
+                            const condoIdx = (localMonth.condominios || []).findIndex(c => c.nome === fullNfGeneratorCondoName);
+                            if (condoIdx !== -1) {
+                                updateCondo(condoIdx, 'receitaBruta', newValue);
+                            }
+                        }}
                         initialMonth={(() => {
                             const monthsInPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                             const mName = localMonth.monthName.split(' ')[0];
@@ -2150,12 +2308,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             const year = parseInt(localMonth.monthName.split(' ')[1]) || new Date().getFullYear();
                             return year;
                         })()}
-                        onUpdateSuccess={(newValue) => {
-                            const condoIdx = (localMonth.condominios || []).findIndex(c => c.nome === fullNfGeneratorCondoName);
-                            if (condoIdx !== -1) {
-                                updateCondo(condoIdx, 'receitaBruta', newValue);
-                            }
-                        }}
                     />
                 </div>
             </Modal>
