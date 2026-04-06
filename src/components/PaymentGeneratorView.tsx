@@ -208,10 +208,8 @@ export function PaymentGeneratorView({
         
         try {
             await navigator.clipboard.writeText(text);
-            alert(`Texto copiado com sucesso para ${emp.nome}!`);
         } catch (err) {
             console.error('Failed to copy text: ', err);
-            alert('Erro ao copiar texto.');
         }
     };
 

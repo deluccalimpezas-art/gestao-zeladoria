@@ -751,10 +751,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         
         try {
             await navigator.clipboard.writeText(text);
-            alert(`Holerite de ${func.nome} copiado com sucesso!`);
         } catch (err) {
             console.error('Failed to copy: ', err);
-            alert('Erro ao copiar para a área de transferência.');
         }
     };
 
