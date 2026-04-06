@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { FileText, Printer, Users, Wallet, Calendar, AlertCircle, Building2, Search, ChevronDown } from 'lucide-react';
+import { FileText, Printer, Users, Wallet, Calendar, AlertCircle, Building2, Search, ChevronDown, Copy } from 'lucide-react';
 import type { FuncionarioData } from '../modelsFinance';
 import { MONTHS, getHolidays } from '@/lib/holidayUtils';
 import { getMonthlyFinanceByMonth, updateMonthlyFuncionario } from '../../app/actions';
@@ -14,6 +14,7 @@ interface PaymentGeneratorViewProps {
 interface PaymentRecord extends FuncionarioData {
     diasTrabalhados: number;
     faltas: number;
+    vales: number;
     descontoFaltas: number;
     valorDiaria: number;
     totalLiquido: number;
@@ -27,7 +28,7 @@ export function PaymentGeneratorView({
 }: PaymentGeneratorViewProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployeeId);
-    const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number }>>({});
+    const [paymentData, setPaymentData] = useState<Record<string, { faltas: number; salarioBase: number; extras: number; salaofestas: number; vales: number }>>({});
     const [selectedMonth, setSelectedMonth] = useState<number>(initialMonth);
     const [selectedYear, setSelectedYear] = useState<number>(initialYear);
     const [showHolidays, setShowHolidays] = useState(false);
@@ -49,7 +50,7 @@ export function PaymentGeneratorView({
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0, salaofestas: 0 }),
+                ...(prev[id] || { salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0, salaofestas: 0, vales: 0 }),
                 faltas
             }
         }));
@@ -59,7 +60,7 @@ export function PaymentGeneratorView({
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { faltas: 0, extras: 0, salaofestas: 0 }),
+                ...(prev[id] || { faltas: 0, extras: 0, salaofestas: 0, vales: 0 }),
                 salarioBase
             }
         }));
@@ -69,7 +70,7 @@ export function PaymentGeneratorView({
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, salaofestas: 0 }),
+                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, salaofestas: 0, vales: 0 }),
                 extras
             }
         }));
@@ -79,22 +80,32 @@ export function PaymentGeneratorView({
         setPaymentData(prev => ({
             ...prev,
             [id]: {
-                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0 }),
+                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0, vales: 0 }),
                 salaofestas
             }
         }));
     };
 
-    const selectedEmployeeRecord = useMemo((): PaymentRecord & { extras: number; salaofestas: number } | null => {
+    const handleValesChange = (id: string, vales: number) => {
+        setPaymentData(prev => ({
+            ...prev,
+            [id]: {
+                ...(prev[id] || { faltas: 0, salarioBase: employees.find(e => e.id === id)?.salario || 0, extras: 0, salaofestas: 0 }),
+                vales
+            }
+        }));
+    };
+
+    const selectedEmployeeRecord = useMemo((): PaymentRecord & { extras: number; salaofestas: number; vales: number } | null => {
         if (!selectedEmployeeId) return null;
         const emp = employees.find(e => e.id === selectedEmployeeId);
         if (!emp) return null;
 
-        const data = paymentData[selectedEmployeeId] || { faltas: 0, salarioBase: emp.salario, extras: 0, salaofestas: 0 };
+        const data = paymentData[selectedEmployeeId] || { faltas: 0, salarioBase: emp.salario, extras: 0, salaofestas: 0, vales: 0 };
         const salario = data.salarioBase;
         const valorDiaria = salario / 30;
         const descontoFaltas = valorDiaria * data.faltas;
-        const totalLiquido = Math.max(0, salario - descontoFaltas + (data.extras || 0) + (data.salaofestas || 0));
+        const totalLiquido = Math.max(0, salario - descontoFaltas + (data.extras || 0) + (data.salaofestas || 0) - (data.vales || 0));
 
         return {
             ...emp,
@@ -102,6 +113,7 @@ export function PaymentGeneratorView({
             faltas: data.faltas,
             extras: data.extras || 0,
             salaofestas: data.salaofestas || 0,
+            vales: data.vales || 0,
             valorDiaria,
             descontoFaltas,
             totalLiquido,
@@ -129,7 +141,8 @@ export function PaymentGeneratorView({
                             faltas: 0,
                             salarioBase: mf.valorPago || 0,
                             extras: mf.horasExtras || 0,
-                            salaofestas: 0
+                            salaofestas: 0,
+                            vales: 0
                         };
                         changed = true;
                     }
@@ -179,21 +192,27 @@ export function PaymentGeneratorView({
         }).format(value).replace(/\s/g, '');
     };
 
-    const handlePrint = () => {
-        if (!selectedEmployeeRecord) return;
+    const handleCopyText = async (employeeId: string) => {
+        const emp = employees.find(e => e.id === employeeId);
+        if (!emp) return;
+
+        const data = paymentData[employeeId] || { faltas: 0, salarioBase: emp.salario, extras: 0, vales: 0, salaofestas: 0 };
+        const base = data.salarioBase;
+        const discountFaltas = (base / 30) * data.faltas;
+        const extrasTotal = (data.extras || 0) + (data.salaofestas || 0);
+        const vales = data.vales || 0;
         
-        const originalTitle = document.title;
-        const month = MONTHS[selectedMonth - 1];
-        const year = selectedYear;
-        const formattedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+        const total = Math.max(0, base - discountFaltas + extrasTotal - vales);
+
+        const text = `${emp.nome}\n\nSalario:${formatCurrency(base)}\nExtras:${formatCurrency(extrasTotal)}\nFaltas:${formatCurrency(discountFaltas)}\nvales:${formatCurrency(vales)}\n\nTOTAL:${formatCurrency(total)}`;
         
-        document.title = `Recibo de pagamento de salario ${selectedEmployeeRecord.nome} ${formattedMonth} ${year}`;
-        
-        window.print();
-        
-        setTimeout(() => {
-            document.title = originalTitle;
-        }, 1000);
+        try {
+            await navigator.clipboard.writeText(text);
+            alert(`Texto copiado com sucesso para ${emp.nome}!`);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            alert('Erro ao copiar texto.');
+        }
     };
 
     return (
@@ -292,8 +311,15 @@ export function PaymentGeneratorView({
                                         </div>
                                     )}
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right flex flex-col items-end gap-2">
                                     <p className="text-xs font-mono">{formatCurrency(paymentData[emp.id!]?.salarioBase || emp.salario)}</p>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleCopyText(emp.id!); }}
+                                        className="text-slate-400 hover:text-amber-400 transition-colors bg-slate-900/50 p-1.5 rounded"
+                                        title="Copiar Texto"
+                                    >
+                                        <Copy className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </button>
                         ))}
@@ -308,7 +334,7 @@ export function PaymentGeneratorView({
                                     <AlertCircle className="w-4 h-4 text-emerald-400" /> Configuração do Pagamento
                                 </h3>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Salário Base (R$)</label>
                                         <input
@@ -347,9 +373,18 @@ export function PaymentGeneratorView({
                                             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-purple-400 font-bold focus:ring-2 focus:ring-purple-500/50 outline-none"
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Vales (R$)</label>
+                                        <input
+                                            type="number"
+                                            value={selectedEmployeeRecord.vales || ''}
+                                            onChange={(e) => handleValesChange(selectedEmployeeRecord.id!, parseFloat(e.target.value) || 0)}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-emerald-400 font-bold focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="p-4 bg-slate-900 rounded-xl border border-slate-700/50 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                <div className="p-4 bg-slate-900 rounded-xl border border-slate-700/50 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Valor Diária</p>
                                         <p className="text-sm font-bold text-white">{formatCurrency(selectedEmployeeRecord.valorDiaria)}</p>
@@ -360,19 +395,23 @@ export function PaymentGeneratorView({
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Adicionais</p>
-                                        <p className="text-sm font-bold text-red-400">+{formatCurrency(selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</p>
+                                        <p className="text-sm font-bold text-emerald-400">+{formatCurrency(selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-slate-500 uppercase font-bold">Vales</p>
+                                        <p className="text-sm font-bold text-amber-400">-{formatCurrency(selectedEmployeeRecord.vales)}</p>
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-slate-500 uppercase font-bold">Total Líquido</p>
-                                        <p className="text-sm font-bold text-red-400">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
+                                        <p className="text-sm font-bold text-indigo-400">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={handlePrint}
-                                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl py-3 font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                                    onClick={() => handleCopyText(selectedEmployeeRecord.id!)}
+                                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl py-3 font-bold transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95"
                                 >
-                                    <Printer className="w-4 h-4" /> Visualizar / Imprimir Holerite
+                                    <Copy className="w-4 h-4" /> Copiar Texto do Holerite
                                 </button>
 
                                 {selectedEmployeeRecord && (
@@ -422,152 +461,10 @@ export function PaymentGeneratorView({
                 </div>
             </div>
 
-            {selectedEmployeeRecord && (
-                <div id="printable-holerite" className="hidden print:block bg-white text-slate-900 p-0 m-0 w-full overflow-hidden">
-                    {[1, 2].map((copy) => (
-                        <div key={copy} className={`border border-slate-300 p-4 space-y-1 ${copy === 1 ? 'border-b border-dashed mb-16 pb-6' : 'mt-12 pt-6'}`}>
-                            <div className="flex justify-between items-start border-b border-slate-200 pb-1">
-                                <div className="flex flex-col items-center">
-                                    <div className="flex items-baseline gap-0">
-                                        <span className="text-3xl font-black text-[#FFD700] tracking-tighter font-serif">De</span>
-                                        <span className="text-3xl font-black text-[#00CEE4] tracking-tighter font-sans">Lucca</span>
-                                    </div>
-                                    <div className="text-[14px] text-[#00CEE4] -mt-1 italic font-serif">
-                                        Gestão em Limpeza
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded">
-                                        <p className="text-[7px] font-bold text-slate-500 uppercase tracking-widest leading-none">Mês de Referência</p>
-                                        <p className="text-[10px] font-black">{MONTHS[selectedMonth-1].toUpperCase()} / {selectedYear}</p>
-                                    </div>
-                                    <p className="text-[7px] font-bold text-slate-400 mt-0.5 uppercase tracking-tighter">Recibo de Pagamento de Salário</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 py-1 bg-slate-50 border-y border-slate-100">
-                                <div className="px-2">
-                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Colaborador</p>
-                                    <p className="text-xs font-black text-slate-900">{selectedEmployeeRecord.nome}</p>
-                                </div>
-                                <div className="px-2 border-l border-slate-100">
-                                    <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Alocação</p>
-                                    <p className="text-xs font-black text-slate-900">{selectedEmployeeRecord.condominio || 'Geral'}</p>
-                                </div>
-                            </div>
-
-                            <table className="w-full text-left text-[9px] border-collapse">
-                                <thead>
-                                    <tr className="bg-slate-900 text-white font-bold uppercase tracking-widest">
-                                        <th className="p-1.5 border border-slate-900">Código / Descrição</th>
-                                        <th className="p-1.5 text-center border border-slate-900">Referência</th>
-                                        <th className="p-1.5 text-right border border-slate-900">Vencimentos</th>
-                                        <th className="p-1.5 text-right border border-slate-900">Descontos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr className="font-medium text-slate-900 border-b border-slate-100">
-                                        <td className="p-1.5 border border-slate-100">001 - Salário Base Mensal</td>
-                                        <td className="p-1.5 text-center border border-slate-100">30 Dias</td>
-                                        <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.salario)}</td>
-                                        <td className="p-1.5 text-right border border-slate-100">-</td>
-                                    </tr>
-                                    {selectedEmployeeRecord.extras > 0 && (
-                                        <tr className="font-medium text-slate-900 border-b border-slate-100">
-                                            <td className="p-1.5 border border-slate-100">050 - Adicionais / Horas Extras</td>
-                                            <td className="p-1.5 text-center border border-slate-100">-</td>
-                                            <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.extras)}</td>
-                                            <td className="p-1.5 text-right border border-slate-100">-</td>
-                                        </tr>
-                                    )}
-                                    {selectedEmployeeRecord.salaofestas > 0 && (
-                                        <tr className="font-medium text-slate-900 border-b border-slate-100">
-                                            <td className="p-1.5 border border-slate-100">060 - Limpeza Salão de Festas</td>
-                                            <td className="p-1.5 text-center border border-slate-100">-</td>
-                                            <td className="p-1.5 text-right border border-slate-100">{formatCurrency(selectedEmployeeRecord.salaofestas)}</td>
-                                            <td className="p-1.5 text-right border border-slate-100">-</td>
-                                        </tr>
-                                    )}
-                                    <tr className="font-medium text-slate-900 border-b border-slate-100">
-                                        <td className="p-1.5 border border-slate-100">401 - Desc. Faltas não Justificadas</td>
-                                        <td className="p-1.5 text-center border border-slate-100">{selectedEmployeeRecord.faltas} {selectedEmployeeRecord.faltas === 1 ? 'Dia' : 'Dias'}</td>
-                                        <td className="p-1.5 text-right border border-slate-100">-</td>
-                                        <td className="p-1.5 text-right border border-slate-100 text-red-600">
-                                            {selectedEmployeeRecord.faltas > 0 ? formatCurrency(selectedEmployeeRecord.descontoFaltas) : '-'}
-                                        </td>
-                                    </tr>
-                                    {/* Minimal empty line */}
-                                    <tr className="border-b border-slate-100">
-                                        <td className="p-1.5 h-6 border border-slate-100 text-slate-300 italic opacity-20">---</td>
-                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-center">--</td>
-                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-right">--</td>
-                                        <td className="p-1.5 border border-slate-100 text-slate-300 italic opacity-20 text-right">--</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div className="flex justify-between items-center mt-2">
-                                <div className="w-1/2 bg-slate-50 border border-slate-100 p-1.5 rounded space-y-0.5">
-                                    <div className="flex justify-between text-[7px] font-bold uppercase text-slate-500">
-                                        <span>Total Vencimentos:</span>
-                                        <span>{formatCurrency(selectedEmployeeRecord.salario + selectedEmployeeRecord.extras + selectedEmployeeRecord.salaofestas)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[7px] font-bold uppercase text-slate-500">
-                                        <span>Total Descontos:</span>
-                                        <span className="text-red-600">{formatCurrency(selectedEmployeeRecord.descontoFaltas)}</span>
-                                    </div>
-                                </div>
-                                <div className="w-1/3 bg-indigo-900 text-white p-2 rounded text-right">
-                                    <p className="text-[7px] font-black uppercase opacity-70 tracking-widest">Líquido a Receber</p>
-                                    <p className="text-lg font-black">{formatCurrency(selectedEmployeeRecord.totalLiquido)}</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-8 mt-6 pt-4 border-t border-slate-200">
-                                <div className="text-center">
-                                    <div className="border-t border-slate-900 w-full pt-1 font-bold text-[9px] uppercase text-slate-600 tracking-widest">
-                                        DELUCCA SERVIÇOS PREDIAIS LTDA
-                                        <p className="text-[7px] font-normal normal-case italic text-slate-400 font-serif">Assinatura do Empregador</p>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="border-t border-slate-900 w-full pt-1 font-bold text-[9px] uppercase text-slate-600 tracking-widest">
-                                        {selectedEmployeeRecord.nome}
-                                        <p className="text-[7px] font-normal normal-case italic text-slate-400 font-serif">Assinatura do Funcionário</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {/* O Holerite Impresso foi removido em favor do botão de copiar para área de transferência */}
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-                @media print {
-                    body * {
-                        visibility: hidden;
-                        background: none !important;
-                    }
-                    .no-print {
-                        display: none !important;
-                    }
-                    #printable-holerite, #printable-holerite * {
-                        visibility: visible;
-                    }
-                    #printable-holerite {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        margin: 0;
-                        padding: 0.5cm;
-                    }
-                    @page {
-                        margin: 0;
-                        size: A4;
-                    }
-                }
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 4px;
                 }
