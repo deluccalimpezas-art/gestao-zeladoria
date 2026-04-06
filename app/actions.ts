@@ -474,7 +474,7 @@ export async function saveFinanceMonth(data: any) {
 
         // Upsert Funcs
         if (funcionarios && Array.isArray(funcionarios)) {
-            const incomingIds = funcionarios.map((f: any) => f.id).filter((id: string) => id && id.length > 20);
+            const incomingIds = funcionarios.map((f: any) => f.id).filter((id: any) => id && typeof id === 'string' && id.length > 20);
             await (prisma.monthlyFuncionario as any).deleteMany({
                 where: {
                     monthId: id,
@@ -483,8 +483,9 @@ export async function saveFinanceMonth(data: any) {
             });
 
             for (const f of funcionarios) {
+                const fId = (f.id && typeof f.id === 'string' && f.id.length > 20) ? f.id : '00000000-0000-0000-0000-000000000000';
                 await (prisma.monthlyFuncionario as any).upsert({
-                    where: { id: f.id.length > 20 ? f.id : '00000000-0000-0000-0000-000000000000' },
+                    where: { id: fId },
                     update: {
                         nome: f.nome,
                         condominio: f.condominio,

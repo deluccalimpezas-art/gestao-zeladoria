@@ -784,7 +784,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             const vales = getVal(/- Vales: R\$\s*([\d.,]+)/i);
 
             // Find existing or create new
-            const idx = list.findIndex(f => f.nome.toLowerCase() === nome.toLowerCase());
+            const idx = list.findIndex(f => f.nome.trim().toLowerCase() === nome.trim().toLowerCase());
             if (idx !== -1) {
                 list[idx] = {
                     ...list[idx],
@@ -798,6 +798,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 importedCount++;
             } else {
                 list.push({
+                    id: crypto.randomUUID(),
+                    monthId: localMonth.id,
                     nome,
                     condominio: condo,
                     salario: sal,
