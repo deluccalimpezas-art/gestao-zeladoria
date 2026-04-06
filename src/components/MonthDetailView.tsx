@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow, Copy } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -739,6 +739,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }
     };
 
+    const handleCopyHolerite = async (func: any) => {
+        const base = Number(func.salario) || 0;
+        const extras = Number(func.horasExtras) || 0;
+        const vales = Number(func.vales) || 0;
+        const faltasDias = Number(func.faltas) || 0;
+        const descontoFaltas = (base / 30) * faltasDias;
+        const total = Number(func.totalReceber) || 0;
+
+        const text = `${func.nome}\n\nSalario:${formatCurrency(base)}\nExtras:${formatCurrency(extras)}\nFaltas:${formatCurrency(descontoFaltas)}\nvales:${formatCurrency(vales)}\n\nTOTAL:${formatCurrency(total)}`;
+        
+        try {
+            await navigator.clipboard.writeText(text);
+            alert(`Holerite de ${func.nome} copiado com sucesso!`);
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            alert('Erro ao copiar para a área de transferência.');
+        }
+    };
+
     const renderFuncRow = (func: any) => (
         <React.Fragment key={func.originalIndex}>
             <tr className="hover:bg-slate-700/10 h-14">
@@ -804,11 +823,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => handleOpenFullPayroll(func.id)}
-                        className="p-1.5 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-lg transition-all"
-                        title="Gerar Holerite Completo"
+                        onClick={() => handleCopyHolerite(func)}
+                        className="p-1.5 bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg transition-all"
+                        title="Copiar Holerite em Texto"
                     >
-                        <Wallet className="w-3.5 h-3.5" />
+                        <Copy className="w-3.5 h-3.5" />
                     </button>
                 </td>
                 <td className="px-1 py-2 text-center">
