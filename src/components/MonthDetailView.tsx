@@ -754,10 +754,25 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             const lines = block.split('\n').map(l => l.trim());
             if (lines.length < 2) return;
 
-            const nome = lines[0];
+            const nameLine = lines[0];
+            let nome = nameLine;
+            let condo = 'Importado';
+
+            // Support formats: "Name — Condo" or "Name - Condo"
+            if (nameLine.includes(' — ')) {
+                const parts = nameLine.split(' — ');
+                nome = parts[0].trim();
+                condo = parts[1].trim();
+            } else if (nameLine.includes(' - ')) {
+                const parts = nameLine.split(' - ');
+                nome = parts[0].trim();
+                condo = parts[1].trim();
+            }
+
             const getVal = (regex: RegExp) => {
                 const match = block.match(regex);
                 if (match) {
+                    // Clean up the number: remove thousands separator (.), replace decimal separator (,) with (.)
                     return parseFloat(match[1].replace(/\./g, '').replace(',', '.')) || 0;
                 }
                 return 0;
@@ -773,6 +788,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             if (idx !== -1) {
                 list[idx] = {
                     ...list[idx],
+                    condominio: condo,
                     salario: sal,
                     horasExtras: extras,
                     faltas: faltas,
@@ -781,10 +797,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 };
                 importedCount++;
             } else {
-                // For new employees, they might not have a condo yet, but we'll add them to 'Operacional' or 'Unassigned'
                 list.push({
                     nome,
-                    condominio: 'Importado',
+                    condominio: condo,
                     salario: sal,
                     horasExtras: extras,
                     faltas: faltas,
