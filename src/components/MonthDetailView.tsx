@@ -900,6 +900,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         title="Conta Confirmada"
                     />
                 </td>
+                <td className="px-1 py-2 text-center">
+                    <button
+                        onClick={() => handleCopyHolerite(func)}
+                        className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-emerald-400 transition-all border border-slate-700/50"
+                        title="Copiar Holerite (Slip)"
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                    </button>
+                </td>
                 <td className="px-2 py-2 text-right">
                     <CurrencyField
                         value={func.totalReceber || 0}
@@ -1364,6 +1373,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-1 py-3 text-right text-slate-400 w-24">Extras</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
                                             <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
+                                            <th className="px-1 py-3 text-center w-10 text-slate-400" title="Copiar Holerite">Hol.</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
                                             <th className="px-1 py-3 w-8"></th>
