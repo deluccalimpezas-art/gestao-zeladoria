@@ -1335,11 +1335,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     {activeTab === 'folha' && (
                         <div className="flex flex-col">
                             <div className="bg-slate-900 shadow-xl border border-slate-700/50 p-6 rounded-3xl flex flex-wrap justify-between items-center gap-6">
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
-                                            Total Colaboradores <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.totalCount}</span>
-                                        </p>
+                                <div className="flex items-center gap-8">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Colaboradores</span>
+                                        <span className="text-xl font-black text-white">{teamStats.totalCount}</span>
+                                    </div>
+                                    <div className="flex flex-col border-l border-slate-800 pl-8">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total da Folha</span>
+                                        <span className="text-xl font-black text-indigo-400">{formatCurrency(currentTotals.salarios)}</span>
                                     </div>
                                 </div>
                                 <button onClick={() => setIsAddFuncModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2">
