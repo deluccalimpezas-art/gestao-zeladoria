@@ -1011,16 +1011,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <Building2 className="w-3.5 h-3.5" /> Condomínios
                         </button>
                         <button 
-                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
-                        >
-                            <Wallet className="w-3.5 h-3.5" /> Impostos
-                        </button>
-                        <button 
                             onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
                         >
                             <Users2 className="w-3.5 h-3.5" /> Colaboradores
+                        </button>
+                        <button 
+                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <Wallet className="w-3.5 h-3.5" /> Impostos
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('gastos'); }}
