@@ -902,9 +902,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => handleOpenFullPayroll(func.id)}
+                        onClick={() => handleCopyHolerite(func)}
                         className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-emerald-400 transition-all border border-slate-700/50"
-                        title="Abrir Gerador de Holerite"
+                        title="Copiar Holerite (Slip)"
                     >
                         <FileText className="w-3.5 h-3.5" />
                     </button>
