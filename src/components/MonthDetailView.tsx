@@ -996,37 +996,47 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
             <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
                 <div className="flex flex-col border-b border-slate-700 bg-slate-900/40">
-                    {/* Dashboard Mode Selector */}
-                    <div className="flex gap-4 p-4 border-b border-slate-700/50">
+                    {/* Dashboard Navigation */}
+                    <div className="flex flex-wrap gap-2 p-4 border-b border-slate-700/50">
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('visao_geral'); }}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'financeiro' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'visao_geral' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
                         >
-                            <Building2 className="w-3.5 h-3.5" /> Financeiro (Condos)
+                            <Activity className="w-3.5 h-3.5" /> Visão Geral
+                        </button>
+                        <button 
+                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('condominios'); }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condominios' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <Building2 className="w-3.5 h-3.5" /> Condomínios
+                        </button>
+                        <button 
+                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <Wallet className="w-3.5 h-3.5" /> Impostos
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
                         >
                             <Users2 className="w-3.5 h-3.5" /> Colaboradores
                         </button>
+                        <button 
+                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('gastos'); }}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gastos' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                        >
+                            <TrendingDown className="w-3.5 h-3.5" /> Gastos
+                        </button>
                     </div>
 
-                    <div className="flex overflow-x-auto px-4 pt-2 hide-scrollbar">
-                        {dashboardMode === 'financeiro' ? (
-                            <>
-                                <TabButton active={activeTab === 'visao_geral'} onClick={() => setActiveTab('visao_geral')} icon={<Activity className="w-4 h-4" />} label="Visão Geral" />
-                                <TabButton active={activeTab === 'condominios'} onClick={() => setActiveTab('condominios')} icon={<Building2 className="w-4 h-4" />} label="Condomínios" />
-                                <TabButton active={activeTab === 'impostos'} onClick={() => setActiveTab('impostos')} icon={<Wallet className="w-4 h-4" />} label="Impostos e Taxas" />
-                                <TabButton active={activeTab === 'gastos'} onClick={() => setActiveTab('gastos')} icon={<TrendingDown className="w-4 h-4" />} label="Gastos" />
-                            </>
-                        ) : (
-                            <>
-                                <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
-                                <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
-                            </>
-                        )}
-                    </div>
+                    {/* Secondary Navigation (only for Colaboradores) */}
+                    {dashboardMode === 'operacional' && (
+                        <div className="flex overflow-x-auto px-4 pt-2 hide-scrollbar">
+                            <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
+                            <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex-1 bg-slate-800 min-h-[500px]">
