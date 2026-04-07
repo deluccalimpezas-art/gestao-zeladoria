@@ -906,15 +906,15 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
+                        onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
+                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm' : 'bg-slate-700/40'}`}
+                        title="Conta Confirmada"
                     />
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm' : 'bg-slate-700/40'}`}
-                        title="Conta Confirmada"
+                        onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
                     />
                 </td>
                 <td className="px-1 py-2 text-center">
@@ -1388,8 +1388,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-1 py-3 text-right text-slate-400 w-24">Vales</th>
                                             <th className="px-1 py-3 text-center text-slate-400 w-20">Faltas</th>
                                             <th className="px-1 py-3 text-right text-slate-400 w-24">Extras</th>
-                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
                                             <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
+                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
                                             <th className="px-1 py-3 text-center w-10 text-slate-400" title="Copiar Holerite">Hol.</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
