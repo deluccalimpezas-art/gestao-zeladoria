@@ -63,7 +63,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'documentos' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
+    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
 
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
@@ -333,15 +333,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         </li>
                         <li>
                             <button
-                                onClick={() => setActiveTab('documentos')}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'documentos' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
-                            >
-                                <FileText className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Documentos</span>}
-                            </button>
-                        </li>
-                        <li>
-                            <button
                                 onClick={() => setActiveTab('gestao_pessoal')}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'gestao_pessoal' ? 'bg-rose-600/10 text-rose-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
@@ -459,8 +450,6 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <ScheduleView />
                     ) : activeTab === 'geradores' ? (
                         <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
-                    ) : activeTab === 'documentos' ? (
-                        <DocumentGenerator months={financeMonths} />
                     ) : activeTab === 'gestao_pessoal' ? (
                         <PersonalFinanceView />
                     ) : activeTab === 'calculos' ? (
