@@ -910,15 +910,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </td>
                 <td className="px-1 py-2 text-center">
                     <button
-                        onClick={() => handleCopyHolerite(func)}
-                        className="p-1.5 bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg transition-all"
-                        title="Copiar Holerite em Texto"
-                    >
-                        <Copy className="w-3.5 h-3.5" />
-                    </button>
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
                         onClick={() => openNoteModal('func', func.originalIndex, func.nome, func.observacao || '')}
                         className={`p-1.5 rounded-lg transition-all ${func.observacao ? 'text-amber-400 bg-amber-400/10 shadow-sm border border-amber-400/20' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'}`}
                         title="Observação"
@@ -1032,7 +1023,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         ) : (
                             <>
                                 <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
-                                <TabButton active={activeTab === 'gerador'} onClick={() => setActiveTab('gerador')} icon={<FileText className="w-4 h-4" />} label="Holerites (Geral)" />
                                 <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
                             </>
                         )}
@@ -1340,12 +1330,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end">
                                             Total Colaboradores <span className="bg-slate-800 px-1.5 py-0.5 rounded text-red-400 font-bold">{teamStats.totalCount}</span>
                                         </p>
-                                        <p className="text-xl font-black text-red-400">{formatCurrency(teamStats.totalValue)}</p>
-                                    </div>
-                                    <div className="h-8 w-px bg-slate-700"></div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total da Folha</p>
-                                        <p className="text-2xl font-black text-red-400 italic">{formatCurrency(currentTotals.salarios)}</p>
                                     </div>
                                 </div>
                                 <button onClick={() => setIsAddFuncModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2">
@@ -1368,7 +1352,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
                                             <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
-                                            <th className="px-1 py-3 w-8 text-center" title="Holerite de Texto">Hol.</th>
                                             <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
                                             <th className="px-1 py-3 w-8"></th>
                                         </tr>
@@ -1376,32 +1359,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <tbody className="divide-y divide-slate-700/50">
                                         {sortedFuncs.map(renderFuncRow)}
                                     </tbody>
-                                    <tfoot className="bg-slate-900/80 border-t-2 border-slate-700">
-                                        <tr className="text-white font-bold">
-                                            <td colSpan={4} className="px-4 py-4 text-[10px] uppercase tracking-[0.2em] text-slate-500">Somas da Folha</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="text-[10px] text-red-400 mb-1 uppercase font-bold tracking-widest">Custo Total Folha</div>
-                                                <div className="px-4 py-2 bg-rose-500/10 border border-red-500/20 rounded-lg text-red-400 text-xl inline-block min-w-[140px]">
-                                                    {formatCurrency(currentTotals.salarios)}
-                                                </div>
-                                            </td>
-                                            <td colSpan={2}></td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
 
                     </div>
                     )}
 
-
-                    {activeTab === 'gerador' && (
-                        <div className="flex flex-col animate-in slide-in-from-bottom-4 duration-500">
-                             <PaymentGeneratorView 
-                                employees={localMonth.funcionarios || []} 
-                             />
-                        </div>
-                    )}
 
                     {activeTab === 'rescisoes' && (
                         <div className="flex flex-col">
