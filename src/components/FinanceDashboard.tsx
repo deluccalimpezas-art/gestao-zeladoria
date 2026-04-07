@@ -170,56 +170,11 @@ export function FinanceDashboard({ monthsData, employeesCount, onDeleteMonth, on
                                         </div>
                                         <button
                                             onClick={() => setSelectedMonth(month)}
-                                            className={`w-full relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-900/60 backdrop-blur-xl border border-slate-700/50 hover:border-${lucro >= 0 ? 'emerald' : 'rose'}-500/50 rounded-[2.5rem] p-8 shadow-2xl flex flex-col text-left transition-all duration-500 hover:-translate-y-2 hover:shadow-${lucro >= 0 ? 'emerald' : 'rose'}-500/10 group active:scale-[0.98]`}
+                                            className="w-full bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800/80 rounded-2xl py-6 px-4 shadow-xl flex items-center justify-center text-center transition-all active:scale-[0.98] group"
                                         >
-                                            {/* Glow Effect */}
-                                            <div className={`absolute -top-24 -right-24 w-48 h-48 bg-${lucro >= 0 ? 'emerald' : 'rose'}-500/5 rounded-full blur-[80px] group-hover:bg-${lucro >= 0 ? 'emerald' : 'rose'}-500/15 transition-all duration-700`}></div>
-
-                                            <div className="relative z-10 flex w-full justify-between items-start mb-8">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-1">Competência</span>
-                                                    <span className="text-xl font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight">
-                                                        {month.monthName}
-                                                    </span>
-                                                </div>
-                                                <div className={`p-3 rounded-2xl bg-slate-900/50 border border-slate-700/50 group-hover:border-${lucro >= 0 ? 'emerald' : 'rose'}-500/30 transition-all`}>
-                                                    <ArrowRight className={`w-5 h-5 text-${lucro >= 0 ? 'emerald' : 'rose'}-500 opacity-50 group-hover:opacity-100 transition-all group-hover:translate-x-1`} />
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="relative z-10 space-y-5 pt-2">
-                                                <div className="flex items-end justify-between px-1">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Faturamento Bruto</span>
-                                                        <span className="text-lg font-black text-white tracking-tighter">{formatCurrency(month.receitaBruta)}</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-4 border-t border-slate-700/50 pt-5">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Custo Total</span>
-                                                        <span className="text-sm font-black text-rose-400/90 tracking-tight">{formatCurrency(totalSaida)}</span>
-                                                    </div>
-                                                    <div className="flex flex-col items-end text-right">
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Lucro Líquido</span>
-                                                        <span className={`text-sm font-black ${lucro >= 0 ? 'text-emerald-400' : 'text-rose-400'} tracking-tight`}>
-                                                            {formatCurrency(lucro)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-3 pt-2">
-                                                    <div className="flex-1 h-1.5 bg-slate-900/50 rounded-full overflow-hidden border border-slate-700/30">
-                                                        <div 
-                                                            className={`h-full transition-all duration-1000 ease-out rounded-full ${lucro >= 0 ? 'bg-gradient-to-r from-emerald-600 to-emerald-400' : 'bg-gradient-to-r from-rose-600 to-rose-400'}`}
-                                                            style={{ width: `${Math.min(Math.max((lucro / (month.receitaBruta || 1)) * 100, 0), 100)}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <span className={`text-[11px] font-black px-2 py-0.5 rounded-md ${lucro >= 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
-                                                        {month.receitaBruta > 0 ? ((lucro / month.receitaBruta) * 100).toFixed(1) : '0'}%
-                                                    </span>
-                                                </div>
-                                            </div>
+                                            <span className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-emerald-400 transition-colors">
+                                                {month.monthName}
+                                            </span>
                                         </button>
                                         <div className="absolute -top-2 -right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
                                             <button
