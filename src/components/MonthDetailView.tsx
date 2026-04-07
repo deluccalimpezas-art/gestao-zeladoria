@@ -689,6 +689,23 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         };
     }, [localMonth.condominios]);
 
+    const employeePaymentStats = useMemo(() => {
+        const validFuncs = (localMonth.funcionarios || []).filter(f =>
+            f.nome?.toUpperCase() !== 'TOTAL'
+        );
+        const paid = validFuncs.filter(f => f.pagamentoFeito);
+        const unpaid = validFuncs.filter(f => !f.pagamentoFeito);
+        const totalPaid = paid.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+        const totalPending = unpaid.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
+        return {
+            totalPaid,
+            totalPending,
+            countPaid: paid.length,
+            countUnpaid: unpaid.length,
+            totalCount: validFuncs.length
+        };
+    }, [localMonth.funcionarios]);
+
     const gastosByCategory = useMemo(() => {
         const cats = {
             Pagamentos: 0,
@@ -1383,6 +1400,48 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         {sortedFuncs.map(renderFuncRow)}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Employee Payment Summary Footer */}
+                            <div className="p-8 bg-slate-900/40 border-t border-slate-700 mt-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Total Pago</p>
+                                            <h4 className="text-xl font-black text-white">{formatCurrency(employeePaymentStats.totalPaid)}</h4>
+                                        </div>
+                                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                                            <Check className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Total Pendente</p>
+                                            <h4 className="text-xl font-black text-white">{formatCurrency(employeePaymentStats.totalPending)}</h4>
+                                        </div>
+                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                                            <Activity className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Colaboradores Pagos</p>
+                                            <h4 className="text-lg font-black text-white">{employeePaymentStats.countPaid} <span className="text-slate-600 text-xs font-bold">/ {employeePaymentStats.totalCount}</span></h4>
+                                        </div>
+                                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                            <Check className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Aguardando Pagamento</p>
+                                            <h4 className="text-lg font-black text-amber-500">{employeePaymentStats.countUnpaid}</h4>
+                                        </div>
+                                        <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 shrink-0">
+                                            <Activity className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                     </div>
