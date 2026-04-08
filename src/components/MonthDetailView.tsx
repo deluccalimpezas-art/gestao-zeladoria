@@ -957,11 +957,37 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                          </button>
                                     </div>
                                     
-                                    <div className="p-5 bg-slate-950/40 rounded-3xl border border-slate-700/30 flex flex-col gap-1">
-                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Resumo de Ganhos</span>
-                                         <div className="flex justify-between items-center text-sm font-bold">
-                                             <span className="text-slate-400">Total a Receber</span>
-                                             <span className="text-xl font-black text-blue-400">{formatCurrency(func.totalReceber)}</span>
+                                    <div className="p-7 bg-slate-900/60 rounded-[2rem] border border-slate-700/50 shadow-2xl flex flex-col gap-5">
+                                         <div className="space-y-3.5">
+                                             <div className="flex justify-between items-center text-xs">
+                                                 <span className="text-slate-400 font-semibold">Salário Base:</span>
+                                                 <span className="text-white font-black">{formatCurrency(func.salario || 0)}</span>
+                                             </div>
+                                             {(func.horasExtras || 0) > 0 && (
+                                                 <div className="flex justify-between items-center text-xs">
+                                                     <span className="text-slate-400 font-semibold">Extras / Adicionais:</span>
+                                                     <span className="text-emerald-400 font-black">+ {formatCurrency(func.horasExtras || 0)}</span>
+                                                 </div>
+                                             )}
+                                             {(func.vales || 0) > 0 && (
+                                                 <div className="flex justify-between items-center text-xs">
+                                                     <span className="text-slate-400 font-semibold">Desconto Vales:</span>
+                                                     <span className="text-red-400 font-black">- {formatCurrency(func.vales || 0)}</span>
+                                                 </div>
+                                             )}
+                                             {(func.faltas || 0) > 0 && (
+                                                 <div className="flex justify-between items-center text-xs">
+                                                     <span className="text-slate-400 font-semibold">Desconto Faltas:</span>
+                                                     <span className="text-red-400 font-black">- {formatCurrency(func.faltas || 0)}</span>
+                                                 </div>
+                                             )}
+                                         </div>
+                                         
+                                         <div className="h-px bg-slate-700/40" />
+                                         
+                                         <div className="flex justify-between items-end pt-1">
+                                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total Líquido</span>
+                                             <span className="text-2xl font-black text-emerald-400 tracking-tighter">{formatCurrency(func.totalReceber)}</span>
                                          </div>
                                     </div>
                                 </div>
