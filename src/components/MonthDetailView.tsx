@@ -931,90 +931,85 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </tr>
                 {isExpanded && (
                     <tr className="bg-slate-900/60 shadow-inner">
-                        <td colSpan={7} className="px-6 py-10 border-y border-slate-700/50">
-                            <div className="grid grid-cols-[220px,_1fr,_220px] gap-10 items-start">
-                                {/* Coluna 1: Status */}
-                                <div className="space-y-4 pt-1">
-                                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Status de Gestão</span>
-                                     <div className="flex flex-col gap-3">
+                        <td colSpan={7} className="px-6 py-8 border-y border-slate-700/50">
+                            {/* Grid de 3 Colunas Lado a Lado */}
+                            <div className="grid grid-cols-[180px,_1fr,_180px] gap-8 items-start">
+                                {/* Coluna 1: Marcadores (Esquerda) */}
+                                <div className="space-y-3 pt-1">
+                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Gestão</span>
+                                     <div className="flex flex-col gap-2">
                                          <button
                                             onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                          >
-                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
-                                                {func.contaConfirmada && <Check className="w-3 h-3 font-bold" />}
+                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.contaConfirmada && <Check className="w-2.5 h-2.5 font-bold" />}
                                             </div>
-                                            <span className="text-[11px] font-black uppercase tracking-widest">{func.contaConfirmada ? 'Conta OK' : 'Confirmar'}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-tight">{func.contaConfirmada ? 'Conta OK' : 'Confirmar'}</span>
                                          </button>
                                          
                                          <button
                                             onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                          >
-                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
-                                                {func.pagamentoFeito && <CheckCircle2 className="w-3 h-3 font-bold" />}
+                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.pagamentoFeito && <CheckCircle2 className="w-2.5 h-2.5 font-bold" />}
                                             </div>
-                                            <span className="text-[11px] font-black uppercase tracking-widest">{func.pagamentoFeito ? 'Pago' : 'Marcar Pago'}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-tight">{func.pagamentoFeito ? 'Pago' : 'Marcar'}</span>
                                          </button>
                                      </div>
                                 </div>
 
-                                {/* Coluna 2: A Conta Completa (No Meio) */}
-                                <div className="p-10 bg-slate-900/90 rounded-[2.5rem] border border-slate-700 shadow-2xl flex flex-col gap-10">
-                                     <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] text-center border-b border-slate-800 pb-4">Folha de Pagamento</h4>
+                                {/* Coluna 2: A Conta (Meio) - Mais compacta */}
+                                <div className="max-w-md mx-auto w-full p-6 bg-slate-900/90 rounded-[1.5rem] border border-slate-700 shadow-2xl flex flex-col gap-6">
+                                     <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.4em] text-center mb-1">Demonstrativo</h4>
                                      
-                                     <div className="grid grid-cols-[1fr,auto] gap-x-16 gap-y-6 items-center px-6">
-                                         <span className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Salário Base:</span>
-                                         <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-48" />
+                                     <div className="grid grid-cols-[1fr,auto] gap-x-8 gap-y-3.5 items-center px-2">
+                                         <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Salário Base:</span>
+                                         <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-32" />
                                          
-                                         <span className="text-emerald-500 font-semibold text-xs uppercase tracking-wider">Extras (+):</span>
-                                         <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-48" />
+                                         <span className="text-emerald-500/90 font-semibold text-[10px] uppercase tracking-wider">Extras (+):</span>
+                                         <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-32" />
                                          
-                                         <span className="text-rose-500 font-semibold text-xs uppercase tracking-wider">Faltas (-):</span>
-                                         <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-48" />
+                                         <span className="text-rose-500/90 font-semibold text-[10px] uppercase tracking-wider">Faltas (-):</span>
+                                         <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-32" />
                                          
-                                         <span className="text-amber-500 font-semibold text-xs uppercase tracking-wider">Vales (-):</span>
-                                         <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-amber-400" width="w-48" />
+                                         <span className="text-amber-500/90 font-semibold text-[10px] uppercase tracking-wider">Vales (-):</span>
+                                         <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-amber-400" width="w-32" />
                                      </div>
                                      
-                                     <div className="h-px bg-slate-700 mx-6 shadow-[0_1px_0_rgba(255,255,255,0.05)]" title="Linha de Total" />
+                                     <div className="h-px bg-slate-800 mx-2" />
                                      
-                                     <div className="flex justify-between items-center px-6">
-                                         <div className="flex flex-col">
-                                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total a Receber</span>
-                                             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">Saldo Líquido</span>
-                                         </div>
-                                         <span className="text-5xl font-black text-emerald-400 tracking-tighter tabular-nums drop-shadow-[0_0_20px_rgba(52,211,153,0.2)]">{formatCurrency(func.totalReceber)}</span>
+                                     <div className="flex justify-between items-center px-2">
+                                         <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">Total</span>
+                                         <span className="text-3xl font-black text-emerald-400 tracking-tighter tabular-nums">{formatCurrency(func.totalReceber)}</span>
                                      </div>
 
                                      <button 
                                         onClick={() => handleCopyHolerite(func)}
-                                        className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[1.5rem] flex items-center justify-center gap-4 transition-all font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-600/30 active:scale-[0.98]"
+                                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/20 active:scale-95"
                                      >
-                                        <Copy className="w-5 h-5 fill-white/10" /> COPIAR HOLERITE PARA ZAP
+                                        <Copy className="w-4 h-4" /> COPIAR HOLERITE
                                      </button>
                                 </div>
 
-                                {/* Coluna 3: Observações */}
-                                <div className="space-y-6 pt-1">
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between ml-2">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Anotações</span>
-                                            <StickyNote className="w-3.5 h-3.5 text-slate-600" />
-                                        </div>
+                                {/* Coluna 3: Anotações (Direita) */}
+                                <div className="space-y-4 pt-1">
+                                    <div className="space-y-2">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Observações</span>
                                         <textarea 
                                             value={func.observacao || ''}
                                             onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
-                                            placeholder="Detalhes adicionais..."
-                                            className="w-full min-h-[160px] bg-slate-900/40 border border-slate-700/50 rounded-3xl p-5 text-sm text-slate-300 outline-none focus:ring-1 focus:ring-slate-600 transition-all resize-none shadow-inner"
+                                            placeholder="..."
+                                            className="w-full min-h-[120px] bg-slate-900/30 border border-slate-700/50 rounded-2xl p-4 text-[13px] text-slate-300 outline-none focus:ring-1 focus:ring-slate-600 transition-all resize-none"
                                         />
                                     </div>
 
                                     <button 
                                         onClick={() => removeFuncionario(func.originalIndex)}
-                                        className="w-full py-4 text-slate-600 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100"
+                                        className="w-full py-2 text-slate-600 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-40 hover:opacity-100"
                                     >
-                                        <Trash2 className="w-4 h-4" /> Remover Colaborador
+                                        <Trash2 className="w-3 h-3" /> Remover
                                     </button>
                                 </div>
                             </div>
