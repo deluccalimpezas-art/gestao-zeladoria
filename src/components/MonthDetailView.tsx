@@ -960,47 +960,48 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 {/* 2. A Conta (Meio) */}
                                 <div className="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl flex flex-col gap-4 min-w-[280px] shadow-xl">
                                      <div className="grid grid-cols-[1fr,auto] gap-x-6 gap-y-2.5 items-center">
-                                         <span className="text-slate-500 font-bold text-[9px] uppercase tracking-wider">Base:</span>
+                                         <span className="text-slate-500 font-bold text-[9px] uppercase tracking-wider">Salário Base:</span>
                                          <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-28" />
                                          
-                                         <span className="text-emerald-500/80 font-bold text-[9px] uppercase tracking-wider">Extras:</span>
+                                         <span className="text-emerald-500/80 font-bold text-[9px] uppercase tracking-wider">Extras (+):</span>
                                          <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-28" />
                                          
-                                         <span className="text-rose-500/80 font-bold text-[9px] uppercase tracking-wider">Descontos:</span>
-                                         <CurrencyField value={(func.faltas || 0) + (func.vales || 0)} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-rose-400" width="w-28" />
+                                         <span className="text-rose-500/80 font-bold text-[9px] uppercase tracking-wider">Vales (-):</span>
+                                         <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-rose-400" width="w-28" />
+
+                                         <span className="text-rose-500/80 font-bold text-[9px] uppercase tracking-wider">Faltas (-):</span>
+                                         <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-28" />
                                      </div>
                                      <div className="h-px bg-slate-800" />
                                      <div className="flex justify-between items-center px-1 mb-1">
                                          <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">Total</span>
                                          <span className="text-2xl font-black text-emerald-400 tabular-nums">{formatCurrency(func.totalReceber)}</span>
                                      </div>
-                                     <button 
-                                        onClick={() => handleCopyHolerite(func)}
-                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest shadow-md active:scale-95"
-                                     >
-                                        <Copy className="w-3.5 h-3.5" /> COPIAR HOLERITE
-                                     </button>
+                                     <div className="flex flex-col gap-2">
+                                         <button 
+                                            onClick={() => handleCopyHolerite(func)}
+                                            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest shadow-md active:scale-95"
+                                         >
+                                            <Copy className="w-3.5 h-3.5" /> COPIAR HOLERITE
+                                         </button>
+                                         <button 
+                                            onClick={() => removeFuncionario(func.originalIndex)}
+                                            className="w-full py-2.5 text-slate-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-40 hover:opacity-100"
+                                         >
+                                            <Trash2 className="w-3 h-3" /> Excluir Colaborador
+                                         </button>
+                                     </div>
                                 </div>
 
                                 {/* 3. Observações (Flex-1) */}
-                                <div className="flex flex-col gap-2 flex-1 h-full">
+                                <div className="flex flex-col gap-2 flex-1 h-full min-h-[220px]">
                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Observações</span>
                                     <textarea 
                                         value={func.observacao || ''}
                                         onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
-                                        placeholder="Notas..."
-                                        className="w-full flex-1 bg-slate-950/40 border border-slate-700/50 rounded-xl p-3 text-xs text-slate-300 outline-none focus:ring-1 focus:ring-slate-600 transition-all resize-none"
+                                        placeholder="Notas adicionais sobre o colaborador..."
+                                        className="w-full flex-1 bg-slate-950/40 border border-slate-700/50 rounded-xl p-4 text-[13px] text-slate-300 outline-none focus:ring-1 focus:ring-slate-600 transition-all resize-none shadow-inner"
                                     />
-                                </div>
-
-                                {/* 4. Ações (Direita) */}
-                                <div className="flex flex-col justify-end gap-2 w-[100px] shrink-0 pb-1">
-                                    <button 
-                                        onClick={() => removeFuncionario(func.originalIndex)}
-                                        className="w-full py-2.5 text-slate-600 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-40 hover:opacity-100"
-                                    >
-                                        <Trash2 className="w-3 h-3" /> Excluir
-                                    </button>
                                 </div>
                             </div>
                         </td>
