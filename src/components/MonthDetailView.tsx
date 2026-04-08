@@ -1260,8 +1260,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <table className="w-full text-left text-sm text-slate-300 border-collapse">
                                         <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
                                             <tr>
-                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[750px]">Condomínio / Unidade</th>
-                                                <th className="px-2 py-3 text-right font-black text-slate-400 w-32 uppercase tracking-widest text-[10px]">Valor Líquido</th>
+                                                <th className="px-1 py-3 text-slate-400">Condomínio / Unidade</th>
+                                                <th className="px-1 py-3 text-slate-400">Administradora / CNPJ</th>
+                                                <th className="px-2 py-3 text-right font-black text-slate-400 w-32 uppercase tracking-widest text-[10px]">Receita Líquida</th>
                                                 <th className="px-1 py-3 text-right">
                                                     <div className="flex bg-slate-800 p-0.5 rounded-md border border-slate-700/50 w-fit ml-auto">
                                                         {[
@@ -1289,56 +1290,56 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <React.Fragment key={condo.originalIndex}>
                                                         <tr 
                                                             onClick={() => setExpandedCondoId(isExpanded ? null : (condo.id || null))}
-                                                            className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent border-b border-white/10 ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
+                                                            className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : 'group'}`}
                                                         >
-                                                            <td className="px-2 py-3">
-                                                                <div className="grid grid-cols-[350px_140px_1fr] items-center gap-6">
-                                                                    <div className="flex items-center">
-                                                                        {isExpanded ? (
-                                                                            <input
-                                                                                value={condo.nome}
-                                                                                onClick={(e) => e.stopPropagation()}
-                                                                                onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-sm uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
-                                                                                autoFocus
-                                                                            />
-                                                                        ) : (
-                                                                            <span className={`font-black text-sm uppercase tracking-tight block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{condo.nome}</span>
-                                                                        )}
+                                                            <td className="px-1 py-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="transition-transform duration-200 shrink-0">
+                                                                        {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
                                                                     </div>
-                                                                    
-                                                                    <div className="flex justify-center">
-                                                                        {condo.administradora && (
-                                                                            <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600 whitespace-nowrap">
-                                                                                {condo.administradora}
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-
-                                                                    <div className="flex items-center gap-4">
-                                                                        <div className="h-4 w-px bg-slate-700"></div>
-                                                                        <span className="text-slate-100 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap">
-                                                                            {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
-                                                                        </span>
-                                                                    </div>
+                                                                    {isExpanded ? (
+                                                                        <input
+                                                                            value={condo.nome}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                            onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
+                                                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
+                                                                            autoFocus
+                                                                        />
+                                                                    ) : (
+                                                                        <span className={`font-black text-xs uppercase tracking-tight px-1 block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{condo.nome}</span>
+                                                                    )}
                                                                 </div>
                                                             </td>
-                                                            <td className="px-2 py-3 text-right tabular-nums font-black text-indigo-400">
-                                                                {formatCurrency(condo.receitaLiquida)}
+                                                            <td className="px-1 py-2">
+                                                                <div className="flex items-center gap-6">
+                                                                    {condo.administradora && (
+                                                                        <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600 whitespace-nowrap">
+                                                                            {condo.administradora}
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="text-[10px] text-slate-400 font-mono tracking-widest">
+                                                                        {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
+                                                                    </span>
+                                                                </div>
                                                             </td>
-                                                            <td className="px-2 py-3 text-right">
+                                                            <td className="px-2 py-2 text-right">
+                                                                <span className="text-sm font-black text-indigo-400 tabular-nums">
+                                                                    {formatCurrency(condo.receitaLiquida)}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-1 py-2 text-right">
                                                                 <button
                                                                     onClick={(e) => { e.stopPropagation(); removeCondo(condo.originalIndex); }}
-                                                                    className="p-1.5 text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                                    className="p-1 px-2 text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                                                                     title="Remover"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    <Trash2 className="w-3.5 h-3.5" />
                                                                 </button>
                                                             </td>
                                                         </tr>
                                                         {isExpanded && (
                                                             <tr className="bg-slate-900/60 shadow-inner overflow-hidden">
-                                                                <td colSpan={3} className="px-8 py-10 border-y border-slate-700/50">
+                                                                <td colSpan={4} className="px-8 py-10 border-y border-slate-700/50">
                                                                     <div className="flex flex-row flex-nowrap gap-8 items-stretch overflow-x-auto min-h-[250px]">
                                                                         {/* Coluna 1: Status da Gestão */}
                                                                         <div className="space-y-4 shrink-0 w-[180px]">
