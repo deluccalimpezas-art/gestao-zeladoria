@@ -865,7 +865,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     onClick={() => setExpandedFuncId(isExpanded ? null : (func.id || 'temp'))}
                     className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : 'group'}`}
                 >
-                    <td className="px-1 py-2 w-[320px]">
+                    <td className="px-1 py-2">
                         <div className="flex items-center gap-2">
                              <div className="transition-transform duration-200 shrink-0">
                                 {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
@@ -883,7 +883,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                              )}
                         </div>
                     </td>
-                    <td className="px-1 py-2 w-[280px]">
+                    <td className="px-1 py-2">
                         {isExpanded ? (
                             <input
                                 value={func.condominio}
@@ -896,7 +896,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         )}
                     </td>
                     <td className="px-2 py-2">
-                        <div onClick={(e) => e.stopPropagation()} className="flex justify-end pr-2">
+                        <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
                             <CurrencyField
                                 value={func.totalReceber || 0}
                                 onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
@@ -905,20 +905,20 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             />
                         </div>
                     </td>
-                    <td className="px-1 py-2 text-center w-24">
+                    <td className="px-1 py-2 text-center">
                         <button
                             onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada); }}
                             className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm shadow-blue-400/20' : 'bg-slate-700/40'}`}
                             title="Conta Confirmada"
                         />
                     </td>
-                    <td className="px-1 py-2 text-center w-24">
+                    <td className="px-1 py-2 text-center">
                         <button
                             onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito); }}
                             className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm shadow-emerald-400/20' : 'bg-slate-700/40'}`}
                         />
                     </td>
-                    <td className="px-1 py-2 text-center w-12">
+                    <td className="px-1 py-2 text-center">
                         <button
                             onClick={(e) => { e.stopPropagation(); removeFuncionario(func.originalIndex); }}
                             className="p-1 text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
@@ -933,8 +933,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <td colSpan={6} className="px-6 py-8 border-y border-slate-700/50">
                             {/* items-stretch garante que todas as colunas tenham a mesma altura */}
                             <div className="flex flex-row flex-nowrap gap-10 items-stretch overflow-x-auto min-h-[300px]">
-                                {/* Coluna 1: Status da Gestão - Largura calculada para alinhar a Col 2 com o 'A Receber' */}
-                                <div className="space-y-3 shrink-0 w-[536px]">
+                                {/* Coluna 1: Status da Gestão (Esquerda) */}
+                                <div className="space-y-3 shrink-0 w-[200px]">
                                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status de Gestão</span>
                                      <div className="flex flex-row gap-2">
                                          <button
@@ -1460,12 +1460,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <table className="w-full text-left text-sm text-slate-300">
                                     <thead className="bg-slate-900/50 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-700">
                                         <tr>
-                                            <th className="px-1 py-3 w-[320px]">Colaboradora</th>
-                                            <th className="px-1 py-3 w-[280px]">Condomínio</th>
+                                            <th className="px-1 py-3">Colaboradora</th>
+                                            <th className="px-1 py-3">Condomínio</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
-                                            <th className="px-1 py-3 text-center w-24 text-slate-400" title="Conta Confirmada">Conta</th>
-                                            <th className={`px-1 py-3 text-center w-24 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
-                                            <th className="px-1 py-3 w-12"></th>
+                                            <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
+                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
+                                            <th className="px-1 py-3 w-8"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
