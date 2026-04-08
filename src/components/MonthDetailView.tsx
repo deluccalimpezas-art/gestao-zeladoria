@@ -921,7 +921,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <CurrencyField
                                 value={func.totalReceber || 0}
                                 onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
-                                textColor="text-blue-400 font-bold"
+                                textColor="text-indigo-400 font-black"
                                 width="w-28"
                             />
                         </div>
@@ -1290,7 +1290,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <React.Fragment key={condo.originalIndex}>
                                                         <tr 
                                                             onClick={() => setExpandedCondoId(isExpanded ? null : (condo.id || null))}
-                                                            className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : 'group'}`}
+                                                            className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors border-b border-white/10 ${isExpanded ? 'bg-slate-700/20' : 'group'}`}
                                                         >
                                                             <td className="px-1 py-2">
                                                                 <div className="flex items-center gap-2">
@@ -1313,13 +1313,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                             <td className="px-1 py-2">
                                                                 <div className="flex items-center gap-6">
                                                                     {condo.administradora && (
-                                                                        <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600 whitespace-nowrap">
+                                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
                                                                             {condo.administradora}
                                                                         </span>
                                                                     )}
-                                                                    <span className="text-[10px] text-slate-400 font-mono tracking-widest">
-                                                                        {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
-                                                                    </span>
                                                                 </div>
                                                             </td>
                                                             <td className="px-2 py-2 text-right">
