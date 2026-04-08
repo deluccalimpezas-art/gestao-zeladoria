@@ -234,13 +234,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     const handleSaveNewCondo = () => {
         if (!newCondoData.nome) return alert("Nome é obrigatório");
+        const defaultInssRate = localMonth.inssRate || 0.13;
         const fresh: CondominioData = {
             id: crypto.randomUUID(),
             nome: newCondoData.nome,
             cnpj: '',
             receitaBruta: newCondoData.receitaBruta,
-            inssRetido: newCondoData.inssRetido,
-            receitaLiquida: newCondoData.receitaBruta - newCondoData.inssRetido,
+            inssRetido: newCondoData.receitaBruta * defaultInssRate,
+            receitaLiquida: newCondoData.receitaBruta - (newCondoData.receitaBruta * defaultInssRate),
             administradora: newCondoData.administradora,
             nfFeita: false,
             nfEnviada: false,
@@ -316,7 +317,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         const item = { ...list[index], [field]: value };
 
         if (field === 'receitaBruta') {
-            item.inssRetido = (Number(item.receitaBruta) || 0) * (localMonth.inssRate || 0.11);
+            item.inssRetido = (Number(item.receitaBruta) || 0) * (localMonth.inssRate || 0.13);
         }
 
         if (field === 'receitaBruta' || field === 'inssRetido') {
@@ -1233,13 +1234,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <div className="flex bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50">
                                                 <button 
                                                     onClick={() => handleInssRateChange(0.11)}
-                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.13) - 0.11) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
                                                     11%
                                                 </button>
                                                 <button 
                                                     onClick={() => handleInssRateChange(0.13)}
-                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.11) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-tight transition-all ${Math.abs((localMonth.inssRate || 0.13) - 0.13) < 0.001 ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
                                                 >
                                                     13%
                                                 </button>
