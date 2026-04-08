@@ -22,7 +22,8 @@ import {
     FileText,
     HardHat,
     StickyNote,
-    TrendingUp
+    TrendingUp,
+    Layout
 } from 'lucide-react';
 import type { Alert } from '@/types';
 import type { MonthlyFinanceData, MasterRHData } from '@/modelsFinance';
@@ -38,6 +39,7 @@ import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
 import PosObrasView from './PosObrasView';
 import { NotesView } from './NotesView';
+import { WorkspaceView } from './WorkspaceView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -63,7 +65,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
+    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas' | 'workspace'>('alertas');
 
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
@@ -349,6 +351,15 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                 {sidebarOpen && <span className="font-medium">Notas / Quadro</span>}
                             </button>
                         </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('workspace')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'workspace' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <Layout className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Workspace</span>}
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -458,6 +469,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         <PosObrasView />
                     ) : activeTab === 'notas' ? (
                         <NotesView initialNotes={initialNotes} />
+                    ) : activeTab === 'workspace' ? (
+                        <WorkspaceView />
                     ) : (
                         <div className="flex items-center justify-center h-full text-slate-500">
                             Selecione uma opção no menu lateral

@@ -247,3 +247,67 @@ model Note {
   updatedAt DateTime @updatedAt
 }
 
+// Notion-like Workspace Models
+model WorkspacePage {
+  id        String           @id @default(uuid())
+  title     String           @default("Sem título")
+  icon      String?
+  cover     String?
+  parentId  String?
+  parent    WorkspacePage?   @relation("SubPages", fields: [parentId], references: [id])
+  subPages  WorkspacePage[]  @relation("SubPages")
+  blocks    WorkspaceBlock[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  isDeleted Boolean          @default(false)
+}
+
+model WorkspaceBlock {
+  id         String             @id @default(uuid())
+  type       String             // text, h1, h2, h3, todo, list, img, code, toggle, divider, video, database
+  content    Json?              // Stores text, src, language, etc.
+  order      Int
+  pageId     String
+  page       WorkspacePage      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  databaseId String?
+  database   WorkspaceDatabase? @relation(fields: [databaseId], references: [id])
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+}
+
+model WorkspaceDatabase {
+  id          String                      @id @default(uuid())
+  title       String                      @default("Novo Banco de Dados")
+  properties  WorkspaceDatabaseProperty[]
+  rows        WorkspaceDatabaseRow[]
+  blocks      WorkspaceBlock[]           // Databases can appear in blocks
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+}
+
+model WorkspaceDatabaseProperty {
+  id         String            @id @default(uuid())
+  name       String
+  type       String            // text, number, select, multi-select, date, checkbox, user, formula
+  config     Json?             // Options list, formula string, etc.
+  databaseId String
+  database   WorkspaceDatabase @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceDatabaseRow {
+  id         String                   @id @default(uuid())
+  databaseId String
+  database   WorkspaceDatabase        @relation(fields: [databaseId], references: [id], onDelete: Cascade)
+  values     WorkspaceDatabaseValue[]
+  createdAt  DateTime                 @default(now())
+  updatedAt  DateTime                 @updatedAt
+}
+
+model WorkspaceDatabaseValue {
+  id         String               @id @default(uuid())
+  propertyId String
+  rowId      String
+  value      Json?                // The actual content
+  row        WorkspaceDatabaseRow @relation(fields: [rowId], references: [id], onDelete: Cascade)
+}
+
