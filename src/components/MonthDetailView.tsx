@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Building2, Users, Users2, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow, Copy, FileDown, Zap, BarChart3, Building } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Users2, Wallet, Activity, AlertTriangle, TrendingDown, Save, Check, Plus, FileText, Receipt, UploadCloud, Loader2, FileCheck, Eye, Undo2, Redo2, Trash2, StickyNote, Utensils, HandCoins, Tag, Calendar, Circle, CheckCircle2, DollarSign, ShieldCheck, UserMinus, TrendingUp, X, ArrowUpCircle, ArrowDownCircle, ArrowUpDown, ArrowUpNarrowWide, ArrowDownWideNarrow, Copy, FileDown, Zap, BarChart3, Building, ChevronDown, ChevronRight } from 'lucide-react';
 import type { MonthlyFinanceData, CondominioData, FuncionarioData, ImpostoData, NotaFiscalData, MonthlyGastoData } from '../modelsFinance';
 import { Modal } from './Modal';
 import { extractTextFromPdf, parseNfText } from '../lib/pdfParser';
@@ -26,6 +26,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
     const [dashboardMode, setDashboardMode] = useState<'financeiro' | 'operacional'>('financeiro');
     const [localMonth, setLocalMonth] = useState<MonthlyFinanceData>(month);
+    const [expandedFuncId, setExpandedFuncId] = useState<string | null>(null);
     const [history, setHistory] = useState<MonthlyFinanceData[]>([month]);
     const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -855,106 +856,163 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         }
     };
 
-    const renderFuncRow = (func: any) => (
-        <React.Fragment key={func.originalIndex}>
-            <tr className="hover:bg-slate-700/10 h-14">
-                <td className="px-1 py-2">
-                    <input
-                        value={func.nome}
-                        onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-white font-medium text-xs"
-                    />
-                </td>
-                <td className="px-1 py-2 text-slate-400">
-                    <input
-                        value={func.condominio}
-                        onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
-                        className="bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-500 rounded px-1 w-full text-xs"
-                    />
-                </td>
-                <td className="px-1 py-2 text-right w-24">
-                    <CurrencyField
-                        value={func.salario || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
-                        textColor="text-white"
-                        width="w-full"
-                    />
-                </td>
-                <td className="px-1 py-2 text-right w-24">
-                    <CurrencyField
-                        value={func.vales || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'vales', val)}
-                        textColor="text-red-400"
-                        width="w-full"
-                    />
-                </td>
-                <td className="px-1 py-2 text-right w-24">
-                    <CurrencyField
-                        value={func.faltas || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'faltas', val)}
-                        textColor="text-amber-500"
-                        width="w-full"
-                    />
-                </td>
-                <td className="px-1 py-2 text-right w-24">
-                    <CurrencyField
-                        value={func.horasExtras || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'horasExtras', val)}
-                        textColor="text-emerald-400"
-                        width="w-full"
-                    />
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
-                        onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm' : 'bg-slate-700/40'}`}
-                        title="Conta Confirmada"
-                    />
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
-                        onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                        className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm' : 'bg-slate-700/40'}`}
-                    />
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
-                        onClick={() => handleCopyHolerite(func)}
-                        className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-emerald-400 transition-all border border-slate-700/50"
-                        title="Copiar Holerite (Slip)"
-                    >
-                        <FileText className="w-3.5 h-3.5" />
-                    </button>
-                </td>
-                <td className="px-2 py-2 text-right">
-                    <CurrencyField
-                        value={func.totalReceber || 0}
-                        onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
-                        textColor="text-blue-400"
-                        width="w-28"
-                    />
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
-                        onClick={() => openNoteModal('func', func.originalIndex, func.nome, func.observacao || '')}
-                        className={`p-1.5 rounded-lg transition-all ${func.observacao ? 'text-amber-400 bg-amber-400/10 shadow-sm border border-amber-400/20' : 'text-slate-600 hover:text-slate-400 hover:bg-slate-800'}`}
-                        title="Observação"
-                    >
-                        <StickyNote className={`w-3.5 h-3.5 ${func.observacao ? 'animate-pulse' : ''}`} />
-                    </button>
-                </td>
-                <td className="px-1 py-2 text-center">
-                    <button
-                        onClick={() => removeFuncionario(func.originalIndex)}
-                        className="p-1 text-slate-600 hover:text-red-500 transition-colors"
-                        title="Remover"
-                    >
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                </td>
-            </tr>
-        </React.Fragment>
-    );
+    const renderFuncRow = (func: any) => {
+        const isExpanded = expandedFuncId === func.id;
+        
+        return (
+            <React.Fragment key={func.originalIndex}>
+                <tr 
+                    onClick={() => setExpandedFuncId(isExpanded ? null : (func.id || 'temp'))}
+                    className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : ''}`}
+                >
+                    <td className="px-1 py-2">
+                        <div className="flex items-center gap-2">
+                             <div className="transition-transform duration-200">
+                                {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
+                             </div>
+                             <input
+                                value={func.nome}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
+                                className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-white font-black text-xs uppercase tracking-tight"
+                            />
+                        </div>
+                    </td>
+                    <td className="px-1 py-2">
+                        <input
+                            value={func.condominio}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
+                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-xs text-slate-400"
+                        />
+                    </td>
+                    <td className="px-1 py-2 text-right w-24">
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <CurrencyField
+                                value={func.salario || 0}
+                                onChange={(val) => updateFunc(func.originalIndex, 'salario', val)}
+                                textColor="text-white"
+                                width="w-full"
+                            />
+                        </div>
+                    </td>
+                    <td className="px-2 py-2 text-right">
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <CurrencyField
+                                value={func.totalReceber || 0}
+                                onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
+                                textColor="text-blue-400"
+                                width="w-28"
+                            />
+                        </div>
+                    </td>
+                    <td className="px-1 py-2 text-center">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada); }}
+                            className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm shadow-blue-400/20' : 'bg-slate-700/40'}`}
+                            title="Conta Confirmada"
+                        />
+                    </td>
+                    <td className="px-1 py-2 text-center">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito); }}
+                            className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm shadow-emerald-400/20' : 'bg-slate-700/40'}`}
+                        />
+                    </td>
+                    <td className="px-1 py-2 text-center">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); removeFuncionario(func.originalIndex); }}
+                            className="p-1 text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            title="Remover"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                    </td>
+                </tr>
+                {isExpanded && (
+                    <tr className="bg-slate-900 shadow-inner">
+                        <td colSpan={7} className="px-6 py-8 border-y border-slate-700/50">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                                <div className="space-y-5">
+                                    <div className="flex flex-col gap-2.5">
+                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Status de Gestão</span>
+                                         <button
+                                            onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
+                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                         >
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.contaConfirmada && <Check className="w-3 h-3 font-bold" />}
+                                            </div>
+                                            <span className="text-[11px] font-black uppercase tracking-widest">{func.contaConfirmada ? 'Conta Confirmada' : 'Confirmar Conta'}</span>
+                                         </button>
+                                         
+                                         <button
+                                            onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                         >
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.pagamentoFeito && <CheckCircle2 className="w-3 h-3 font-bold" />}
+                                            </div>
+                                            <span className="text-[11px] font-black uppercase tracking-widest">{func.pagamentoFeito ? 'Pagamento Realizado' : 'Marcar como Pago'}</span>
+                                         </button>
+                                    </div>
+                                    
+                                    <div className="p-5 bg-slate-950/40 rounded-3xl border border-slate-700/30 flex flex-col gap-1">
+                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Resumo de Ganhos</span>
+                                         <div className="flex justify-between items-center text-sm font-bold">
+                                             <span className="text-slate-400">Total a Receber</span>
+                                             <span className="text-xl font-black text-blue-400">{formatCurrency(func.totalReceber)}</span>
+                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Salário Base</span>
+                                            <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-full" />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1">Extras / Adic.</span>
+                                            <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-full" />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-[10px] font-black text-red-400 uppercase tracking-widest ml-1">Vales (-)</span>
+                                            <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-red-400" width="w-full" />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest ml-1">Faltas (R$) (-)</span>
+                                            <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-amber-500" width="w-full" />
+                                        </div>
+                                    </div>
+                                    
+                                    <button 
+                                        onClick={() => handleCopyHolerite(func)}
+                                        className="w-full py-4 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/5 active:scale-95"
+                                    >
+                                        <Copy className="w-4 h-4" /> Copiar Holerite para Zap
+                                    </button>
+                                </div>
+
+                                <div className="space-y-3 flex flex-col h-full">
+                                    <div className="flex items-center justify-between ml-1">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Observações</span>
+                                        <StickyNote className="w-3.5 h-3.5 text-slate-600" />
+                                    </div>
+                                    <textarea 
+                                        value={func.observacao || ''}
+                                        onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
+                                        placeholder="Adicione notas sobre este pagamento ou funcionário..."
+                                        className="flex-1 w-full min-h-[140px] bg-slate-950/60 border border-slate-700/50 rounded-3xl p-5 text-sm text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none shadow-inner"
+                                    />
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                )}
+            </React.Fragment>
+        );
+    };
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -1385,14 +1443,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-1 py-3">Colaboradora</th>
                                             <th className="px-1 py-3">Condomínio</th>
                                             <th className="px-1 py-3 text-right text-slate-400 w-24">Salário</th>
-                                            <th className="px-1 py-3 text-right text-slate-400 w-24">Vales</th>
-                                            <th className="px-1 py-3 text-center text-slate-400 w-20">Faltas</th>
-                                            <th className="px-1 py-3 text-right text-slate-400 w-24">Extras</th>
+                                            <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
-                                            <th className="px-1 py-3 text-center w-10 text-slate-400" title="Copiar Holerite">Hol.</th>
-                                            <th className="px-2 py-3 text-right">A Receber</th>
-                                            <th className="px-1 py-3 w-8 text-center" title="Observação"></th>
                                             <th className="px-1 py-3 w-8"></th>
                                         </tr>
                                     </thead>
