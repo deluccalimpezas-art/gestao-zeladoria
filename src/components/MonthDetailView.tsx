@@ -1275,7 +1275,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-700/50">
+                                        <tbody className="">
                                             {sortedCondos?.map((condo) => {
                                                 const isExpanded = expandedCondoId === (condo.id || null);
                                                 return (
@@ -1299,13 +1299,13 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                             <span className={`font-black text-sm uppercase tracking-tight block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{condo.nome}</span>
                                                                         )}
                                                                         {condo.administradora && (
-                                                                            <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-slate-800/80 text-slate-500 border border-slate-700/50">
+                                                                            <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600">
                                                                                 {condo.administradora}
                                                                             </span>
                                                                         )}
                                                                     </div>
-                                                                    <div className="h-4 w-px bg-slate-700/50 hidden md:block"></div>
-                                                                    <span className="text-slate-500 font-mono text-[10px] uppercase tracking-tighter opacity-70 hidden md:block">
+                                                                    <div className="h-4 w-px bg-slate-600 hidden md:block"></div>
+                                                                    <span className="text-slate-100 font-mono text-[11px] uppercase tracking-tight hidden md:block">
                                                                         {condo.cnpj || 'SEM CNPJ'}
                                                                     </span>
                                                                 </div>
