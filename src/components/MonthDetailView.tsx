@@ -1260,7 +1260,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <table className="w-full text-left text-sm text-slate-300 border-collapse">
                                         <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
                                             <tr>
-                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[500px]">Condomínio / Unidade</th>
+                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[750px]">Condomínio / Unidade</th>
                                                 <th className="px-2 py-3 text-right font-black text-slate-400 w-32 uppercase tracking-widest text-[10px]">Valor Líquido</th>
                                                 <th className="px-1 py-3 text-right">
                                                     <div className="flex bg-slate-800 p-0.5 rounded-md border border-slate-700/50 w-fit ml-auto">
@@ -1292,29 +1292,35 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                             className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent border-b border-white/10 ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
                                                         >
                                                             <td className="px-2 py-3">
-                                                                <div className="flex items-center gap-10">
-                                                                    <div className="flex items-center gap-4">
+                                                                <div className="grid grid-cols-[350px_140px_1fr] items-center gap-6">
+                                                                    <div className="flex items-center">
                                                                         {isExpanded ? (
                                                                             <input
                                                                                 value={condo.nome}
                                                                                 onClick={(e) => e.stopPropagation()}
                                                                                 onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-auto font-black text-sm uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
+                                                                                className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-sm uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
                                                                                 autoFocus
                                                                             />
                                                                         ) : (
                                                                             <span className={`font-black text-sm uppercase tracking-tight block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{condo.nome}</span>
                                                                         )}
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex justify-center">
                                                                         {condo.administradora && (
-                                                                            <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600">
+                                                                            <span className="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest bg-slate-700 text-white border border-slate-600 whitespace-nowrap">
                                                                                 {condo.administradora}
                                                                             </span>
                                                                         )}
                                                                     </div>
-                                                                    <div className="h-4 w-px bg-slate-600 hidden md:block"></div>
-                                                                    <span className="text-slate-100 font-mono text-[11px] uppercase tracking-widest hidden md:block">
-                                                                        {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
-                                                                    </span>
+
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className="h-4 w-px bg-slate-700"></div>
+                                                                        <span className="text-slate-100 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap">
+                                                                            {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-2 py-3 text-right tabular-nums font-black text-indigo-400">
