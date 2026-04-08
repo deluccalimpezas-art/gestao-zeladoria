@@ -960,31 +960,31 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 </div>
 
                                 {/* Coluna 2: A Conta Completa (No Meio) */}
-                                <div className="p-8 bg-slate-900/90 rounded-[2.5rem] border border-slate-700 shadow-xl flex flex-col gap-8">
-                                     <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] text-center">Folha de Pagamento</h4>
+                                <div className="p-10 bg-slate-900/90 rounded-[2.5rem] border border-slate-700 shadow-2xl flex flex-col gap-10">
+                                     <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] text-center border-b border-slate-800 pb-4">Folha de Pagamento</h4>
                                      
-                                     <div className="grid grid-cols-[1fr,auto] gap-x-12 gap-y-5 items-center px-4">
-                                         <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-wider">Salário Base:</span>
-                                         <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-40" />
+                                     <div className="grid grid-cols-[1fr,auto] gap-x-16 gap-y-6 items-center px-6">
+                                         <span className="text-slate-400 font-semibold text-xs uppercase tracking-wider">Salário Base:</span>
+                                         <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-48" />
                                          
-                                         <span className="text-emerald-500/80 font-semibold text-[11px] uppercase tracking-wider">Extras (+):</span>
-                                         <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-40" />
+                                         <span className="text-emerald-500 font-semibold text-xs uppercase tracking-wider">Extras (+):</span>
+                                         <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-48" />
                                          
-                                         <span className="text-rose-500/80 font-semibold text-[11px] uppercase tracking-wider">Faltas (-):</span>
-                                         <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-40" />
+                                         <span className="text-rose-500 font-semibold text-xs uppercase tracking-wider">Faltas (-):</span>
+                                         <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-48" />
                                          
-                                         <span className="text-amber-500/80 font-semibold text-[11px] uppercase tracking-wider">Vales (-):</span>
-                                         <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-amber-400" width="w-40" />
+                                         <span className="text-amber-500 font-semibold text-xs uppercase tracking-wider">Vales (-):</span>
+                                         <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-amber-400" width="w-48" />
                                      </div>
                                      
-                                     <div className="h-px bg-slate-700/60 mx-4" />
+                                     <div className="h-px bg-slate-700 mx-6 shadow-[0_1px_0_rgba(255,255,255,0.05)]" title="Linha de Total" />
                                      
-                                     <div className="flex justify-between items-end px-4 py-2">
+                                     <div className="flex justify-between items-center px-6">
                                          <div className="flex flex-col">
-                                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none mb-1">Total Líquido</span>
-                                             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">A Receber este Mês</span>
+                                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total a Receber</span>
+                                             <span className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">Saldo Líquido</span>
                                          </div>
-                                         <span className="text-4xl font-black text-emerald-400 tracking-tighter tabular-nums">{formatCurrency(func.totalReceber)}</span>
+                                         <span className="text-5xl font-black text-emerald-400 tracking-tighter tabular-nums drop-shadow-[0_0_20px_rgba(52,211,153,0.2)]">{formatCurrency(func.totalReceber)}</span>
                                      </div>
 
                                      <button 
@@ -2486,7 +2486,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
         return (
             <div
                 onClick={() => setIsEditing(true)}
-                className={`flex items-center justify-end px-2 py-1.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-bold group min-w-[90px] inline-flex text-xs`}
+                className={`flex items-center justify-end px-3 py-1.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-mono font-bold ${width} text-xs tabular-nums text-right`}
             >
                 {formatBR(value)}
             </div>
