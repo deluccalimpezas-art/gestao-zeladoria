@@ -957,37 +957,38 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                          </button>
                                     </div>
                                     
-                                    <div className="p-7 bg-slate-900/60 rounded-[2rem] border border-slate-700/50 shadow-2xl flex flex-col gap-5">
-                                         <div className="space-y-3.5">
-                                             <div className="flex justify-between items-center text-xs">
-                                                 <span className="text-slate-400 font-semibold">Salário Base:</span>
-                                                 <span className="text-white font-black">{formatCurrency(func.salario || 0)}</span>
-                                             </div>
+                                    <div className="p-7 bg-slate-900/60 rounded-[2rem] border border-slate-700/50 shadow-2xl flex flex-col gap-6">
+                                         <div className="grid grid-cols-[1fr,auto] gap-x-6 gap-y-4 items-center">
+                                             <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-tight">Salário Base:</span>
+                                             <span className="text-white font-black text-xs text-right tabular-nums min-w-[110px]">{formatCurrency(func.salario || 0)}</span>
+                                             
                                              {(func.horasExtras || 0) > 0 && (
-                                                 <div className="flex justify-between items-center text-xs">
-                                                     <span className="text-slate-400 font-semibold">Extras / Adicionais:</span>
-                                                     <span className="text-emerald-400 font-black">+ {formatCurrency(func.horasExtras || 0)}</span>
-                                                 </div>
+                                                 <>
+                                                     <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-tight">Extras / Adic.:</span>
+                                                     <span className="text-emerald-400 font-black text-xs text-right tabular-nums min-w-[110px]">+ {formatCurrency(func.horasExtras || 0)}</span>
+                                                 </>
                                              )}
+                                             
                                              {(func.vales || 0) > 0 && (
-                                                 <div className="flex justify-between items-center text-xs">
-                                                     <span className="text-slate-400 font-semibold">Desconto Vales:</span>
-                                                     <span className="text-red-400 font-black">- {formatCurrency(func.vales || 0)}</span>
-                                                 </div>
+                                                 <>
+                                                     <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-tight">Desconto Vales:</span>
+                                                     <span className="text-red-400 font-black text-xs text-right tabular-nums min-w-[110px]">- {formatCurrency(func.vales || 0)}</span>
+                                                 </>
                                              )}
+                                             
                                              {(func.faltas || 0) > 0 && (
-                                                 <div className="flex justify-between items-center text-xs">
-                                                     <span className="text-slate-400 font-semibold">Desconto Faltas:</span>
-                                                     <span className="text-red-400 font-black">- {formatCurrency(func.faltas || 0)}</span>
-                                                 </div>
+                                                 <>
+                                                     <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-tight">Desconto Faltas:</span>
+                                                     <span className="text-red-400 font-black text-xs text-right tabular-nums min-w-[110px]">- {formatCurrency(func.faltas || 0)}</span>
+                                                 </>
                                              )}
                                          </div>
                                          
                                          <div className="h-px bg-slate-700/40" />
                                          
-                                         <div className="flex justify-between items-end pt-1">
+                                         <div className="grid grid-cols-[1fr,auto] gap-x-6 items-end pt-1">
                                              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Total Líquido</span>
-                                             <span className="text-2xl font-black text-emerald-400 tracking-tighter">{formatCurrency(func.totalReceber)}</span>
+                                             <span className="text-2xl font-black text-emerald-400 tracking-tighter tabular-nums text-right min-w-[110px]">{formatCurrency(func.totalReceber)}</span>
                                          </div>
                                     </div>
                                 </div>
