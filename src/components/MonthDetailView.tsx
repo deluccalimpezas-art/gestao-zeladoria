@@ -49,6 +49,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const [hasChanges, setHasChanges] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [condoSortMethod, setCondoSortMethod] = useState<'value' | 'name' | 'status' | 'admin'>('name');
+    const [funcSortMethod, setFuncSortMethod] = useState<'value' | 'name' | 'status'>('name');
     const [noteModal, setNoteModal] = useState<{
         isOpen: boolean;
         type: 'condo' | 'func' | 'tax';
@@ -599,11 +600,23 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     }, [localMonth.condominios, condoSortMethod]);
 
     const sortedFuncs = useMemo(() => {
-        return (localMonth.funcionarios || [])
+        const base = (localMonth.funcionarios || [])
             .map((f, originalIndex) => ({ ...f, originalIndex }))
-            .filter(f => f.nome?.toUpperCase() !== 'TOTAL')
-            .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
-    }, [localMonth.funcionarios]);
+            .filter(f => f.nome?.toUpperCase() !== 'TOTAL');
+
+        switch (funcSortMethod) {
+            case 'value':
+                return base.sort((a, b) => (Number(b.totalReceber) || 0) - (Number(a.totalReceber) || 0));
+            case 'status':
+                return base.sort((a, b) => {
+                    if (a.pagamentoFeito === b.pagamentoFeito) return (a.nome || '').localeCompare(b.nome || '');
+                    return a.pagamentoFeito ? 1 : -1; // Unpaid first
+                });
+            case 'name':
+            default:
+                return base.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        }
+    }, [localMonth.funcionarios, funcSortMethod]);
 
     const rescisoesFuncs = useMemo(() => {
         return sortedFuncs.filter(f => (f.rescisaoFerias || 0) > 0);
@@ -1465,7 +1478,24 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                             <th className="px-2 py-3 text-right">A Receber</th>
                                             <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
                                             <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
-                                            <th className="px-1 py-3 w-8"></th>
+                                            <th className="px-1 py-3 text-right">
+                                                <div className="flex bg-slate-800 p-0.5 rounded-md border border-slate-700/50 w-fit ml-auto">
+                                                    {[
+                                                        { id: 'name', icon: <ArrowUpDown className="w-3 h-3" />, title: 'Ordem Alfabética' },
+                                                        { id: 'value', icon: <ArrowDownWideNarrow className="w-3 h-3" />, title: 'Maior Valor' },
+                                                        { id: 'status', icon: <ArrowUpNarrowWide className="w-3 h-3" />, title: 'Status (Pendente Primeiro)' }
+                                                    ].map(opt => (
+                                                        <button
+                                                            key={opt.id}
+                                                            onClick={() => setFuncSortMethod(opt.id as any)}
+                                                            className={`p-1 rounded-md transition-all ${funcSortMethod === opt.id ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                                            title={opt.title}
+                                                        >
+                                                            {opt.icon}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
