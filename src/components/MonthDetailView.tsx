@@ -993,31 +993,31 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     </div>
                                 </div>
 
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Salário Base</span>
+                                <div className="space-y-5">
+                                    <div className="flex flex-col gap-4 bg-slate-900/40 p-5 rounded-[2rem] border border-slate-700/30 shadow-inner">
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Salário Base</span>
                                             <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-full" />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest ml-1">Extras / Adic.</span>
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] ml-2">Extras / Adicionais</span>
                                             <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-full" />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-[10px] font-black text-red-400 uppercase tracking-widest ml-1">Vales (-)</span>
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] font-black text-red-400 uppercase tracking-[0.2em] ml-2">Desconto de Vales (-)</span>
                                             <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-red-400" width="w-full" />
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest ml-1">Faltas (R$) (-)</span>
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] ml-2">Faltas (R$) (-)</span>
                                             <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-amber-500" width="w-full" />
                                         </div>
                                     </div>
                                     
                                     <button 
                                         onClick={() => handleCopyHolerite(func)}
-                                        className="w-full py-4 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-2xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/5 active:scale-95"
+                                        className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/50 rounded-[1.5rem] flex items-center justify-center gap-4 transition-all font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95"
                                     >
-                                        <Copy className="w-4 h-4" /> Copiar Holerite para Zap
+                                        <Copy className="w-5 h-5 fill-white/20" /> COPIAR HOLERITE PARA ZAP
                                     </button>
                                 </div>
 
