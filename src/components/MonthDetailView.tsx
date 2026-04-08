@@ -739,7 +739,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
         return cats;
     }, [localMonth.gastos]);
 
-    const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos);
+    const lucroCalculado = currentTotals.liquida - (currentTotals.salarios + currentTotals.impostos + currentTotals.gastos + currentTotals.rescisoes);
 
     const openPdfPreview = () => {
         if (!tempNfData.arquivoBase64) return;
@@ -1277,11 +1277,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         </thead>
                                         <tbody className="divide-y divide-slate-700/50">
                                             {sortedCondos?.map((condo) => {
-                                                const isExpanded = expandedCondoId === condo.id;
+                                                const isExpanded = expandedCondoId === (condo.id || null);
                                                 return (
                                                     <React.Fragment key={condo.originalIndex}>
                                                         <tr 
-                                                            onClick={() => setExpandedCondoId(isExpanded ? null : condo.id)}
+                                                            onClick={() => setExpandedCondoId(isExpanded ? null : (condo.id || null))}
                                                             className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
                                                         >
                                                             <td className="px-2 py-3">
@@ -1767,7 +1767,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                 </td>
                                                 <td className="px-6 py-3 text-right">
                                                     <CurrencyField
-                                        value={imp.valor || 0}
+                                                        value={imp.valor || 0}
                                                         onChange={(val) => updateImposto(imp.originalIndex, 'valor', val)}
                                                         textColor="text-red-400"
                                                         width="w-32"
