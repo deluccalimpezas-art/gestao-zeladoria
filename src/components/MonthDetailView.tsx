@@ -22,6 +22,13 @@ const formatCurrency = (value: number) => {
     }).format(value).replace(/\s/g, '');
 };
 
+const formatCNPJ = (val: string) => {
+    if (!val) return '';
+    const cleaned = val.replace(/\D/g, '');
+    if (cleaned.length !== 14) return val;
+    return cleaned.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+};
+
 export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps) {
     const [activeTab, setActiveTab] = useState<TabType>('visao_geral');
     const [dashboardMode, setDashboardMode] = useState<'financeiro' | 'operacional'>('financeiro');
@@ -1282,11 +1289,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                     <React.Fragment key={condo.originalIndex}>
                                                         <tr 
                                                             onClick={() => setExpandedCondoId(isExpanded ? null : (condo.id || null))}
-                                                            className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
+                                                            className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent border-b border-white/10 ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
                                                         >
                                                             <td className="px-2 py-3">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="flex items-center gap-2">
+                                                                <div className="flex items-center gap-10">
+                                                                    <div className="flex items-center gap-4">
                                                                         {isExpanded ? (
                                                                             <input
                                                                                 value={condo.nome}
@@ -1305,8 +1312,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                         )}
                                                                     </div>
                                                                     <div className="h-4 w-px bg-slate-600 hidden md:block"></div>
-                                                                    <span className="text-slate-100 font-mono text-[11px] uppercase tracking-tight hidden md:block">
-                                                                        {condo.cnpj || 'SEM CNPJ'}
+                                                                    <span className="text-slate-100 font-mono text-[11px] uppercase tracking-widest hidden md:block">
+                                                                        {formatCNPJ(condo.cnpj || 'SEM CNPJ')}
                                                                     </span>
                                                                 </div>
                                                             </td>
