@@ -930,17 +930,17 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </td>
                 </tr>
                 {isExpanded && (
-                    <tr className="bg-slate-900/60 shadow-inner">
-                        <td colSpan={7} className="px-6 py-6 border-y border-slate-700/50">
-                            {/* Flex-nowrap para garantir que as colunas fiquem SEMPRE lado a lado */}
-                            <div className="flex flex-row flex-nowrap gap-10 items-start overflow-x-auto">
+                    <tr className="bg-slate-900/60 shadow-inner overflow-hidden">
+                        <td colSpan={7} className="px-6 py-8 border-y border-slate-700/50">
+                            {/* items-stretch garante que todas as colunas tenham a mesma altura */}
+                            <div className="flex flex-row flex-nowrap gap-10 items-stretch overflow-x-auto min-h-[300px]">
                                 {/* Coluna 1: Status da Gestão (Esquerda) */}
-                                <div className="space-y-3 shrink-0">
+                                <div className="space-y-3 shrink-0 w-[180px]">
                                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status de Gestão</span>
-                                     <div className="flex flex-row gap-2">
+                                     <div className="flex flex-col gap-2">
                                          <button
                                             onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                                            className={`flex flex-1 items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                            className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                          >
                                             <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
                                                 {func.contaConfirmada && <Check className="w-2 h-2 font-black" />}
@@ -950,7 +950,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                          
                                          <button
                                             onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                            className={`flex flex-1 items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                            className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                          >
                                             <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
                                                 {func.pagamentoFeito && <CheckCircle2 className="w-2 h-2 font-black" />}
@@ -961,14 +961,14 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 </div>
 
                                 {/* Coluna 2: Valores / Folha (Centro) */}
-                                <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-2xl flex flex-col gap-4 min-w-[360px] flex-1">
-                                     <div className="space-y-3">
+                                <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-2xl flex flex-col gap-4 min-w-[380px] flex-1">
+                                     <div className="space-y-4 flex-1">
                                          <div className="flex items-center justify-between border-b border-slate-800/50 pb-2">
                                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Descrição da Conta</span>
                                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Valor em R$</span>
                                          </div>
                                          
-                                         <div className="space-y-2">
+                                         <div className="space-y-2.5">
                                              {[
                                                  { label: 'Salário Base', key: 'salario', color: 'text-slate-400' },
                                                  { label: 'Extras / Adic. (+)', key: 'horasExtras', color: 'text-emerald-500/80', textColor: 'text-emerald-400' },
@@ -987,7 +987,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                              ))}
                                          </div>
 
-                                         <div className="pt-3 border-t-2 border-slate-800">
+                                         <div className="pt-4 border-t-2 border-slate-800">
                                              <div className="flex items-center justify-between">
                                                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Total Líquido</span>
                                                  <span className="text-2xl font-black text-emerald-400 tabular-nums">
@@ -997,16 +997,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                          </div>
                                      </div>
 
-                                     <div className="flex gap-2">
+                                     <div className="flex gap-2 shrink-0">
                                          <button 
                                             onClick={() => handleCopyHolerite(func)}
-                                            className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[9px] tracking-[0.2em] shadow-lg shadow-indigo-600/10 active:scale-[0.98]"
+                                            className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[9px] tracking-[0.2em] shadow-lg shadow-indigo-600/10 active:scale-[0.98]"
                                          >
                                             <Copy className="w-3.5 h-3.5 opacity-50" /> COPIAR HOLERITE
                                          </button>
                                          <button 
                                             onClick={() => removeFuncionario(func.originalIndex)}
-                                            className="px-4 py-3.5 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all rounded-xl border border-slate-700 hover:border-red-500/30"
+                                            className="px-4 py-4 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all rounded-xl border border-slate-700 hover:border-red-500/30"
                                             title="Excluir Colaborador"
                                          >
                                             <Trash2 className="w-4 h-4" />
@@ -1014,9 +1014,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                      </div>
                                 </div>
 
-                                {/* Coluna 3: Observações (Direita) */}
-                                <div className="space-y-3 h-full flex flex-col min-w-[280px]">
-                                    <div className="flex items-center justify-between px-1">
+                                {/* Coluna 3: Observações (Direita) - Esticada para alinhar com o centro */}
+                                <div className="space-y-3 flex flex-col min-w-[340px] flex-1">
+                                    <div className="flex items-center justify-between px-1 shrink-0">
                                         <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Observações</span>
                                         <StickyNote className="w-3.5 h-3.5 text-slate-700" />
                                     </div>
@@ -1024,7 +1024,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                         value={func.observacao || ''}
                                         onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
                                         placeholder="Informações adicionais..."
-                                        className="w-full h-[140px] bg-slate-950/20 border border-slate-800/50 rounded-xl p-4 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 transition-all resize-none leading-relaxed"
+                                        className="w-full h-full bg-slate-950/20 border border-slate-800/50 rounded-xl p-5 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 transition-all resize-none leading-relaxed flex-1"
                                     />
                                 </div>
                             </div>
