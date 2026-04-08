@@ -957,7 +957,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                      </button>
                                 </div>
 
-                                {/* 2. A Conta (Meio) - Vertical dentro do bloco, mas bloco é horizontal */}
+                                {/* 2. A Conta (Meio) */}
                                 <div className="bg-slate-900/90 border border-slate-700 p-5 rounded-2xl flex flex-col gap-4 min-w-[280px] shadow-xl">
                                      <div className="grid grid-cols-[1fr,auto] gap-x-6 gap-y-2.5 items-center">
                                          <span className="text-slate-500 font-bold text-[9px] uppercase tracking-wider">Base:</span>
@@ -970,10 +970,16 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                          <CurrencyField value={(func.faltas || 0) + (func.vales || 0)} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-rose-400" width="w-28" />
                                      </div>
                                      <div className="h-px bg-slate-800" />
-                                     <div className="flex justify-between items-center px-1">
+                                     <div className="flex justify-between items-center px-1 mb-1">
                                          <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">Total</span>
                                          <span className="text-2xl font-black text-emerald-400 tabular-nums">{formatCurrency(func.totalReceber)}</span>
                                      </div>
+                                     <button 
+                                        onClick={() => handleCopyHolerite(func)}
+                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest shadow-md active:scale-95"
+                                     >
+                                        <Copy className="w-3.5 h-3.5" /> COPIAR HOLERITE
+                                     </button>
                                 </div>
 
                                 {/* 3. Observações (Flex-1) */}
@@ -988,13 +994,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 </div>
 
                                 {/* 4. Ações (Direita) */}
-                                <div className="flex flex-col gap-2 w-[140px] shrink-0">
-                                    <button 
-                                        onClick={() => handleCopyHolerite(func)}
-                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest shadow-md active:scale-95"
-                                    >
-                                        <Copy className="w-3.5 h-3.5" /> COPIAR
-                                    </button>
+                                <div className="flex flex-col justify-end gap-2 w-[100px] shrink-0 pb-1">
                                     <button 
                                         onClick={() => removeFuncionario(func.originalIndex)}
                                         className="w-full py-2.5 text-slate-600 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-40 hover:opacity-100"
