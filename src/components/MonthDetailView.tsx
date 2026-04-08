@@ -931,81 +931,78 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 </tr>
                 {isExpanded && (
                     <tr className="bg-slate-900/60 shadow-inner">
-                        <td colSpan={7} className="px-6 py-10 border-y border-slate-700/50">
-                            <div className="grid grid-cols-[280px,_1fr,_320px] gap-12 items-start">
+                        <td colSpan={7} className="px-5 py-6 border-y border-slate-700/50">
+                            <div className="grid grid-cols-[240px,_1fr,_280px] gap-8 items-start">
                                 {/* Coluna 1: Status de Gestão + Resumo */}
-                                <div className="space-y-6">
-                                     <div className="space-y-3">
-                                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Status de Gestão</span>
-                                         <div className="flex flex-col gap-3">
+                                <div className="space-y-4">
+                                     <div className="space-y-2">
+                                         <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status de Gestão</span>
+                                         <div className="flex flex-col gap-2">
                                              <button
                                                 onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                                                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                              >
-                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
-                                                    {func.contaConfirmada && <Check className="w-3 h-3 font-bold" />}
+                                                <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900 shadow-md' : 'bg-slate-700 text-slate-600'}`}>
+                                                    {func.contaConfirmada && <Check className="w-2.5 h-2.5 font-bold" />}
                                                 </div>
-                                                <span className="text-[11px] font-black uppercase tracking-widest">{func.contaConfirmada ? 'Conta Confirmada' : 'Confirmar Conta'}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-wider">{func.contaConfirmada ? 'Conta OK' : 'Confirmar'}</span>
                                              </button>
                                              
                                              <button
                                                 onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all border ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all border ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                              >
-                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900 shadow-lg' : 'bg-slate-700 text-slate-600'}`}>
-                                                    {func.pagamentoFeito && <CheckCircle2 className="w-3 h-3 font-bold" />}
+                                                <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900 shadow-md' : 'bg-slate-700 text-slate-600'}`}>
+                                                    {func.pagamentoFeito && <CheckCircle2 className="w-2.5 h-2.5 font-bold" />}
                                                 </div>
-                                                <span className="text-[11px] font-black uppercase tracking-widest">{func.pagamentoFeito ? 'Pagamento Realizado' : 'Marcar Pago'}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-wider">{func.pagamentoFeito ? 'Pago' : 'Pendente'}</span>
                                              </button>
                                          </div>
                                      </div>
 
-                                     <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-[2rem] space-y-6">
+                                     <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-2xl space-y-4">
                                          <div>
-                                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Salário Base:</span>
-                                             <div className="text-xl font-bold text-slate-300 mt-1">{formatCurrency(func.salario || 0)}</div>
+                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Salário Base:</span>
+                                             <div className="text-base font-bold text-slate-300 mt-0.5">{formatCurrency(func.salario || 0)}</div>
                                          </div>
                                          <div>
-                                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Total Líquido</span>
-                                             <div className="text-4xl font-black text-emerald-400 mt-1 tabular-nums">{formatCurrency(func.totalReceber)}</div>
+                                             <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Total Líquido</span>
+                                             <div className="text-2xl font-black text-emerald-400 mt-0.5 tabular-nums">{formatCurrency(func.totalReceber)}</div>
                                          </div>
                                      </div>
                                 </div>
 
-                                {/* Coluna 2: Folha de Pagamento (Contabilidade Rígida) */}
-                                <div className="space-y-6 flex flex-col justify-between h-full bg-slate-900/30 p-8 rounded-[2rem] border border-slate-800/50">
-                                     <div className="space-y-5">
+                                {/* Coluna 2: Folha de Pagamento (Contabilidade Compacta) */}
+                                <div className="space-y-4 flex flex-col justify-between h-full bg-slate-900/30 p-6 rounded-2xl border border-slate-800/50">
+                                     <div className="space-y-4">
                                          <div className="flex items-center justify-between border-b border-slate-800/50 pb-2">
-                                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Descrição</span>
-                                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Valor (R$)</span>
+                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Descrição</span>
+                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Valor (R$)</span>
                                          </div>
                                          
-                                         <div className="space-y-4">
-                                             <div className="flex items-center justify-between group">
-                                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Salário Base</span>
-                                                 <CurrencyField value={func.salario || 0} onChange={(v) => updateFunc(func.originalIndex, 'salario', v)} width="w-40" />
-                                             </div>
-                                             
-                                             <div className="flex items-center justify-between group">
-                                                 <span className="text-[11px] font-bold text-emerald-500/80 uppercase tracking-wider">Extras (+)</span>
-                                                 <CurrencyField value={func.horasExtras || 0} onChange={(v) => updateFunc(func.originalIndex, 'horasExtras', v)} textColor="text-emerald-400" width="w-40" />
-                                             </div>
-                                             
-                                             <div className="flex items-center justify-between group">
-                                                 <span className="text-[11px] font-bold text-rose-500/80 uppercase tracking-wider">Vales (-)</span>
-                                                 <CurrencyField value={func.vales || 0} onChange={(v) => updateFunc(func.originalIndex, 'vales', v)} textColor="text-rose-400" width="w-40" />
-                                             </div>
-                                             
-                                             <div className="flex items-center justify-between group">
-                                                 <span className="text-[11px] font-bold text-rose-500/80 uppercase tracking-wider">Faltas (-)</span>
-                                                 <CurrencyField value={func.faltas || 0} onChange={(v) => updateFunc(func.originalIndex, 'faltas', v)} textColor="text-rose-400" width="w-40" />
-                                             </div>
+                                         <div className="space-y-3">
+                                             {[
+                                                 { label: 'Salário Base', key: 'salario', color: 'text-slate-400' },
+                                                 { label: 'Extras (+)', key: 'horasExtras', color: 'text-emerald-500/80', textColor: 'text-emerald-400' },
+                                                 { label: 'Vales (-)', key: 'vales', color: 'text-rose-500/80', textColor: 'text-rose-400' },
+                                                 { label: 'Faltas (-)', key: 'faltas', color: 'text-rose-500/80', textColor: 'text-rose-400' }
+                                             ].map((item) => (
+                                                 <div key={item.key} className="flex items-center justify-between group">
+                                                     <span className={`text-[10px] font-bold ${item.color} uppercase tracking-tight`}>{item.label}</span>
+                                                     <CurrencyField 
+                                                        value={func[item.key as keyof typeof func] as number || 0} 
+                                                        onChange={(v) => updateFunc(func.originalIndex, item.key as any, v)} 
+                                                        textColor={item.textColor}
+                                                        width="w-32" 
+                                                     />
+                                                 </div>
+                                             ))}
                                          </div>
 
-                                         <div className="pt-4 border-t-2 border-slate-800">
+                                         <div className="pt-3 border-t border-slate-800">
                                              <div className="flex items-center justify-between">
-                                                 <span className="text-xs font-black text-slate-300 uppercase tracking-[0.2em]">Cálculo Total</span>
-                                                 <span className="text-2xl font-black text-emerald-400 tabular-nums drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                                                 <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Cálculo Total</span>
+                                                 <span className="text-xl font-black text-emerald-400 tabular-nums">
                                                      {formatCurrency(func.totalReceber)}
                                                  </span>
                                              </div>
@@ -1014,29 +1011,29 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
                                      <button 
                                         onClick={() => handleCopyHolerite(func)}
-                                        className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl flex items-center justify-center gap-4 transition-all font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-indigo-600/20 active:scale-[0.98]"
+                                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl flex items-center justify-center gap-3 transition-all font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-600/10 active:scale-[0.98]"
                                      >
-                                        <Copy className="w-5 h-5 opacity-50" /> COPIAR HOLERITE PARA ZAP
+                                        <Copy className="w-4 h-4 opacity-50" /> COPIAR HOLERITE
                                      </button>
                                 </div>
 
                                 {/* Coluna 3: Observações */}
-                                <div className="space-y-4 h-full flex flex-col">
-                                    <div className="flex items-center justify-between px-2">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Observações</span>
-                                        <StickyNote className="w-4 h-4 text-slate-600" />
+                                <div className="space-y-3 h-full flex flex-col">
+                                    <div className="flex items-center justify-between px-1">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Observações</span>
+                                        <StickyNote className="w-3.5 h-3.5 text-slate-700" />
                                     </div>
                                     <textarea 
                                         value={func.observacao || ''}
                                         onChange={(e) => updateFunc(func.originalIndex, 'observacao', e.target.value)}
-                                        placeholder="Adicione notas sobre este pagamento ou funcionário..."
-                                        className="w-full flex-1 min-h-[340px] bg-slate-900 border border-slate-800/50 hover:border-slate-700/50 rounded-[2rem] p-8 text-sm text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 transition-all resize-none shadow-inner leading-relaxed"
+                                        placeholder="Notas..."
+                                        className="w-full flex-1 min-h-[180px] bg-slate-900 border border-slate-800/50 rounded-2xl p-5 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 transition-all resize-none shadow-inner leading-relaxed"
                                     />
                                     <button 
                                         onClick={() => removeFuncionario(func.originalIndex)}
-                                        className="w-full py-4 text-slate-700 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-30 hover:opacity-100"
+                                        className="w-full py-3 text-slate-700 hover:text-red-500 transition-colors flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest opacity-20 hover:opacity-100"
                                     >
-                                        <Trash2 className="w-4 h-4" /> Excluir Colaborador
+                                        <Trash2 className="w-3.5 h-3.5" /> Excluir
                                     </button>
                                 </div>
                             </div>
