@@ -1253,8 +1253,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     <table className="w-full text-left text-sm text-slate-300 border-collapse">
                                         <thead className="bg-slate-900/50 text-[10px] uppercase font-semibold border-b border-slate-700">
                                             <tr>
-                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[200px]">Condomínio / Unidade</th>
-                                                <th className="px-2 py-3 text-slate-400 w-40 text-left uppercase tracking-widest text-[10px] font-semibold">CNPJ</th>
+                                                <th className="px-2 py-3 w-auto text-slate-400 min-w-[500px]">Condomínio / Unidade</th>
                                                 <th className="px-2 py-3 text-right font-black text-slate-400 w-32 uppercase tracking-widest text-[10px]">Valor Líquido</th>
                                                 <th className="px-1 py-3 text-right">
                                                     <div className="flex bg-slate-800 p-0.5 rounded-md border border-slate-700/50 w-fit ml-auto">
@@ -1286,7 +1285,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                             className={`hover:bg-slate-700/10 group cursor-pointer transition-all border-l-4 border-transparent ${isExpanded ? 'bg-slate-800/30 border-l-indigo-500' : ''}`}
                                                         >
                                                             <td className="px-2 py-3">
-                                                                <div className="flex flex-col gap-0.5">
+                                                                <div className="flex items-center gap-4">
                                                                     <div className="flex items-center gap-2">
                                                                         {isExpanded ? (
                                                                             <input
@@ -1305,10 +1304,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                             </span>
                                                                         )}
                                                                     </div>
+                                                                    <div className="h-4 w-px bg-slate-700/50 hidden md:block"></div>
+                                                                    <span className="text-slate-500 font-mono text-[10px] uppercase tracking-tighter opacity-70 hidden md:block">
+                                                                        {condo.cnpj || 'SEM CNPJ'}
+                                                                    </span>
                                                                 </div>
-                                                            </td>
-                                                            <td className="px-2 py-3 text-slate-500 font-mono text-[11px] tabular-nums">
-                                                                {condo.cnpj || '-'}
                                                             </td>
                                                             <td className="px-2 py-3 text-right tabular-nums font-black text-indigo-400">
                                                                 {formatCurrency(condo.receitaLiquida)}
@@ -1325,7 +1325,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         </tr>
                                                         {isExpanded && (
                                                             <tr className="bg-slate-900/60 shadow-inner overflow-hidden">
-                                                                <td colSpan={4} className="px-8 py-10 border-y border-slate-700/50">
+                                                                <td colSpan={3} className="px-8 py-10 border-y border-slate-700/50">
                                                                     <div className="flex flex-row flex-nowrap gap-8 items-stretch overflow-x-auto min-h-[250px]">
                                                                         {/* Coluna 1: Status da Gestão */}
                                                                         <div className="space-y-4 shrink-0 w-[180px]">
