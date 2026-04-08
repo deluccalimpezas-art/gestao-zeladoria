@@ -602,7 +602,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     const sortedFuncs = useMemo(() => {
         const base = (localMonth.funcionarios || [])
             .map((f, originalIndex) => ({ ...f, originalIndex }))
-            .filter(f => f.nome?.toUpperCase() !== 'TOTAL');
+            .filter(f => f.nome?.toUpperCase() !== 'TOTAL' && (f.rescisaoFerias || 0) === 0);
 
         switch (funcSortMethod) {
             case 'value':
@@ -619,8 +619,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     }, [localMonth.funcionarios, funcSortMethod]);
 
     const rescisoesFuncs = useMemo(() => {
-        return sortedFuncs.filter(f => (f.rescisaoFerias || 0) > 0);
-    }, [sortedFuncs]);
+        return (localMonth.funcionarios || [])
+            .map((f, originalIndex) => ({ ...f, originalIndex }))
+            .filter(f => f.nome?.toUpperCase() !== 'TOTAL' && (f.rescisaoFerias || 0) > 0)
+            .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+    }, [localMonth.funcionarios]);
 
     const teamStats = useMemo(() => {
         return {
@@ -704,11 +707,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     }, [localMonth.condominios]);
 
     const employeePaymentStats = useMemo(() => {
-        const validFuncs = (localMonth.funcionarios || []).filter(f =>
-            f.nome?.toUpperCase() !== 'TOTAL'
-        );
-        const paid = validFuncs.filter(f => f.pagamentoFeito);
-        const unpaid = validFuncs.filter(f => !f.pagamentoFeito);
+        const paid = sortedFuncs.filter(f => f.pagamentoFeito);
+        const unpaid = sortedFuncs.filter(f => !f.pagamentoFeito);
         const totalPaid = paid.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
         const totalPending = unpaid.reduce((acc, f) => acc + (Number(f.totalReceber) || 0), 0);
         return {
@@ -716,9 +716,9 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             totalPending,
             countPaid: paid.length,
             countUnpaid: unpaid.length,
-            totalCount: validFuncs.length
+            totalCount: sortedFuncs.length
         };
-    }, [localMonth.funcionarios]);
+    }, [sortedFuncs]);
 
     const gastosByCategory = useMemo(() => {
         const cats = {
@@ -888,11 +888,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     value={func.nome}
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full text-white font-black text-xs uppercase tracking-tight"
+                                    className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${func.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
                                     autoFocus
                                  />
                              ) : (
-                                 <span className="text-white font-black text-xs uppercase tracking-tight px-1 truncate block">{func.nome}</span>
+                                 <span className={`font-black text-xs uppercase tracking-tight px-1 truncate block ${func.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{func.nome}</span>
                              )}
                         </div>
                     </td>
@@ -1588,7 +1588,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                         <input
                                                             value={func.nome}
                                                             onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                                            className="bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-sm font-bold text-white mb-0.5"
+                                                            className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 w-full text-sm font-bold mb-0.5 ${func.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
                                                             placeholder="Nome"
                                                         />
                                                         <input
