@@ -863,21 +863,40 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
             <React.Fragment key={func.originalIndex}>
                 <tr 
                     onClick={() => setExpandedFuncId(isExpanded ? null : (func.id || 'temp'))}
-                    className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : ''}`}
+                    className={`hover:bg-slate-700/10 cursor-pointer h-14 transition-colors ${isExpanded ? 'bg-slate-700/20' : 'group'}`}
                 >
-                    <td className="px-1 py-2">
+                    <td className="px-1 py-2 w-[320px]">
                         <div className="flex items-center gap-2">
-                             <div className="transition-transform duration-200">
+                             <div className="transition-transform duration-200 shrink-0">
                                 {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-indigo-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-600" />}
                              </div>
-                             <span className="text-white font-black text-xs uppercase tracking-tight px-1">{func.nome}</span>
+                             {isExpanded ? (
+                                 <input
+                                    value={func.nome}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
+                                    className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full text-white font-black text-xs uppercase tracking-tight"
+                                    autoFocus
+                                 />
+                             ) : (
+                                 <span className="text-white font-black text-xs uppercase tracking-tight px-1 truncate block">{func.nome}</span>
+                             )}
                         </div>
                     </td>
-                    <td className="px-1 py-2">
-                        <span className="text-xs text-slate-400 px-1">{func.condominio}</span>
+                    <td className="px-1 py-2 w-[280px]">
+                        {isExpanded ? (
+                            <input
+                                value={func.condominio}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
+                                className="bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full text-xs text-slate-400"
+                            />
+                        ) : (
+                            <span className="text-xs text-slate-400 px-1 truncate block">{func.condominio}</span>
+                        )}
                     </td>
-                    <td className="px-2 py-2 text-right">
-                        <div onClick={(e) => e.stopPropagation()}>
+                    <td className="px-2 py-2">
+                        <div onClick={(e) => e.stopPropagation()} className="flex justify-end pr-2">
                             <CurrencyField
                                 value={func.totalReceber || 0}
                                 onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
@@ -886,20 +905,20 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             />
                         </div>
                     </td>
-                    <td className="px-1 py-2 text-center">
+                    <td className="px-1 py-2 text-center w-24">
                         <button
                             onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada); }}
                             className={`w-4 h-4 rounded-full transition-all mx-auto ${func.contaConfirmada ? 'bg-blue-400 shadow-sm shadow-blue-400/20' : 'bg-slate-700/40'}`}
                             title="Conta Confirmada"
                         />
                     </td>
-                    <td className="px-1 py-2 text-center">
+                    <td className="px-1 py-2 text-center w-24">
                         <button
                             onClick={(e) => { e.stopPropagation(); updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito); }}
                             className={`w-4 h-4 rounded-full transition-all mx-auto ${func.pagamentoFeito ? 'bg-emerald-300 shadow-sm shadow-emerald-400/20' : 'bg-slate-700/40'}`}
                         />
                     </td>
-                    <td className="px-1 py-2 text-center">
+                    <td className="px-1 py-2 text-center w-12">
                         <button
                             onClick={(e) => { e.stopPropagation(); removeFuncionario(func.originalIndex); }}
                             className="p-1 text-slate-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
@@ -914,50 +933,29 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         <td colSpan={6} className="px-6 py-8 border-y border-slate-700/50">
                             {/* items-stretch garante que todas as colunas tenham a mesma altura */}
                             <div className="flex flex-row flex-nowrap gap-10 items-stretch overflow-x-auto min-h-[300px]">
-                                {/* Coluna 1: Dados Básicos e Status (Esquerda) */}
-                                <div className="space-y-4 shrink-0 w-[200px]">
-                                     <div className="space-y-3">
-                                         <div className="space-y-1">
-                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Colaboradora</span>
-                                             <input
-                                                value={func.nome}
-                                                onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                                className="w-full bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-2 text-xs text-white font-bold uppercase"
-                                             />
-                                         </div>
-                                         <div className="space-y-1">
-                                             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Condomínio</span>
-                                             <input
-                                                value={func.condominio}
-                                                onChange={(e) => updateFunc(func.originalIndex, 'condominio', e.target.value)}
-                                                className="w-full bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-2 text-xs text-slate-400"
-                                             />
-                                         </div>
-                                     </div>
-
-                                     <div className="pt-2 space-y-2">
-                                         <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status de Gestão</span>
-                                         <div className="flex flex-row gap-2">
-                                             <button
-                                                onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
-                                                className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
-                                             >
-                                                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
-                                                    {func.contaConfirmada && <Check className="w-2 h-2 font-black" />}
-                                                </div>
-                                                <span className="text-[10px] uppercase tracking-tighter">{func.contaConfirmada ? 'CONTA OK' : 'CONTA?'}</span>
-                                             </button>
-                                             
-                                             <button
-                                                onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
-                                                className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
-                                             >
-                                                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
-                                                    {func.pagamentoFeito && <CheckCircle2 className="w-2 h-2 font-black" />}
-                                                </div>
-                                                <span className="text-[10px] uppercase tracking-tighter">{func.pagamentoFeito ? 'PAGO' : 'PAGTO?'}</span>
-                                             </button>
-                                         </div>
+                                {/* Coluna 1: Status da Gestão - Largura calculada para alinhar a Col 2 com o 'A Receber' */}
+                                <div className="space-y-3 shrink-0 w-[536px]">
+                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Status de Gestão</span>
+                                     <div className="flex flex-row gap-2">
+                                         <button
+                                            onClick={() => updateFunc(func.originalIndex, 'contaConfirmada', !func.contaConfirmada)}
+                                            className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.contaConfirmada ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                         >
+                                            <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.contaConfirmada ? 'bg-blue-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.contaConfirmada && <Check className="w-2 h-2 font-black" />}
+                                            </div>
+                                            <span className="text-[10px] uppercase tracking-tighter">{func.contaConfirmada ? 'CONTA OK' : 'CONTA?'}</span>
+                                         </button>
+                                         
+                                         <button
+                                            onClick={() => updateFunc(func.originalIndex, 'pagamentoFeito', !func.pagamentoFeito)}
+                                            className={`flex items-center gap-2 px-3 py-3 rounded-xl transition-all border whitespace-nowrap ${func.pagamentoFeito ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                         >
+                                            <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all ${func.pagamentoFeito ? 'bg-emerald-400 text-slate-900' : 'bg-slate-700 text-slate-600'}`}>
+                                                {func.pagamentoFeito && <CheckCircle2 className="w-2 h-2 font-black" />}
+                                            </div>
+                                            <span className="text-[10px] uppercase tracking-tighter">{func.pagamentoFeito ? 'PAGO' : 'PAGTO?'}</span>
+                                         </button>
                                      </div>
                                 </div>
 
@@ -1462,12 +1460,12 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                 <table className="w-full text-left text-sm text-slate-300">
                                     <thead className="bg-slate-900/50 text-[10px] uppercase text-slate-400 font-semibold border-b border-slate-700">
                                         <tr>
-                                            <th className="px-1 py-3">Colaboradora</th>
-                                            <th className="px-1 py-3">Condomínio</th>
+                                            <th className="px-1 py-3 w-[320px]">Colaboradora</th>
+                                            <th className="px-1 py-3 w-[280px]">Condomínio</th>
                                             <th className="px-2 py-3 text-right">A Receber</th>
-                                            <th className="px-1 py-3 text-center w-8 text-slate-400" title="Conta Confirmada">Conta</th>
-                                            <th className={`px-1 py-3 text-center w-8 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
-                                            <th className="px-1 py-3 w-8"></th>
+                                            <th className="px-1 py-3 text-center w-24 text-slate-400" title="Conta Confirmada">Conta</th>
+                                            <th className={`px-1 py-3 text-center w-24 transition-colors ${allFuncsPago ? 'text-emerald-300' : 'text-slate-400'}`} title="Pagt. Feito">Pagt.</th>
+                                            <th className="px-1 py-3 w-12"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
