@@ -172,6 +172,28 @@ export function WorkspaceView() {
         if (input) input.value = '';
     };
 
+    const handleDeleteActivePage = async () => {
+        if (!activePage) return;
+        if (!confirm(`Deseja excluir o projeto "${activePage.title}"?`)) return;
+        
+        const res = await deleteWorkspacePage(activePage.id);
+        if (res.success) {
+            setPages(prev => prev.filter(p => p.id !== activePage.id));
+            setActivePageId(null);
+            setActivePage(null);
+        }
+    };
+
+    const handleDeleteDocument = async (docId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!confirm("Deseja excluir este documento?")) return;
+        
+        const res = await deleteWorkspacePage(docId);
+        if (res.success && activePage) {
+            loadActivePage(activePage.id);
+        }
+    };
+
     const triggerSaveBlocks = (pageId: string, blocks: Block[]) => {
         if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
         saveTimeoutRef.current = setTimeout(async () => {
@@ -258,6 +280,7 @@ export function WorkspaceView() {
                                 <div className="flex items-center gap-2">
                                     <button onClick={() => setSelectedDocId(null)} className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 transition-all hover:text-white" title="Fechar Documento"><Search className="w-4 h-4" /></button>
                                     <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 transition-all hover:text-white"><Star className="w-4.5 h-4.5" /></button>
+                                    <button onClick={handleDeleteActivePage} className="p-2 hover:bg-rose-500/10 rounded-xl text-slate-500 transition-all hover:text-rose-400" title="Excluir Projeto"><Trash2 className="w-4.5 h-4.5" /></button>
                                     <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 transition-all hover:text-white"><MoreHorizontal className="w-4.5 h-4.5" /></button>
                                 </div>
                             </div>
@@ -371,6 +394,7 @@ export function WorkspaceView() {
                                                                 key={doc.id} 
                                                                 doc={doc} 
                                                                 onClick={() => setSelectedDocId(doc.id)} 
+                                                                onDelete={handleDeleteDocument}
                                                             />
                                                         ))}
                                                     </div>
@@ -404,16 +428,23 @@ function TabButton({ active, label, onClick }: { active: boolean, label: string,
     );
 }
 
-function DocumentCard({ doc, onClick }: { doc: Page, onClick: () => void }) {
+function DocumentCard({ doc, onClick, onDelete }: { doc: Page, onClick: () => void, onDelete: (id: string, e: React.MouseEvent) => void }) {
     return (
         <div 
             onClick={onClick}
-            className="group p-4 bg-slate-800/40 border border-slate-700/30 rounded-2xl hover:bg-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer shadow-lg hover:shadow-indigo-500/5 group"
+            className="group relative p-4 bg-slate-800/40 border border-slate-700/30 rounded-2xl hover:bg-slate-800 hover:border-indigo-500/30 transition-all cursor-pointer shadow-lg hover:shadow-indigo-500/5"
         >
+            <button 
+                onClick={(e) => onDelete(doc.id, e)}
+                className="absolute top-3 right-3 p-1.5 bg-slate-900/80 hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+                title="Excluir Documento"
+            >
+                <Trash2 className="w-3.5 h-3.5" />
+            </button>
             <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FileText className="w-5 h-5 text-indigo-400" />
             </div>
-            <h3 className="text-sm font-bold text-slate-200 truncate">{doc.title}</h3>
+            <h3 className="text-sm font-bold text-slate-200 truncate pr-6">{doc.title}</h3>
             <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-black">Documento</p>
         </div>
     );
