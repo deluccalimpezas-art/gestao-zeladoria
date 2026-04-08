@@ -28,6 +28,10 @@ export async function getPageWithBlocks(pageId: string) {
             include: {
                 blocks: {
                     orderBy: { order: 'asc' }
+                },
+                subPages: {
+                    where: { isDeleted: false },
+                    orderBy: { createdAt: 'desc' }
                 }
             }
         });
