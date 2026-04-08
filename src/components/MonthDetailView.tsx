@@ -916,15 +916,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                             <span className="text-xs text-slate-400 px-1 truncate block">{func.condominio}</span>
                         )}
                     </td>
-                    <td className="px-2 py-2">
-                        <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
-                            <CurrencyField
-                                value={func.totalReceber || 0}
-                                onChange={(val) => updateFunc(func.originalIndex, 'totalReceber', val)}
-                                textColor="text-indigo-400 font-black"
-                                width="w-28"
-                            />
-                        </div>
+                    <td className="px-2 py-2 text-right">
+                        <span className="text-sm font-black text-indigo-400 tabular-nums">
+                            {formatCurrency(func.totalReceber || 0)}
+                        </span>
                     </td>
                     <td className="px-1 py-2 text-center">
                         <button
@@ -2580,7 +2575,7 @@ function CurrencyField({ value, onChange, textColor = "text-white", width = "w-2
         return (
             <div
                 onClick={() => setIsEditing(true)}
-                className={`flex items-center justify-end px-3 py-1.5 bg-slate-900/40 border border-transparent hover:border-slate-600 rounded-lg cursor-text transition-all ${textColor} font-mono font-bold ${width} text-xs tabular-nums text-right`}
+                className={`flex items-center justify-end px-2 py-1 bg-transparent border-none rounded-lg cursor-text transition-all ${textColor} font-black ${width} text-xs tabular-nums text-right hover:bg-slate-800/20`}
             >
                 {formatBR(value)}
             </div>
