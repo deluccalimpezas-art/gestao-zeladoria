@@ -1040,8 +1040,8 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
 
     return (
         <div className="max-w-7xl mx-auto">
-            {/* Sticky Header with Top-Level Navigation */}
-            <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8 shadow-2xl">
+            {/* Header with Top-Level Navigation */}
+            <div className="bg-slate-900 border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <button
@@ -1138,7 +1138,7 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </button>
                 </div>
 
-                {/* Secondary Navigation (only for Colaboradores) - Also Sticky */}
+                {/* Secondary Navigation (only for Colaboradores) */}
                 {dashboardMode === 'operacional' && (
                     <div className="flex overflow-x-auto gap-2 mt-4 hide-scrollbar animate-in slide-in-from-top-2">
                         <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
