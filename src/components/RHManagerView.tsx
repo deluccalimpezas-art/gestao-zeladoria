@@ -612,8 +612,8 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
-            {/* Sticky Header with Top-Level Controls */}
-            <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8 shadow-2xl">
+            {/* Header with Top-Level Controls */}
+            <div className="bg-slate-900 border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8">
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 border border-indigo-500/20 shadow-lg">
