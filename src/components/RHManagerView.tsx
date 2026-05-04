@@ -59,16 +59,16 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
 
     const getStatusColor = (status?: string) => {
         switch (status) {
-            case 'registrada': return 'bg-green-500';
-            case 'precisa_registrar': return 'bg-yellow-500';
+            case 'registrada': return 'bg-emerald-500';
+            case 'precisa_registrar': return 'bg-amber-500';
             case 'em_processo': return 'bg-blue-500';
-            case 'nao_vai_registrar': return 'bg-red-500';
+            case 'nao_vai_registrar': return 'bg-rose-500';
             default: return 'bg-slate-600';
         }
     };
 
     const baseValue = condo.valorContrato || 0;
-    const inssDeduction = baseValue * 0.13;
+    const inssDeduction = baseValue * 0.11; // Standard INSS 11% for contract display
     const totalSalaries = employees.reduce((acc, emp) => acc + (emp.salario || 0), 0);
     const totalEncargos = employees.reduce((acc, emp) => {
         if (emp.statusClt === 'registrada') {
@@ -81,312 +81,345 @@ function CondoCard({ condo, employees, onUpdate, onRemove, index, isSortedByProf
     const profitMargin = baseValue > 0 ? (projProfit / baseValue) * 100 : 0;
     
     const targetMargin = baseValue > 2900 ? 20 : 30;
-    const targetDivider = baseValue > 2900 ? 0.67 : 0.57;
+    const targetDivider = baseValue > 2900 ? 0.69 : 0.59; // Adjusted for 11% INSS
     const isLowProfit = isSortedByProfit && profitMargin < targetMargin;
 
     return (
-        <div className={`bg-slate-900/40 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/5 scale-[1.01]' : 'border-slate-700/50 hover:border-slate-600'} ${isLowProfit ? 'ring-1 ring-rose-500/50' : ''}`}>
-            <div
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="p-4 flex items-center justify-between cursor-pointer group"
+        <div className={`group relative transition-all duration-500 ${isExpanded ? 'mb-8' : 'mb-3'}`}>
+            <div 
+                className={`relative overflow-hidden rounded-2xl border transition-all duration-500 bg-slate-800/20 backdrop-blur-sm ${
+                    isExpanded 
+                        ? 'border-indigo-500/50 shadow-2xl shadow-indigo-500/10 ring-1 ring-indigo-500/20' 
+                        : 'border-slate-700/50 hover:border-slate-500 hover:bg-slate-800/40 shadow-lg'
+                } ${isLowProfit ? 'ring-1 ring-rose-500/40 border-rose-500/30' : ''}`}
             >
-                <div className="flex items-center gap-4 flex-1">
-                    <div 
-                        className={`p-2 rounded-lg transition-colors ${
-                            isLowProfit 
-                                ? 'bg-rose-500/20 text-rose-500' 
-                                : isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-500'
-                        }`}
-                        title={isLowProfit ? `Atenção: Margem de Lucro Crítica (${profitMargin.toFixed(1)}%)` : undefined}
-                    >
-                        {isLowProfit ? <AlertTriangle className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1">
-                        <div className="relative md:col-span-3">
-                            <input
-                                value={condo.nome}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('nome', e.target.value)}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-white font-bold text-sm ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="Nome do Condomínio"
-                            />
-                            <span className="absolute -left-14 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600 tabular-nums">
-                                {String(index + 1).padStart(2, '0')}.
-                            </span>
-                        </div>
-                        <div className="flex items-center md:col-span-2">
-                            {isExpanded ? (
-                                <select
-                                    value={condo.administradora || ''}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onChange={(e) => onUpdate('administradora', e.target.value)}
-                                    className="bg-slate-800/50 border border-slate-700/50 rounded px-2 py-1.5 w-full text-slate-300 font-medium text-xs outline-none focus:ring-1 focus:ring-indigo-500 transition-all appearance-none"
-                                >
-                                    <option value="">Selecione Adm</option>
-                                    {ADMIN_CONFIGS.map(adm => (
-                                        <option key={adm.name} value={adm.name}>{adm.name}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <div className="px-2 py-0.5 w-full text-slate-300 font-medium text-xs truncate">
-                                    {condo.administradora || 'Sem Adm'}
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center md:col-span-2">
-                            <input
-                                value={maskCNPJ(condo.cnpj)}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('cnpj', unmaskCNPJ(e.target.value))}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-300 text-xs font-mono font-medium ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="00.000.000/0000-00"
-                            />
-                        </div>
-                        <div className="flex items-center md:col-span-3">
-                            <input
-                                value={condo.endereco || ''}
-                                readOnly={!isExpanded}
-                                onClick={(e) => isExpanded && e.stopPropagation()}
-                                onChange={(e) => onUpdate('endereco', e.target.value)}
-                                className={`bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-0.5 w-full text-slate-400 text-[10px] ${!isExpanded ? 'cursor-pointer' : 'cursor-text'}`}
-                                placeholder="Endereço do Condomínio"
-                            />
-                        </div>
-                        
-                        <div className="md:col-span-2 flex items-center justify-end px-2">
-                            {isExpanded ? (
-                                <div className="w-full max-w-[120px]">
-                                    <label className="text-[9px] text-slate-500 uppercase font-bold block mb-0.5 text-right">Valor Mensal</label>
-                                    <div className="relative flex items-center">
-                                        <span className="absolute left-1.5 text-[10px] text-slate-500 font-bold">R$</span>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={condo.valorContrato || ''}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => onUpdate('valorContrato', parseFloat(e.target.value) || 0)}
-                                            className="bg-slate-800/50 border border-slate-700/50 outline-none focus:ring-1 focus:ring-blue-500 rounded pl-6 pr-1.5 py-1 w-full text-blue-400 font-bold text-xs cursor-text transition-all"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                </div>
-                            ) : (
-                                <span className="text-sm font-black text-blue-400 tracking-tight">
-                                    {formatCurrency(condo.valorContrato || 0)}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onRemove(); }}
-                        className="p-2 text-slate-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                    {isExpanded ? <ChevronUp className="w-5 h-5 text-indigo-400" /> : <ChevronDown className="w-5 h-5 text-slate-600" />}
-                </div>
-            </div>
+                {/* Profitability Indicator Bar */}
+                <div className={`absolute top-0 left-0 w-1.5 h-full transition-colors ${
+                    isLowProfit ? 'bg-rose-500' : isExpanded ? 'bg-indigo-500' : 'bg-slate-700'
+                }`} />
 
-            {isExpanded && (
-                <div className="px-4 pb-5 pt-2 border-t border-slate-700/50 bg-slate-900/20 animate-in slide-in-from-top-2">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4">
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <Calendar className="w-3 h-3" /> Datas do Contrato
-                            </h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Início</label>
+                <div
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="p-5 flex items-center justify-between cursor-pointer"
+                >
+                    <div className="flex items-center gap-6 flex-1">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-inner ${
+                            isLowProfit 
+                                ? 'bg-rose-500/10 text-rose-500' 
+                                : isExpanded ? 'bg-indigo-500 text-white shadow-indigo-500/20' : 'bg-slate-800 text-slate-500'
+                        }`}>
+                            {isLowProfit ? <AlertTriangle className="w-6 h-6" /> : <Building2 className="w-6 h-6" />}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+                            <div className="md:col-span-4 space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-slate-600 tabular-nums uppercase tracking-widest">
+                                        {String(index + 1).padStart(2, '0')}
+                                    </span>
                                     <input
-                                        value={condo.inicio || ''}
-                                        onChange={(e) => onUpdate('inicio', e.target.value)}
-                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-blue-400 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
-                                        placeholder="DD/MM/YYYY"
+                                        value={condo.nome}
+                                        readOnly={!isExpanded}
+                                        onClick={(e) => isExpanded && e.stopPropagation()}
+                                        onChange={(e) => onUpdate('nome', e.target.value)}
+                                        className={`bg-transparent border-none outline-none rounded px-0 py-0 w-full text-white font-black text-base tracking-tight transition-all ${!isExpanded ? 'cursor-pointer' : 'cursor-text focus:ring-0 focus:text-indigo-400'}`}
+                                        placeholder="Nome do Condomínio"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Vencimento</label>
-                                    <input
-                                        value={condo.termino || ''}
-                                        onChange={(e) => onUpdate('termino', e.target.value)}
-                                        className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-emerald-400 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
-                                        placeholder="DD/MM/YYYY"
-                                    />
-                                </div>
-                                <div className="space-y-1.5 col-span-2">
-                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Carga Horária</label>
-                                    <div className="flex flex-col gap-2">
-                                        <div className="flex gap-2">
-                                            {[
-                                                { id: '22h', label: '22h' },
-                                                { id: '44h', label: '44h' }
-                                            ].map(opt => (
-                                                <button
-                                                    key={opt.id}
-                                                    type="button"
-                                                    onClick={() => onUpdate('cargaHoraria', opt.id)}
-                                                    className={`px-3 py-1 rounded-lg text-[10px] font-bold border transition-all ${condo.cargaHoraria === opt.id ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            ))}
-                                            <button
-                                                type="button"
-                                                onClick={() => onUpdate('cargaHoraria', '')}
-                                                className={`px-3 py-1 rounded-lg text-[10px] font-bold border transition-all ${!['22h', '44h'].includes(condo.cargaHoraria || '') ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500'}`}
-                                            >
-                                                Manual
-                                            </button>
-                                        </div>
-                                        <input
-                                            value={condo.cargaHoraria || ''}
-                                            onChange={(e) => onUpdate('cargaHoraria', e.target.value)}
-                                            className="bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 w-full text-slate-300 text-xs focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
-                                            placeholder="Ex: Seg a Sex [08:00 - 17:00]"
-                                        />
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-900/50 border border-slate-700/50">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">ADM</span>
+                                        <span className="text-[10px] font-bold text-slate-300 uppercase truncate max-w-[80px]">
+                                            {condo.administradora || 'N/A'}
+                                        </span>
                                     </div>
-                                </div>
-                                <div className="space-y-1.5 col-span-2">
-                                    <label className="text-[10px] text-slate-600 uppercase font-bold ml-1">Contrato (PDF)</label>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex-1 relative">
-                                            <input
-                                                type="file"
-                                                accept=".pdf"
-                                                onChange={(e) => handleFileUpload(e, onUpdate)}
-                                                className="hidden"
-                                                id={`condo-contract-${condo.id}`}
-                                            />
-                                            <label
-                                                htmlFor={`condo-contract-${condo.id}`}
-                                                className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 border-dashed rounded-lg px-3 py-2 w-full text-slate-400 text-xs cursor-pointer hover:border-indigo-500/50 hover:bg-slate-800 transition-all"
-                                            >
-                                                <UploadCloud className="w-4 h-4 text-indigo-400" />
-                                                <span>{condo.contratoNome || 'Importar PDF do Contrato'}</span>
-                                            </label>
-                                        </div>
-                                        {condo.contratoPdf && (
-                                            <button
-                                                onClick={() => handleDownload(condo.contratoPdf, condo.contratoNome || 'contrato.pdf')}
-                                                className="flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs font-bold hover:bg-indigo-500/30 transition-all"
-                                            >
-                                                <FileText className="w-4 h-4" />
-                                                Baixar
-                                            </button>
-                                        )}
+                                    <div className="text-[10px] font-mono font-medium text-slate-500 tracking-tighter">
+                                        {maskCNPJ(condo.cnpj)}
                                     </div>
-                                </div>
-                                <div className="space-y-1.5 col-span-2 mt-2">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-2">
-                                        <FileText className="w-3 h-3" /> Observações do Condomínio
-                                    </label>
-                                    <textarea
-                                        value={condo.observacao || ''}
-                                        onChange={(e) => onUpdate('observacao', e.target.value)}
-                                        className="w-full bg-slate-800/30 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-300 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all min-h-[100px] resize-none"
-                                        placeholder="Adicione observações importantes sobre este condomínio aqui..."
-                                    />
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <Users className="w-3 h-3" /> Funcionárias Alocadas ({employees.length})
-                            </h4>
-                            <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden divide-y divide-slate-700/30">
-                                {employees.length > 0 ? (
-                                    employees.map((emp, i) => (
-                                        <div key={i} className="px-4 py-2.5 flex items-center justify-between hover:bg-slate-800 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(emp.statusClt)}`}></div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-white">{emp.nome}</p>
-                                                    <p className="text-[9px] text-slate-500 uppercase tracking-tighter">{emp.cargo || 'Funcionária'}</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-[10px] font-bold text-slate-400">{formatCurrency(emp.salario || 0)}</span>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="p-4 text-center">
-                                        <p className="text-xs text-slate-600 italic">Nenhuma funcionária vinculada.</p>
-                                    </div>
-                                )}
+                            <div className="hidden md:flex flex-col justify-center md:col-span-3">
+                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Localização</p>
+                                <p className="text-[11px] font-medium text-slate-400 truncate line-clamp-1 italic">
+                                    {condo.endereco || 'Endereço não informado'}
+                                </p>
+                            </div>
+
+                            <div className="hidden md:flex flex-col justify-center md:col-span-2">
+                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Colaboradores</p>
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                                    <Users className="w-3.5 h-3.5 text-indigo-400" />
+                                    {employees.length} <span className="text-[10px] text-slate-600 font-black">UNID</span>
+                                </div>
                             </div>
                             
-                            {/* Projeção de Rentabilidade */}
-                            <div className="mt-6 pt-6 border-t border-slate-700/30">
-                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <TrendingUp className="w-3 h-3 text-emerald-400" /> Projeção de Rentabilidade
-                                    </div>
-                                    <span className={`px-2 py-0.5 rounded font-black text-[10px] ${
-                                        profitMargin >= 30 
-                                            ? 'bg-emerald-500/20 text-emerald-400' 
-                                            : profitMargin > 0 
-                                                ? 'bg-yellow-500/20 text-yellow-400' 
-                                                : 'bg-rose-500/20 text-red-400'
-                                    }`} title="Margem de Lucro">
-                                        {profitMargin.toFixed(1)}%
+                            <div className="md:col-span-3 flex flex-col justify-center items-end">
+                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] mb-1">Faturamento Mensal</p>
+                                <div className="flex items-center gap-3">
+                                    {profitMargin < 15 && (
+                                        <div className="px-2 py-0.5 bg-rose-500/10 text-rose-500 rounded text-[9px] font-black uppercase tracking-tighter animate-pulse">
+                                            Atenção
+                                        </div>
+                                    )}
+                                    <span className={`text-xl font-black tabular-nums tracking-tighter ${isLowProfit ? 'text-rose-400' : 'text-blue-400'}`}>
+                                        {formatCurrency(condo.valorContrato || 0)}
                                     </span>
-                                </h4>
-                                <div className="bg-slate-900/40 rounded-xl border border-slate-700/30 p-4">
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-slate-400 font-medium tracking-tight">Valor Mensal Base:</span>
-                                            <span className="text-white font-bold">{formatCurrency(baseValue)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 ml-6">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onRemove(); }}
+                            className="p-2.5 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                        >
+                            <Trash2 className="w-4.5 h-4.5" />
+                        </button>
+                        <div className={`p-1.5 rounded-lg transition-all duration-300 ${isExpanded ? 'bg-indigo-500/20 text-indigo-400' : 'text-slate-600'}`}>
+                            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                        </div>
+                    </div>
+                </div>
+
+                {isExpanded && (
+                    <div className="px-5 pb-8 pt-2 border-t border-slate-700/50 bg-slate-900/40 animate-in slide-in-from-top-4 duration-500">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-6">
+                            {/* Left Column: Details & Contract */}
+                            <div className="space-y-8">
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-px bg-indigo-500/50" />
+                                        Informações do Contrato
+                                    </h4>
+                                    
+                                    <div className="grid grid-cols-2 gap-5">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Vigência Inicial</label>
+                                            <div className="relative group">
+                                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                                                <input
+                                                    value={condo.inicio || ''}
+                                                    onChange={(e) => onUpdate('inicio', e.target.value)}
+                                                    className="bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-4 py-3 w-full text-blue-400 text-xs font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 outline-none transition-all"
+                                                    placeholder="DD/MM/YYYY"
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-slate-400 font-medium tracking-tight">Dedução Impostos (13%):</span>
-                                            <span className="text-red-400 font-bold">- {formatCurrency(inssDeduction)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-slate-400 font-medium tracking-tight">Custos de Folha:</span>
-                                            <span className="text-red-400 font-bold">- {formatCurrency(totalSalaries)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="text-slate-400 font-medium tracking-tight" title={employees.filter(e => e.statusClt === 'registrada').length > 0 ? `Encargos calculados para funcionárias registradas (${condo.cargaHoraria === '22h' ? '22h' : '44h'})` : 'Nenhuma funcionária registrada.'}>
-                                                Custos de Encargos:
-                                            </span>
-                                            <span className="text-red-400 font-bold">- {formatCurrency(totalEncargos)}</span>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Próxima Renovação</label>
+                                            <div className="relative group">
+                                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                                                <input
+                                                    value={condo.termino || ''}
+                                                    onChange={(e) => onUpdate('termino', e.target.value)}
+                                                    className="bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-4 py-3 w-full text-emerald-400 text-xs font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 outline-none transition-all"
+                                                    placeholder="DD/MM/YYYY"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="pt-3 border-t border-slate-700/50 flex flex-col gap-2">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Lucro Estimado</span>
-                                            <span className={`text-lg font-black ${projProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                {formatCurrency(projProfit)}
-                                            </span>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Configuração de Carga Horária</label>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex gap-2 p-1 bg-slate-900/50 rounded-xl border border-slate-700/50 w-fit">
+                                                {[
+                                                    { id: '22h', label: 'Padrão 22h' },
+                                                    { id: '44h', label: 'Padrão 44h' }
+                                                ].map(opt => (
+                                                    <button
+                                                        key={opt.id}
+                                                        type="button"
+                                                        onClick={() => onUpdate('cargaHoraria', opt.id)}
+                                                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${condo.cargaHoraria === opt.id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}
+                                                    >
+                                                        {opt.label}
+                                                    </button>
+                                                ))}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onUpdate('cargaHoraria', '')}
+                                                    className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${!['22h', '44h'].includes(condo.cargaHoraria || '') ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}`}
+                                                >
+                                                    Manual
+                                                </button>
+                                            </div>
+                                            <input
+                                                value={condo.cargaHoraria || ''}
+                                                onChange={(e) => onUpdate('cargaHoraria', e.target.value)}
+                                                className="bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 w-full text-slate-300 text-xs font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 outline-none transition-all italic"
+                                                placeholder="Ex: Seg a Sex [08:00 - 17:00]"
+                                            />
                                         </div>
-                                        {isLowProfit && (
-                                            <div className="flex flex-col gap-1.5 pt-2 mt-1 border-t border-slate-700/30 animate-in fade-in">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider" title={`Cálculo base: (Custos de Folha + Encargos) ÷ ${targetDivider}`}>Meta para {targetMargin}%:</span>
-                                                    <span className="text-xs font-black text-slate-300">
-                                                        {formatCurrency((totalSalaries + totalEncargos) / targetDivider)}
-                                                    </span>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Arquivos e Documentos</label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1 relative">
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf"
+                                                    onChange={(e) => handleFileUpload(e, onUpdate)}
+                                                    className="hidden"
+                                                    id={`condo-contract-${condo.id}`}
+                                                />
+                                                <label
+                                                    htmlFor={`condo-contract-${condo.id}`}
+                                                    className="flex items-center gap-3 bg-slate-800/50 border border-slate-700 border-dashed rounded-xl px-4 py-3 w-full text-slate-400 text-xs font-bold cursor-pointer hover:border-indigo-500/50 hover:bg-slate-800 transition-all shadow-inner group/upload"
+                                                >
+                                                    <div className="p-1.5 bg-slate-700 rounded-lg group-hover/upload:bg-indigo-500/20 group-hover/upload:text-indigo-400 transition-colors">
+                                                        <UploadCloud className="w-4 h-4" />
+                                                    </div>
+                                                    <span className="truncate">{condo.contratoNome || 'Importar PDF do Contrato assinado...'}</span>
+                                                </label>
+                                            </div>
+                                            {condo.contratoPdf && (
+                                                <button
+                                                    onClick={() => handleDownload(condo.contratoPdf, condo.contratoNome || 'contrato.pdf')}
+                                                    className="flex items-center gap-2 bg-indigo-500 text-white rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest hover:bg-indigo-400 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 whitespace-nowrap"
+                                                >
+                                                    <FileText className="w-4 h-4" />
+                                                    Ver PDF
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1 flex items-center gap-2">
+                                            Observações Internas
+                                        </label>
+                                        <textarea
+                                            value={condo.observacao || ''}
+                                            onChange={(e) => onUpdate('observacao', e.target.value)}
+                                            className="w-full bg-slate-800/50 border border-slate-700 rounded-2xl px-5 py-4 text-[13px] text-slate-300 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 outline-none transition-all min-h-[140px] resize-none leading-relaxed shadow-inner"
+                                            placeholder="Descreve aqui particularidades deste cliente, regras do condomínio ou histórico de reajustes..."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Allocation & Profitability */}
+                            <div className="space-y-10">
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-px bg-indigo-500/50" />
+                                        Quadro de Funcionários ({employees.length})
+                                    </h4>
+                                    <div className="bg-slate-900/80 rounded-2xl border border-slate-700/50 shadow-xl overflow-hidden divide-y divide-slate-800/50">
+                                        {employees.length > 0 ? (
+                                            employees.map((emp, i) => (
+                                                <div key={i} className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-800/50 transition-colors group/row">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`w-2 h-2 rounded-full shadow-sm group-hover/row:scale-125 transition-transform ${getStatusColor(emp.statusClt)}`}></div>
+                                                        <div>
+                                                            <p className="text-xs font-black text-white tracking-tight">{emp.nome}</p>
+                                                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{emp.cargo || 'Funcionária'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-xs font-black text-slate-300 tabular-nums">{formatCurrency(emp.salario || 0)}</p>
+                                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Base Mensal</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Reajuste Necessário:</span>
-                                                    <span className="text-[10px] font-black text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded">
-                                                        + {formatCurrency(((totalSalaries + totalEncargos) / targetDivider) - baseValue)}
-                                                    </span>
-                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-10 text-center space-y-2">
+                                                <Users className="w-8 h-8 text-slate-700 mx-auto" />
+                                                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Sem registros vinculados</p>
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                                
+                                {/* Projeção de Rentabilidade Premium */}
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-px bg-emerald-500/50" />
+                                        Análise de Performance Financeira
+                                    </h4>
+                                    
+                                    <div className="bg-slate-900/60 rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden">
+                                        <div className="p-6 space-y-5">
+                                            <div className="flex items-center justify-between">
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Margem Operacional</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-4xl font-black tracking-tighter ${
+                                                            profitMargin >= 30 
+                                                                 ? 'text-emerald-400' 
+                                                                : profitMargin > 15 
+                                                                    ? 'text-yellow-400' 
+                                                                    : 'text-rose-400'
+                                                        }`}>
+                                                            {profitMargin.toFixed(1)}%
+                                                        </span>
+                                                        <div className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                                                            profitMargin >= 30 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'
+                                                        }`}>
+                                                            {profitMargin >= 30 ? 'SAUDÁVEL' : 'ABAIXO DA META'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <TrendingUp className={`w-12 h-12 opacity-10 ${profitMargin >= 30 ? 'text-emerald-400' : 'text-rose-400'}`} />
+                                            </div>
+
+                                            <div className="space-y-3 pt-4 border-t border-slate-800">
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-slate-400 font-bold tracking-tight uppercase text-[10px]">Faturamento Bruto</span>
+                                                    <span className="text-white font-black tabular-nums">{formatCurrency(baseValue)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-slate-500 font-bold tracking-tight uppercase text-[10px]">Imposto Estimado (11%)</span>
+                                                    <span className="text-rose-500/80 font-bold tabular-nums">-{formatCurrency(inssDeduction)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-slate-500 font-bold tracking-tight uppercase text-[10px]">Custo Operacional (Folha)</span>
+                                                    <span className="text-rose-500/80 font-bold tabular-nums">-{formatCurrency(totalSalaries + totalEncargos)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className={`p-6 ${projProfit >= 0 ? 'bg-emerald-500/5' : 'bg-rose-500/5'} border-t border-slate-800/50`}>
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Resultado Líquido</p>
+                                                    <p className={`text-2xl font-black tabular-nums ${projProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                        {formatCurrency(projProfit)}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Meta de Retorno</p>
+                                                    <div className="px-3 py-1 bg-slate-800 rounded-lg text-slate-300 font-black text-[10px]">
+                                                        {targetMargin}% <span className="text-slate-600">({formatCurrency((totalSalaries + totalEncargos) / targetDivider)})</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {isLowProfit && (
+                                                <div className="mt-4 p-3 bg-rose-500/10 rounded-xl border border-rose-500/20 flex items-center gap-4 animate-pulse">
+                                                    <div className="p-2 bg-rose-500 text-white rounded-lg shadow-lg shadow-rose-500/20">
+                                                        <TrendingUp className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Sugestão de Reajuste</p>
+                                                        <p className="text-xs font-bold text-rose-300">
+                                                            Incrementar {formatCurrency(((totalSalaries + totalEncargos) / targetDivider) - baseValue)} para atingir a meta.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
@@ -579,116 +612,146 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Building2 className="w-8 h-8 text-indigo-400" />
-                        Gestão de Condomínios
-                    </h1>
-                </div>
-                <div className="flex items-center gap-3">
-                    {availableMonths.length > 0 && (
-                        <select
-                            onChange={(e) => {
-                                if (e.target.value) {
-                                    onImportFromMonth(e.target.value);
-                                    e.target.value = '';
-                                }
-                            }}
-                            className="bg-slate-700 border border-slate-600 text-slate-200 rounded-xl px-4 py-2 text-xs font-bold cursor-pointer hover:bg-slate-600 transition-all outline-none"
-                            defaultValue=""
-                        >
-                            <option value="" disabled>📥 Importar de Planilha...</option>
-                            {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                        </select>
-                    )}
-                    <div className="flex items-center gap-3">
-                        {saveStatus === 'saving' && <span className="text-indigo-400 text-xs animate-pulse font-bold uppercase tracking-widest">Sincronizando...</span>}
-                        {saveStatus === 'saved' && <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Sincronizado</span>}
+            {/* Sticky Header with Top-Level Controls */}
+            <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8 shadow-2xl">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 border border-indigo-500/20 shadow-lg">
+                            <Building2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black text-white tracking-tight">Gestão de Condomínios</h1>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cadastro Mestre de Clientes e Contratos</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 flex-wrap">
+                        {availableMonths.length > 0 && (
+                            <div className="flex items-center gap-2 bg-slate-800/40 p-1.5 rounded-2xl border border-slate-700/50 shadow-inner">
+                                <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-2 hidden md:block">Importar dados</span>
+                                <select
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            onImportFromMonth(e.target.value);
+                                            e.target.value = '';
+                                        }
+                                    }}
+                                    className="bg-slate-700/50 border border-slate-600/50 text-slate-200 rounded-xl px-4 py-2 text-xs font-black cursor-pointer hover:bg-slate-600 transition-all outline-none"
+                                    defaultValue=""
+                                >
+                                    <option value="" disabled>Selecione um mês...</option>
+                                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-4 border-l border-slate-700/50 pl-6 ml-2">
+                            <div className="flex items-center min-w-[120px] justify-end">
+                                {hasChanges && (
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-amber-500 animate-pulse mr-3">Alterações Pendentes</span>
+                                )}
+                                {saveStatus === 'saving' && (
+                                    <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    </div>
+                                )}
+                                {saveStatus === 'saved' && (
+                                    <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 shadow-lg shadow-emerald-500/10">
+                                        <Check className="w-4 h-4" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-
-
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
-                    <button 
-                        onClick={() => setShowTrash(false)}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${!showTrash ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
-                    >
-                        Ativos ({filteredCondos.length})
-                    </button>
-                    <button 
-                        onClick={() => setShowTrash(true)}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${showTrash ? 'bg-red-600 text-white' : 'text-slate-400'}`}
-                    >
-                        Lixeira ({trashCondos.length})
-                    </button>
-                </div>
-                
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                    <div className="relative w-full md:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                            type="text"
-                            placeholder="Buscar condomínio..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50"
-                        />
+                {/* Sub-Header: Search and Primary Tabs */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-800/50">
+                    <div className="flex bg-slate-800/40 p-1.5 rounded-2xl border border-slate-700/50 shadow-inner w-fit">
+                        <button 
+                            onClick={() => setShowTrash(false)}
+                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!showTrash ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
+                        >
+                            Ativos ({filteredCondos.length})
+                        </button>
+                        <button 
+                            onClick={() => setShowTrash(true)}
+                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${showTrash ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
+                        >
+                            Lixeira ({trashCondos.length})
+                        </button>
                     </div>
                     
-                    {/* Sort Dropdown */}
-                    <div className="relative">
-                        <button 
-                            onClick={() => setIsSortOpen(!isSortOpen)} 
-                            className={`p-2.5 border rounded-xl transition-colors flex items-center justify-center ${isSortOpen ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700'}`}
-                            title="Ordenar por..."
-                        >
-                            <ArrowUpDown className="w-4 h-4" />
-                        </button>
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="relative w-full md:w-80 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Buscar condomínio pelo nome..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl py-3 pl-12 pr-4 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all font-medium"
+                            />
+                        </div>
                         
-                        {isSortOpen && (
-                            <>
-                                <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                                    <div className="px-4 py-2 border-b border-slate-700/50 mb-1">
-                                        <p className="text-[10px] uppercase font-black tracking-widest text-slate-500">Ordenar por</p>
+                        {/* Sort Dropdown */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsSortOpen(!isSortOpen)} 
+                                className={`p-3 border rounded-2xl transition-all flex items-center justify-center shadow-lg active:scale-95 ${isSortOpen ? 'bg-indigo-500 text-white border-indigo-400 shadow-indigo-500/20' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                                title="Ordenar por..."
+                            >
+                                <ArrowUpDown className="w-4 h-4" />
+                            </button>
+                            
+                            {isSortOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
+                                    <div className="absolute right-0 top-full mt-3 w-64 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+                                        <div className="px-4 py-2.5 border-b border-slate-800/50 mb-1">
+                                            <p className="text-[9px] uppercase font-black tracking-[0.2em] text-slate-500">Critério de Ordenação</p>
+                                        </div>
+                                        {[
+                                            { id: 'alfabetica', label: 'Ordem Alfabética' },
+                                            { id: 'valor', label: 'Por Valor Mensal' },
+                                            { id: 'lucro', label: 'Por Lucratividade (R$)' },
+                                            { id: 'margem', label: 'Por Margem de Lucro (%)' },
+                                            { id: 'administradora', label: 'Por Administradora' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => handleSortOption(opt.id as any)}
+                                                className={`w-full text-left px-4 py-3 text-xs font-black uppercase tracking-tight transition-all flex items-center justify-between ${sortBy === opt.id ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'}`}
+                                            >
+                                                {opt.label}
+                                                {sortBy === opt.id && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-[8px] font-black tracking-tighter text-indigo-400/60">
+                                                            {sortAsc ? 'ASC' : 'DESC'}
+                                                        </span>
+                                                        <Check className="w-3.5 h-3.5" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
                                     </div>
-                                    {[
-                                        { id: 'alfabetica', label: 'Ordem Alfabética' },
-                                        { id: 'valor', label: 'Por Valor Mensal' },
-                                        { id: 'lucro', label: 'Por Lucratividade (R$)' },
-                                        { id: 'margem', label: 'Por Margem de Lucro (%)' },
-                                        { id: 'administradora', label: 'Por Administradora' }
-                                    ].map(opt => (
-                                        <button
-                                            key={opt.id}
-                                            onClick={() => handleSortOption(opt.id as any)}
-                                            className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors flex items-center justify-between ${sortBy === opt.id ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'}`}
-                                        >
-                                            {opt.label}
-                                            {sortBy === opt.id && (
-                                                <div className="flex items-center gap-1">
-                                                    <span className="text-[9px] uppercase tracking-tighter text-indigo-300 opacity-60">
-                                                        {sortAsc ? 'ASC' : 'DESC'}
-                                                    </span>
-                                                    <Check className="w-3 h-3" />
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            </>
-                        )}
+                                </>
+                            )}
+                        </div>
+
+                        <button 
+                            onClick={addCondo}
+                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+                        >
+                            <Plus className="w-4 h-4" /> Novo Cliente
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+            <div className="mt-8">
                 {!showTrash ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 pb-20">
                         {filteredCondos.map((condo, idx) => (
                             <CondoCard 
                                 key={condo.id}
@@ -702,12 +765,6 @@ export function RHManagerView({ data, onSave, onImportFromMonth, availableMonths
                                 onRemove={() => removeCondo(condo.id!)}
                             />
                         ))}
-                        <button 
-                            onClick={addCondo}
-                            className="w-full py-4 bg-indigo-500/5 border border-dashed border-indigo-500/30 rounded-xl text-indigo-400 flex items-center justify-center gap-2 hover:bg-indigo-500/10 transition-all font-bold"
-                        >
-                            <Plus className="w-5 h-5" /> Adicionar Condomínio
-                        </button>
                     </div>
                 ) : (
                     <div className="space-y-3">

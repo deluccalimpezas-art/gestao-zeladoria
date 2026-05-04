@@ -11,6 +11,7 @@ interface NFDraftGeneratorProps {
     initialMonth?: number;
     initialYear?: number;
     onUpdateSuccess?: (newValue: number) => void;
+    useLocalValues?: boolean;
 }
 
 
@@ -34,7 +35,8 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
     initialCondoId = '', 
     initialMonth = new Date().getMonth() + 1,
     initialYear = new Date().getFullYear(),
-    onUpdateSuccess
+    onUpdateSuccess,
+    useLocalValues = false
 }) => {
     const [selectedCondoId, setSelectedCondoId] = useState<string>(initialCondoId);
     const [selectedMonth, setSelectedMonth] = useState<number>(initialMonth);
@@ -95,7 +97,11 @@ const NFDraftGenerator: React.FC<NFDraftGeneratorProps> = ({
                 
                 if (monthlyCondo) {
                     console.log(`Registro mensal encontrado! Valor: ${monthlyCondo.valorCobrado}`);
-                    setValorBruto(monthlyCondo.valorCobrado);
+                    
+                    const localValue = currentCondo.receitaBruta || currentCondo.valorContrato;
+                    const valueToUse = useLocalValues && localValue !== undefined ? localValue : monthlyCondo.valorCobrado;
+                    
+                    setValorBruto(valueToUse);
                     setMonthlyRecordId(monthlyCondo.id);
                     setLastSyncedValue(monthlyCondo.valorCobrado);
                 } else {

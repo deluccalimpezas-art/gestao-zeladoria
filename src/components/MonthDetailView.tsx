@@ -1039,115 +1039,116 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors border border-slate-700"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <div>
-                        <div className="flex items-center gap-2 group/title">
-                            <input
-                                value={localMonth.monthName}
-                                onChange={(e) => {
-                                    updateHistory({ ...localMonth, monthName: e.target.value });
-                                    setHasChanges(true);
-                                }}
-                                className="text-2xl font-bold text-white tracking-tight bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-auto min-w-[100px]"
-                                title="Clique para renomear"
-                            />
+        <div className="max-w-7xl mx-auto">
+            {/* Sticky Header with Top-Level Navigation */}
+            <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 -mx-6 px-6 py-6 mb-8 shadow-2xl">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={onBack}
+                            className="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-all border border-slate-700 shadow-lg active:scale-95"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <div className="flex items-center gap-2 group/title">
+                                <input
+                                    value={localMonth.monthName}
+                                    onChange={(e) => {
+                                        updateHistory({ ...localMonth, monthName: e.target.value });
+                                        setHasChanges(true);
+                                    }}
+                                    className="text-2xl font-black text-white tracking-tight bg-transparent border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-1 -ml-1 w-auto min-w-[120px]"
+                                    title="Clique para renomear"
+                                />
+                            </div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Planilha de {localMonth.monthName}</p>
                         </div>
-                        <p className="text-slate-400">Dados da planilha {localMonth.monthName}</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 border-r border-slate-700 pr-3 mr-1">
-                        <button
-                            onClick={handleUndo}
-                            disabled={historyIndex === 0}
-                            className={`p-2 rounded-lg transition-colors border border-slate-700 ${historyIndex > 0 ? 'bg-slate-800 hover:bg-slate-700 text-white shadow-lg' : 'bg-slate-800/30 text-slate-600 border-transparent cursor-not-allowed'}`}
-                            title="Desfazer (Ctrl+Z)"
-                        >
-                            <Undo2 className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={handleRedo}
-                            disabled={historyIndex === history.length - 1}
-                            className={`p-2 rounded-lg transition-colors border border-slate-700 ${historyIndex < history.length - 1 ? 'bg-slate-800 hover:bg-slate-700 text-white shadow-lg' : 'bg-slate-800/30 text-slate-600 border-transparent cursor-not-allowed'}`}
-                            title="Refazer (Ctrl+Y)"
-                        >
-                            <Redo2 className="w-4 h-4" />
-                        </button>
                     </div>
 
-                    {hasChanges && (
-                        <span className="text-xs text-amber-500 font-medium animate-pulse">Alterações pendentes</span>
-                    )}
-                    <div className="flex items-center">
-                        {saveStatus === 'saving' && (
-                            <span className="flex items-center gap-2 text-indigo-400 text-sm font-medium px-4 py-2 bg-indigo-500/10 rounded-xl">
-                                <Loader2 className="w-4 h-4 animate-spin" /> Salvando...
-                            </span>
-                        )}
-                        {saveStatus === 'saved' && (
-                            <span className="flex items-center gap-2 text-emerald-400 text-sm font-medium px-4 py-2 bg-emerald-500/10 rounded-xl">
-                                <Check className="w-4 h-4" /> Salvo!
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-lg overflow-hidden flex flex-col">
-                <div className="flex flex-col border-b border-slate-700 bg-slate-900/40">
-                    {/* Dashboard Navigation */}
-                    <div className="flex flex-wrap gap-2 p-4 border-b border-slate-700/50">
+                    {/* Top-Level Navigation (5 Buttons) */}
+                    <div className="flex items-center gap-2 flex-wrap bg-slate-800/40 p-1.5 rounded-2xl border border-slate-700/50 shadow-inner">
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('visao_geral'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'visao_geral' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'visao_geral' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
                         >
                             <Activity className="w-3.5 h-3.5" /> Visão Geral
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('condominios'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condominios' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condominios' ? 'bg-amber-500 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
                         >
                             <Building2 className="w-3.5 h-3.5" /> Condomínios
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
                         >
                             <Users2 className="w-3.5 h-3.5" /> Colaboradores
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
                         >
                             <Wallet className="w-3.5 h-3.5" /> Impostos
                         </button>
                         <button 
                             onClick={() => { setDashboardMode('financeiro'); setActiveTab('gastos'); }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gastos' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'text-slate-500 hover:text-slate-300 bg-slate-800/50'}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gastos' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
                         >
                             <TrendingDown className="w-3.5 h-3.5" /> Gastos
                         </button>
                     </div>
 
-                    {/* Secondary Navigation (only for Colaboradores) */}
-                    {dashboardMode === 'operacional' && (
-                        <div className="flex overflow-x-auto px-4 pt-2 hide-scrollbar">
-                            <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
-                            <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
+                    <div className="flex items-center gap-4 border-l border-slate-700/50 pl-6">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={handleUndo}
+                                disabled={historyIndex === 0}
+                                className={`p-2.5 rounded-xl transition-all border ${historyIndex > 0 ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700 shadow-lg active:scale-95' : 'bg-slate-800/30 text-slate-600 border-transparent cursor-not-allowed'}`}
+                                title="Desfazer (Ctrl+Z)"
+                            >
+                                <Undo2 className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={handleRedo}
+                                disabled={historyIndex === history.length - 1}
+                                className={`p-2.5 rounded-xl transition-all border ${historyIndex < history.length - 1 ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700 shadow-lg active:scale-95' : 'bg-slate-800/30 text-slate-600 border-transparent cursor-not-allowed'}`}
+                                title="Refazer (Ctrl+Y)"
+                            >
+                                <Redo2 className="w-4 h-4" />
+                            </button>
                         </div>
-                    )}
+
+                        <div className="flex items-center min-w-[100px] justify-end">
+                            {hasChanges && (
+                                <span className="text-[9px] font-black uppercase tracking-widest text-amber-500 animate-pulse mr-3">Draft</span>
+                            )}
+                            {saveStatus === 'saving' && (
+                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                </div>
+                            )}
+                            {saveStatus === 'saved' && (
+                                <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 shadow-lg shadow-emerald-500/10">
+                                    <Check className="w-4 h-4" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                <div className="flex-1 bg-slate-800 min-h-[500px]">
+                {/* Secondary Navigation (only for Colaboradores) - Also Sticky */}
+                {dashboardMode === 'operacional' && (
+                    <div className="flex overflow-x-auto gap-1 mt-6 pt-6 border-t border-slate-800/50 hide-scrollbar animate-in slide-in-from-top-2">
+                        <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
+                        <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[600px]">
+
                     {activeTab === 'visao_geral' && (
                         <div className="p-6 space-y-8 animate-in fade-in duration-300">
                             <section>
@@ -1298,11 +1299,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                                                             value={condo.nome}
                                                                             onClick={(e) => e.stopPropagation()}
                                                                             onChange={(e) => updateCondo(condo.originalIndex, 'nome', e.target.value)}
-                                                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
+                                                                            className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${condo.pagamentoFeito ? 'text-emerald-400' : condo.nfEnviada ? 'text-amber-400' : condo.nfFeita ? 'text-blue-400' : 'text-white'}`}
                                                                             autoFocus
                                                                         />
                                                                     ) : (
-                                                                        <span className={`font-black text-xs uppercase tracking-tight px-1 block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{condo.nome}</span>
+                                                                        <span className={`font-black text-xs uppercase tracking-tight px-1 block truncate ${condo.pagamentoFeito ? 'text-emerald-400' : condo.nfEnviada ? 'text-amber-400' : condo.nfFeita ? 'text-blue-400' : 'text-white'}`}>{condo.nome}</span>
                                                                     )}
                                                                 </div>
                                                             </td>
@@ -1960,7 +1961,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         </div>
                     )}
                 </div>
-            </div>
 
             <Modal
                 isOpen={isAddCondoModalOpen}
@@ -2468,12 +2468,10 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                 <div className="bg-slate-900 rounded-xl overflow-hidden min-h-[80vh]">
                     <NFDraftGenerator
                         condominios={(localMonth.condominios || []).map(c => ({
-                            id: c.id,
-                            nome: c.nome,
-                            cnpj: c.cnpj,
-                            valorContrato: c.valorContrato || 0,
-                            administradora: c.administradora
+                            ...c,
+                            valorContrato: c.receitaBruta || c.valorContrato || 0
                         })) as any}
+                        useLocalValues={true}
                         initialCondoId={fullNfGeneratorCondoName || undefined}
                         onUpdateSuccess={(newValue) => {
                             const condoIdx = (localMonth.condominios || []).findIndex(c => c.nome === fullNfGeneratorCondoName);
