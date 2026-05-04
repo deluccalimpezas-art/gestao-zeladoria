@@ -1066,40 +1066,6 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                         </div>
                     </div>
 
-                    {/* Top-Level Navigation (5 Buttons) */}
-                    <div className="flex items-center gap-2 flex-wrap bg-slate-800/40 p-1.5 rounded-2xl border border-slate-700/50 shadow-inner">
-                        <button 
-                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('visao_geral'); }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'visao_geral' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
-                        >
-                            <Activity className="w-3.5 h-3.5" /> Visão Geral
-                        </button>
-                        <button 
-                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('condominios'); }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condominios' ? 'bg-amber-500 text-white shadow-lg shadow-amber-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
-                        >
-                            <Building2 className="w-3.5 h-3.5" /> Condomínios
-                        </button>
-                        <button 
-                            onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
-                        >
-                            <Users2 className="w-3.5 h-3.5" /> Colaboradores
-                        </button>
-                        <button 
-                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
-                        >
-                            <Wallet className="w-3.5 h-3.5" /> Impostos
-                        </button>
-                        <button 
-                            onClick={() => { setDashboardMode('financeiro'); setActiveTab('gastos'); }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gastos' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-700/50'}`}
-                        >
-                            <TrendingDown className="w-3.5 h-3.5" /> Gastos
-                        </button>
-                    </div>
-
                     <div className="flex items-center gap-4 border-l border-slate-700/50 pl-6">
                         <div className="flex items-center gap-1">
                             <button
@@ -1138,9 +1104,43 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                     </div>
                 </div>
 
+                {/* Top-Level Navigation (5 Buttons) */}
+                <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-slate-800/50">
+                    <button 
+                        onClick={() => { setDashboardMode('financeiro'); setActiveTab('visao_geral'); }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'visao_geral' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/50'}`}
+                    >
+                        <Activity className="w-4 h-4" /> Visão Geral
+                    </button>
+                    <button 
+                        onClick={() => { setDashboardMode('financeiro'); setActiveTab('condominios'); }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condominios' ? 'bg-amber-500 text-white shadow-lg shadow-amber-600/20' : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/50'}`}
+                    >
+                        <Building2 className="w-4 h-4" /> Condomínios
+                    </button>
+                    <button 
+                        onClick={() => { setDashboardMode('operacional'); setActiveTab('folha'); }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dashboardMode === 'operacional' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/50'}`}
+                    >
+                        <Users2 className="w-4 h-4" /> Colaboradores
+                    </button>
+                    <button 
+                        onClick={() => { setDashboardMode('financeiro'); setActiveTab('impostos'); }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'impostos' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/50'}`}
+                    >
+                        <Wallet className="w-4 h-4" /> Impostos
+                    </button>
+                    <button 
+                        onClick={() => { setDashboardMode('financeiro'); setActiveTab('gastos'); }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gastos' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/20' : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/50'}`}
+                    >
+                        <TrendingDown className="w-4 h-4" /> Gastos
+                    </button>
+                </div>
+
                 {/* Secondary Navigation (only for Colaboradores) - Also Sticky */}
                 {dashboardMode === 'operacional' && (
-                    <div className="flex overflow-x-auto gap-1 mt-6 pt-6 border-t border-slate-800/50 hide-scrollbar animate-in slide-in-from-top-2">
+                    <div className="flex overflow-x-auto gap-2 mt-4 hide-scrollbar animate-in slide-in-from-top-2">
                         <TabButton active={activeTab === 'folha'} onClick={() => setActiveTab('folha')} icon={<Users className="w-4 h-4" />} label="Folha de Pagamento" />
                         <TabButton active={activeTab === 'rescisoes'} onClick={() => setActiveTab('rescisoes')} icon={<Calendar className="w-4 h-4" />} label="Rescisões/Férias" />
                     </div>
