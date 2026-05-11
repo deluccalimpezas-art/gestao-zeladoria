@@ -493,17 +493,17 @@ export function CleaningScheduleView() {
                     ) : (
                         <div className="bg-white text-black mx-auto shadow-2xl printable-area">
                             <table className="w-full border-collapse">
-                                <thead><tr><td style={{ height: '1cm' }}></td></tr></thead>
-                                <tfoot><tr><td style={{ height: '1cm' }}></td></tr></tfoot>
+                                <thead><tr><td className="print:h-[0.5cm] h-[1cm]"></td></tr></thead>
+                                <tfoot><tr><td className="print:h-[0.5cm] h-[1cm]"></td></tr></tfoot>
                                 <tbody>
                                     <tr>
                                         <td style={{ paddingLeft: '1.5cm', paddingRight: '1.5cm', paddingBottom: '0' }}>
                                             
                                             {/* Cabeçalho do Documento */}
-                                            <div className="border-b-2 border-slate-800 pb-4 mb-6 flex items-center justify-between">
+                                            <div className="border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-3 flex items-center justify-between">
                                                 <div>
-                                                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Cronograma de Rotina</h2>
-                                                    <h3 className="text-xl font-bold text-slate-600 mt-1 uppercase">{nomeCondominio}</h3>
+                                                    <h2 className="text-3xl print:text-2xl font-black text-slate-900 uppercase tracking-tighter">Cronograma de Rotina</h2>
+                                                    <h3 className="text-xl print:text-lg font-bold text-slate-600 mt-1 uppercase">{nomeCondominio}</h3>
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="flex items-baseline gap-0 justify-end">
@@ -515,11 +515,11 @@ export function CleaningScheduleView() {
                                             </div>
 
                                             {/* Regra de Ouro */}
-                                            <div className="bg-slate-100 border-l-4 border-slate-800 p-4 mb-6">
-                                                <h4 className="font-black text-slate-800 uppercase flex items-center gap-2 mb-2">
-                                                    <CheckCircle2 className="w-5 h-5" /> Regra de Ouro da Limpeza
+                                            <div className="bg-slate-100 border-l-4 border-slate-800 p-4 mb-6 print:p-2 print:mb-3">
+                                                <h4 className="font-black text-slate-800 uppercase flex items-center gap-2 mb-2 print:mb-1 print:text-sm">
+                                                    <CheckCircle2 className="w-5 h-5 print:w-4 print:h-4" /> Regra de Ouro da Limpeza
                                                 </h4>
-                                                <p className="text-sm font-medium text-slate-700 text-justify">
+                                                <p className="text-sm print:text-xs print:leading-snug font-medium text-slate-700 text-justify">
                                                     <strong>1º PASSO:</strong> Inspeção visual completa no condomínio. Verificar se luzes, TVs e Ar-Condicionados foram deixados ligados, se há vazamentos, portas abertas ou anormalidades. Reportar à sindicatura ou base imediatamente se houver urgências.
                                                     <br/><br/>
                                                     <strong>2º PASSO:</strong> Somente após a inspeção, iniciar as limpezas começando sempre pelo Hall de Entrada, seguido da Lixeira e dos Banheiros da Área de Lazer.
@@ -527,26 +527,26 @@ export function CleaningScheduleView() {
                                             </div>
 
                                             {/* Dias da Semana (Grid ou Lista) */}
-                                            <div className="space-y-6">
+                                            <div className="space-y-6 print:space-y-2">
                                                 {scheduleData.dias.map((dia: any, diaIdx: number) => (
                                                     <div key={diaIdx} className="avoid-break border border-slate-300 rounded-lg overflow-hidden">
-                                                        <div className="bg-slate-800 text-white px-4 py-2 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
-                                                            <CalendarDays className="w-4 h-4" /> {dia.nome}
+                                                        <div className="bg-slate-800 text-white px-4 py-2 print:px-2 print:py-1 font-bold uppercase tracking-widest text-sm print:text-xs flex items-center gap-2">
+                                                            <CalendarDays className="w-4 h-4 print:w-3 print:h-3" /> {dia.nome}
                                                         </div>
                                                         
                                                         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
                                                             {dia.funcionarias.map((func: any, funcIdx: number) => (
-                                                                <div key={funcIdx} className={`p-4 bg-white ${numFuncionarias === 1 ? 'md:col-span-2' : ''}`}>
-                                                                    <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
-                                                                        <h5 className="font-bold text-slate-700 text-xs uppercase flex items-center gap-2">
-                                                                            <Users className="w-4 h-4 text-slate-400" /> {func.nome}
+                                                                <div key={funcIdx} className={`p-4 print:p-2 bg-white ${numFuncionarias === 1 ? 'md:col-span-2' : ''}`}>
+                                                                    <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 print:mb-1 print:pb-1">
+                                                                        <h5 className="font-bold text-slate-700 text-xs print:text-[10px] uppercase flex items-center gap-2">
+                                                                            <Users className="w-4 h-4 print:w-3 print:h-3 text-slate-400" /> {func.nome}
                                                                         </h5>
                                                                         <button onClick={() => addTaskToFunc(diaIdx, funcIdx)} className="p-1 text-indigo-500 hover:bg-indigo-50 rounded no-print transition-colors" title="Adicionar Tarefa">
                                                                             <Plus className="w-4 h-4" />
                                                                         </button>
                                                                     </div>
                                                                     
-                                                                    <ul className="space-y-2 text-justify">
+                                                                    <ul className="space-y-2 print:space-y-0.5 text-justify">
                                                                         {func.tarefas.map((tarefa: string, taskIdx: number) => (
                                                                             <li 
                                                                                 key={taskIdx}
@@ -554,7 +554,7 @@ export function CleaningScheduleView() {
                                                                                 onDragStart={(e) => onDragStart(e, diaIdx, funcIdx, taskIdx, tarefa)}
                                                                                 onDragOver={onDragOver}
                                                                                 onDrop={(e) => onDrop(e, diaIdx, funcIdx, taskIdx)}
-                                                                                className="group flex items-start gap-2 text-sm text-slate-700 p-2 hover:bg-slate-50 rounded border border-transparent hover:border-slate-200 transition-all cursor-move relative leading-tight"
+                                                                                className="group flex items-start gap-2 text-sm print:text-xs text-slate-700 p-2 print:p-1 print:px-0.5 hover:bg-slate-50 rounded border border-transparent hover:border-slate-200 transition-all cursor-move relative leading-tight print:leading-[1.15]"
                                                                             >
                                                                                 <div className="mt-0.5 text-slate-300 group-hover:text-slate-500 no-print flex-shrink-0">
                                                                                     <GripVertical className="w-4 h-4" />
@@ -585,9 +585,9 @@ export function CleaningScheduleView() {
 
                                             {/* Observações */}
                                             {observacoes && (
-                                                <div className="mt-6 pt-4 border-t-2 border-slate-800 avoid-break">
-                                                    <h4 className="font-black text-slate-800 uppercase mb-2 text-sm">Observações Importantes:</h4>
-                                                    <p className="text-sm font-medium text-slate-700 text-justify whitespace-pre-wrap">{observacoes}</p>
+                                                <div className="mt-6 pt-4 print:mt-3 print:pt-2 border-t-2 border-slate-800 avoid-break">
+                                                    <h4 className="font-black text-slate-800 uppercase mb-2 print:mb-1 text-sm print:text-xs">Observações Importantes:</h4>
+                                                    <p className="text-sm print:text-xs print:leading-snug font-medium text-slate-700 text-justify whitespace-pre-wrap">{observacoes}</p>
                                                 </div>
                                             )}
 
