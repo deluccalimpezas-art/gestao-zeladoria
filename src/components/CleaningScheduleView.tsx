@@ -116,12 +116,11 @@ export function CleaningScheduleView() {
             addToAll("Lixeira – coleta, separação e higienização");
             addToAll("Área de lazer – Banheiros");
 
-            // SE FOR SÁBADO, CORTAMOS AQUI + REVISÃO (Pois trabalham metade do tempo)
+            // SE FOR SÁBADO, CORTAMOS AQUI + ELEVADOR APENAS PANO SECO
             if (i === 5) {
                 const isPanoSeco = true; // Sábado é pano seco
                 addTo1(isPanoSeco ? "Elevadores – limpeza interna e externa do hall (apenas pano seco)" : "Elevadores – limpeza interna e externa");
-                addToAll("Revisão geral das áreas de lazer");
-                addToAll("Revisão leve de halls dos moradores e áreas de circulação");
+                // Removidas as revisões gerais a pedido do usuário
             } else {
                 // DIAS NORMAIS (Seg a Sex)
                 const isPanoSeco = (i === 1 || i === 3); // Ter e Qui são pano seco
