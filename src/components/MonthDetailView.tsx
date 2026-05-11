@@ -897,11 +897,11 @@ export function MonthDetailView({ month, onBack, onSave }: MonthDetailViewProps)
                                     value={func.nome}
                                     onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => updateFunc(func.originalIndex, 'nome', e.target.value)}
-                                    className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${func.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}
+                                    className={`bg-slate-800 border-none outline-none focus:ring-1 focus:ring-indigo-500 rounded px-2 py-1 w-full font-black text-xs uppercase tracking-tight ${func.pagamentoFeito ? 'text-emerald-400' : func.contaConfirmada ? 'text-blue-400' : 'text-white'}`}
                                     autoFocus
                                  />
                              ) : (
-                                 <span className={`font-black text-xs uppercase tracking-tight px-1 truncate block ${func.pagamentoFeito ? 'text-emerald-400' : 'text-white'}`}>{func.nome}</span>
+                                 <span className={`font-black text-xs uppercase tracking-tight px-1 truncate block ${func.pagamentoFeito ? 'text-emerald-400' : func.contaConfirmada ? 'text-blue-400' : 'text-white'}`}>{func.nome}</span>
                              )}
                         </div>
                     </td>

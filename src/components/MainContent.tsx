@@ -39,6 +39,7 @@ import { CalculatorsView } from './CalculatorsView';
 import { GeneratorsManagerView } from './GeneratorsManagerView';
 import PosObrasView from './PosObrasView';
 import { NotesView } from './NotesView';
+import { CleaningScheduleView } from './CleaningScheduleView';
 import { Modal } from '@/components/Modal';
 import {
     upsertCondominio,
@@ -64,7 +65,7 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'geradores' | 'cronograma' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
+    const [activeTab, setActiveTab] = useState<'alertas' | 'financeiro' | 'condominios' | 'rh_empresa' | 'geradores' | 'cronograma' | 'cronograma_limpeza' | 'gastos' | 'calculos' | 'gestao_pessoal' | 'pos_obras' | 'notas'>('alertas');
 
 
     const [masterRH, setMasterRH] = useState<MasterRHData>({
@@ -275,7 +276,16 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'cronograma' ? 'bg-purple-600/10 text-purple-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
                             >
                                 <CalendarDays className="w-5 h-5 flex-shrink-0" />
-                                {sidebarOpen && <span className="font-medium">Cronograma</span>}
+                                {sidebarOpen && <span className="font-medium">Rotina Semanal</span>}
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                onClick={() => setActiveTab('cronograma_limpeza')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${activeTab === 'cronograma_limpeza' ? 'bg-indigo-600/10 text-indigo-400' : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'}`}
+                            >
+                                <CalendarDays className="w-5 h-5 flex-shrink-0" />
+                                {sidebarOpen && <span className="font-medium">Rotina de Limpeza</span>}
                             </button>
                         </li>
                         <li>
@@ -449,6 +459,8 @@ export default function MainContent({ initialCondos, initialFinanceMonths, initi
                         />
                     ) : activeTab === 'cronograma' ? (
                         <ScheduleView />
+                    ) : activeTab === 'cronograma_limpeza' ? (
+                        <CleaningScheduleView />
                     ) : activeTab === 'geradores' ? (
                         <GeneratorsManagerView employees={masterRH.funcionarios} condominios={masterRH.condominios} />
                     ) : activeTab === 'gestao_pessoal' ? (

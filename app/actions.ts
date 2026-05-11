@@ -340,8 +340,22 @@ export async function createFinanceMonth(nome: string) {
                 });
             }
 
-            // Skip employee auto-import as requested (User prefers mass import tool)
-            console.log("Pulo da importação de funcionários (conforme solicitado)");
+            const funcs = await tx.funcionario.findMany({ where: { deleted: false } });
+            console.log("Funcionários encontrados na base:", funcs.length);
+            if (funcs.length > 0) {
+                await tx.monthlyFuncionario.createMany({
+                    data: funcs.map(f => ({
+                        monthId: newMonth.id,
+                        nome: f.nome,
+                        condominio: f.condominioNome || '',
+                        valorPago: f.salarioBase || 0,
+                        salarioBase: f.salarioBase || 0,
+                        statusClt: f.statusClt,
+                        funcionarioId: f.id,
+                        observacao: f.observacao || ''
+                    }))
+                });
+            }
 
             const rhImpostos = await (tx as any).rHImposto.findMany();
             if (rhImpostos.length > 0) {
@@ -396,7 +410,26 @@ export async function duplicateFinanceMonth(sourceId: string, novoNome: string) 
             });
         }
 
-        // Skip employee duplication as requested
+        if (source.funcionarios && source.funcionarios.length > 0) {
+            await prisma.monthlyFuncionario.createMany({
+                data: source.funcionarios.map((f: any) => ({
+                    monthId: newMonth.id,
+                    nome: f.nome,
+                    condominio: f.condominio,
+                    valorPago: f.valorPago,
+                    salarioBase: f.salarioBase,
+                    statusClt: f.statusClt,
+                    funcionarioId: f.funcionarioId,
+                    observacao: f.observacao,
+                    horasExtras: f.horasExtras,
+                    vales: f.vales,
+                    faltas: f.faltas,
+                    rescisaoFerias: f.rescisaoFerias,
+                    pago: false,
+                    contaConfirmada: false
+                }))
+            });
+        }
 
         if (source.impostos.length > 0) {
             await prisma.monthlyImposto.createMany({
@@ -1424,9 +1457,83 @@ export async function deleteRHImposto(id: string) {
         await (prisma as any).rHImposto.delete({ where: { id } });
         revalidatePath('/');
         return { success: true };
-    } catch (e: any) {
+} catch (e: any) {
         console.error("Erro deleteRHImposto:", e);
         return { success: false, error: e.message };
     }
 }
 
+// --- CONDO CLEANING SCHEDULE ---
+
+export async function getCleaningSchedules() {
+    try {
+        return await (prisma as any).condoCleaningSchedule.findMany({
+            orderBy: { updatedAt: 'desc' }
+        });
+    } catch (e) {
+        console.error("Erro getCleaningSchedules:", e);
+        return [];
+    }
+}
+
+export async function saveCleaningSchedule(data: any) {
+    try {
+        const { id, nomeCondominio, numFuncionarias, areas, scheduleData, observacoes } = data;
+        const validId = (id && id !== '00000000-0000-0000-0000-000000000000' && id.length > 10) ? id : undefined;
+        
+        const result = await (prisma as any).condoCleaningSchedule.upsert({
+            where: { id: id || '00000000-0000-0000-0000-000000000000' },
+            update: { 
+                nomeCondominio, 
+                numFuncionarias: Number(numFuncionarias) || 1, 
+                areas, 
+                scheduleData, 
+                observacoes 
+            },
+            create: { 
+                id: validId,
+                nomeCondominio, 
+                numFuncionarias: Number(numFuncionarias) || 1, 
+                areas, 
+                scheduleData, 
+                observacoes 
+            }
+        });
+        revalidatePath('/');
+        return { success: true, data: result };
+    } catch (e: any) {
+        console.error("Erro saveCleaningSchedule:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deleteCleaningSchedule(id: string) {
+    try {
+        await (prisma as any).condoCleaningSchedule.delete({ where: { id } });
+        revalidatePath('/');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Erro deleteCleaningSchedule:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function duplicateCleaningSchedule(id: string, newName: string) {
+    try {
+        const source = await (prisma as any).condoCleaningSchedule.findUnique({ where: { id } });
+        if (!source) return { success: false, error: "Cronograma original não encontrado." };
+
+        const { id: _, createdAt, updatedAt, ...rest } = source;
+        const newSchedule = await (prisma as any).condoCleaningSchedule.create({
+            data: {
+                ...rest,
+                nomeCondominio: newName
+            }
+        });
+        revalidatePath('/');
+        return { success: true, data: newSchedule };
+    } catch (e: any) {
+        console.error("Erro duplicateCleaningSchedule:", e);
+        return { success: false, error: e.message };
+    }
+}
