@@ -59,6 +59,7 @@ export function CleaningScheduleView() {
     // Form State
     const [nomeCondominio, setNomeCondominio] = useState('');
     const [numFuncionarias, setNumFuncionarias] = useState(1);
+    const [cargaHoraria, setCargaHoraria] = useState('44h');
     const [areas, setAreas] = useState<string[]>([]);
     const [novaArea, setNovaArea] = useState('');
     const [observacoes, setObservacoes] = useState('');
@@ -91,68 +92,78 @@ export function CleaningScheduleView() {
     };
 
     const generateSchedule = () => {
-        // Motor de Geração
         const newSchedule: any = { dias: [] };
 
-        // Distribuir áreas de lazer pelos 6 dias
-        // Se temos N áreas de lazer, tentamos dividir igualmente
         const areasLazer = [...areas];
         const lazerPorDia = Array.from({ length: 6 }, () => [] as string[]);
         
         let diaIdx = 0;
         areasLazer.forEach(area => {
             lazerPorDia[diaIdx].push(area);
-            diaIdx = (diaIdx + 1) % 6; // round robin
+            diaIdx = (diaIdx + 1) % 6; 
         });
 
-        // Montar a rotina para cada dia
+        // 0=Seg, 1=Ter, 2=Qua, 3=Qui, 4=Sex, 5=Sab
         for (let i = 0; i < 6; i++) {
             const diaSemana = DIAS_SEMANA[i];
-            const isDiaAlternado1 = DIAS_ALTERNADOS_1.includes(diaSemana);
             
-            // Tarefas do dia inteiro
-            const tarefasDoDia = [
-                INSPECAO_GERAL,
-                ...TAREFAS_FIXAS_DIARIAS,
-                ...(isDiaAlternado1 ? TAREFAS_FIXAS_ALTERNADAS : []), // Altera entre os dias
-                ...lazerPorDia[i] // Áreas de lazer do dia
-            ];
-
-            // Dividir pelas funcionárias
             const funcionarias = Array.from({ length: numFuncionarias }, (_, idx) => ({
                 id: idx + 1,
                 nome: numFuncionarias === 1 ? 'Funcionária 1 (Rotina Completa)' : `Funcionária ${idx + 1}`,
                 tarefas: [] as string[]
             }));
 
-            if (numFuncionarias === 1) {
-                funcionarias[0].tarefas = tarefasDoDia;
-            } else {
-                // Divisão simples: Inspeção Geral sempre com a Func 1 (ou dividida). 
-                // Para simplificar, dividimos as tarefas sequencialmente (round robin), 
-                // mantendo a ordem obrigatória intacta na visão geral.
-                // Mas, operacionalmente, a Inspeção Geral e as fixas diárias podem ficar com a 1, e lazer/alternadas com a 2.
-                
-                // Inspeção Geral - Func 1
-                funcionarias[0].tarefas.push(INSPECAO_GERAL);
-                
-                // Lixeira, Hall de Entrada, Hall Área Lazer -> Func 1
-                TAREFAS_FIXAS_DIARIAS.forEach(t => funcionarias[0].tarefas.push(t));
-
-                // Hall Apto, Elevador, Frente -> Func 2 (se houver, senão Func 1)
-                const funcParaAlternadas = numFuncionarias > 1 ? 1 : 0;
-                if (isDiaAlternado1) {
-                    TAREFAS_FIXAS_ALTERNADAS.forEach(t => funcionarias[funcParaAlternadas].tarefas.push(t));
+            const addTo1 = (t: string) => { funcionarias[0].tarefas.push(t); }
+            const addTo2 = (t: string) => { if(numFuncionarias > 1) funcionarias[1].tarefas.push(t); else addTo1(t); }
+            const addToAll = (t: string) => { funcionarias.forEach(f => f.tarefas.push(t)); }
+            const addDivided = (t: string) => { 
+                if (numFuncionarias === 1) addTo1(t);
+                else {
+                    funcionarias.forEach((f, idx) => f.tarefas.push(`${t} (Parte ${idx + 1}/${numFuncionarias})`));
                 }
+            }
 
-                // Áreas de lazer: distribui pelas funcionárias a partir da 2 (ou 1 se só tiver 1)
-                let funcLazerIdx = numFuncionarias > 1 ? 1 : 0;
-                lazerPorDia[i].forEach(area => {
-                    funcionarias[funcLazerIdx].tarefas.push(area);
-                    funcLazerIdx = (funcLazerIdx + 1) % numFuncionarias;
-                    // Evita colocar lazer na func 1 se tivermos + de 1 func (para balancear com as fixas)
-                    if (funcLazerIdx === 0 && numFuncionarias > 1) funcLazerIdx = 1;
-                });
+            addTo1("Vistoria inicial geral");
+            addToAll("Lixeira – coleta, separação e higienização");
+
+            const isPanoSeco = (i === 1 || i === 3 || i === 5); // Ter, Qui, Sab
+            addTo1(isPanoSeco ? "Elevadores – limpeza interna e externa do hall de entrada (apenas pano seco)" : "Elevadores – limpeza interna e externa do hall de entrada");
+
+            addTo2("Hall de entrada");
+            addToAll("Área de lazer – banheiros");
+
+            // Distribuir lazer selecionado no form:
+            if (lazerPorDia[i].length > 0) {
+                if (numFuncionarias === 1) {
+                    lazerPorDia[i].forEach(l => addTo1(`Área de lazer - ${l}`));
+                } else {
+                    lazerPorDia[i].forEach((l, idx) => {
+                        funcionarias[idx % numFuncionarias].tarefas.push(`Área de lazer - ${l}`);
+                    });
+                }
+            }
+
+            // Especiais do dia
+            if (i === 0 || i === 2 || i === 4) { // Seg, Qua, Sex
+                addDivided("Halls dos moradores");
+            }
+            if (i === 5) { // Sabado
+                addToAll("Revisão leve de halls e áreas principais de circulação");
+            }
+
+            // Tarefas detalhadas conforme carga horária
+            if (cargaHoraria === '44h') {
+                if (i === 1) addToAll("Limpeza dos vidros – portas de acesso, janelas do térreo e hall");
+                if (i === 2) addToAll("Varrição das garagens");
+                if (i === 3) {
+                    addToAll("Trilhos dos elevadores – limpeza detalhada");
+                    addToAll("Varrição das calçadas e entorno externo");
+                }
+            } else {
+                // 22h (Menos carga pesada)
+                if (i === 1) addToAll("Limpeza dos vidros (Apenas áreas principais - Rotina 22h)");
+                if (i === 2) addToAll("Varrição das garagens (Rotas de passagem - Rotina 22h)");
+                if (i === 3) addToAll("Trilhos dos elevadores (Limpeza superficial - Rotina 22h)");
             }
 
             newSchedule.dias.push({
@@ -171,6 +182,7 @@ export function CleaningScheduleView() {
                 id: activeScheduleId,
                 nomeCondominio,
                 numFuncionarias,
+                cargaHoraria,
                 areas,
                 scheduleData,
                 observacoes
@@ -188,6 +200,7 @@ export function CleaningScheduleView() {
         setActiveScheduleId(sched.id);
         setNomeCondominio(sched.nomeCondominio);
         setNumFuncionarias(sched.numFuncionarias);
+        setCargaHoraria(sched.cargaHoraria || '44h');
         setAreas(sched.areas || []);
         setScheduleData(sched.scheduleData);
         setObservacoes(sched.observacoes || '');
@@ -349,19 +362,34 @@ export function CleaningScheduleView() {
                             />
                         </div>
 
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-2">
-                                <Users className="w-3.5 h-3.5" /> Quantidade de Funcionárias
-                            </label>
-                            <select
-                                value={numFuncionarias}
-                                onChange={e => setNumFuncionarias(Number(e.target.value))}
-                                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none"
-                            >
-                                {[1, 2, 3, 4, 5].map(n => (
-                                    <option key={n} value={n}>{n} {n === 1 ? 'Funcionária' : 'Funcionárias'}</option>
-                                ))}
-                            </select>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-2">
+                                    <Users className="w-3.5 h-3.5" /> Quantidade
+                                </label>
+                                <select
+                                    value={numFuncionarias}
+                                    onChange={e => setNumFuncionarias(Number(e.target.value))}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none"
+                                >
+                                    {[1, 2, 3, 4, 5].map(n => (
+                                        <option key={n} value={n}>{n} {n === 1 ? 'Funcionária' : 'Funcionárias'}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-400 ml-1 flex items-center gap-2">
+                                    <Clock className="w-3.5 h-3.5" /> Carga Horária
+                                </label>
+                                <select
+                                    value={cargaHoraria}
+                                    onChange={e => setCargaHoraria(e.target.value)}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none"
+                                >
+                                    <option value="44h">44h Semanais (Integral)</option>
+                                    <option value="22h">22h Semanais (Meio Período)</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className="space-y-3 pt-2">
@@ -424,11 +452,10 @@ export function CleaningScheduleView() {
                     <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-4 text-xs text-indigo-300">
                         <p className="font-bold mb-1">Como funciona a geração:</p>
                         <ul className="list-disc pl-4 space-y-1 opacity-80">
-                            <li>A "Inspeção Geral" é sempre a primeira tarefa.</li>
-                            <li>Lixeira e Halls são limpos diariamente.</li>
-                            <li>Corredores de aptos e elevadores são dia sim, dia não.</li>
-                            <li>A área de lazer selecionada é dividida entre os dias da semana automaticamente.</li>
-                            <li>Se houver mais de uma funcionária, as tarefas são distribuídas entre elas.</li>
+                            <li>O cronograma segue o padrão rígido De Lucca (Vistoria Inicial primeiro).</li>
+                            <li>A rotina de "pano seco" vs "limpeza geral" nos elevadores é alternada.</li>
+                            <li>Halls, Garagens e Vidros possuem dias específicos na semana.</li>
+                            <li>Se a carga horária for <strong>22h</strong>, as tarefas pesadas (garagem, vidros, trilhos) são amenizadas para dar tempo hábil.</li>
                         </ul>
                     </div>
                 </div>

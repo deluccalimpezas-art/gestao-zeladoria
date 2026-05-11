@@ -1478,7 +1478,7 @@ export async function getCleaningSchedules() {
 
 export async function saveCleaningSchedule(data: any) {
     try {
-        const { id, nomeCondominio, numFuncionarias, areas, scheduleData, observacoes } = data;
+        const { id, nomeCondominio, numFuncionarias, cargaHoraria, areas, scheduleData, observacoes } = data;
         const validId = (id && id !== '00000000-0000-0000-0000-000000000000' && id.length > 10) ? id : undefined;
         
         const result = await (prisma as any).condoCleaningSchedule.upsert({
@@ -1486,6 +1486,7 @@ export async function saveCleaningSchedule(data: any) {
             update: { 
                 nomeCondominio, 
                 numFuncionarias: Number(numFuncionarias) || 1, 
+                cargaHoraria: cargaHoraria || '44h',
                 areas, 
                 scheduleData, 
                 observacoes 
@@ -1494,6 +1495,7 @@ export async function saveCleaningSchedule(data: any) {
                 id: validId,
                 nomeCondominio, 
                 numFuncionarias: Number(numFuncionarias) || 1, 
+                cargaHoraria: cargaHoraria || '44h',
                 areas, 
                 scheduleData, 
                 observacoes 

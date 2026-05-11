@@ -315,6 +315,7 @@ model CondoCleaningSchedule {
   id              String   @id @default(uuid())
   nomeCondominio  String
   numFuncionarias Int
+  cargaHoraria    String   @default("44h")
   areas           Json
   scheduleData    Json
   observacoes     String?
