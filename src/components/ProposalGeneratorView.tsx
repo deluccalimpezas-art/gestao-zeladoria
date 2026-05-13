@@ -15,7 +15,12 @@ export function ProposalGeneratorView() {
         id: string;
         type: '44h' | '22h' | 'manual';
         count: number;
-        customLabel?: string;
+        customRole?: string;
+        customWeeklyHours?: string;
+        customDays1?: string;
+        customPeriod1?: string;
+        customDays2?: string;
+        customPeriod2?: string;
         customValue?: string;
     }
 
@@ -247,19 +252,63 @@ export function ProposalGeneratorView() {
                                             </div>
 
                                             {item.type === 'manual' && (
-                                                <div className="space-y-2 pt-1">
-                                                    <input 
-                                                        type="text"
-                                                        placeholder="Descrição (ex: Zeladoria Meio Período)"
-                                                        value={item.customLabel || ''}
-                                                        onChange={(e) => updateServiceItem(item.id, { customLabel: e.target.value })}
-                                                        className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
-                                                    />
-                                                    <div className="relative">
+                                                <div className="space-y-2 pt-3 border-t border-slate-700/50 mt-2">
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Cargo (ex: zeladores)"
+                                                            value={item.customRole || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customRole: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Carga (ex: 44h semanais)"
+                                                            value={item.customWeeklyHours || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customWeeklyHours: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Dias 1 (ex: Seg à sex:)"
+                                                            value={item.customDays1 || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customDays1: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Horário 1 (ex: 08:00 às 12:00)"
+                                                            value={item.customPeriod1 || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customPeriod1: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Dias 2 (ex: Sábado:)"
+                                                            value={item.customDays2 || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customDays2: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                        <input 
+                                                            type="text"
+                                                            placeholder="Horário 2 (ex: 08:00 às 12:00)"
+                                                            value={item.customPeriod2 || ''}
+                                                            onChange={(e) => updateServiceItem(item.id, { customPeriod2: e.target.value })}
+                                                            className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 px-3 text-white text-xs"
+                                                        />
+                                                    </div>
+
+                                                    <div className="relative mt-2">
                                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[10px]">R$</span>
                                                         <input 
                                                             type="text"
-                                                            placeholder="Valor (ex: 4.500,00)"
+                                                            placeholder="Valor Unitário (ex: 4.500,00)"
                                                             value={item.customValue || ''}
                                                             onChange={(e) => updateServiceItem(item.id, { customValue: e.target.value })}
                                                             className="w-full bg-slate-800 border border-slate-600 rounded-lg py-1.5 pl-8 pr-3 text-white text-xs"
@@ -451,14 +500,28 @@ export function ProposalGeneratorView() {
                                                                     </div>
                                                                 </>
                                                             ) : (
-                                                                <div className="space-y-1">
+                                                                <>
                                                                     <p className="font-bold text-slate-900 italic">
-                                                                        {String.fromCharCode(65 + idx)}) {item.customLabel || 'Serviço Personalizado'} {item.count > 1 ? `(${item.count}x)` : ''}
+                                                                        {String.fromCharCode(65 + idx)}) {item.count} {item.customRole || 'Serviço Personalizado'} {item.customWeeklyHours ? `- ${item.customWeeklyHours}` : ''}
                                                                     </p>
-                                                                    {item.customValue && (
-                                                                        <p className="text-xs text-slate-500 ml-4 italic">Valor unitário: R$ {item.customValue}</p>
-                                                                    )}
-                                                                </div>
+                                                                    <div className="text-xs text-slate-600 space-y-1 ml-4">
+                                                                        {item.customDays1 && (
+                                                                            <>
+                                                                                <p className="font-bold text-slate-800">{item.customDays1}</p>
+                                                                                {item.customPeriod1 && <p>{item.customPeriod1}</p>}
+                                                                            </>
+                                                                        )}
+                                                                        {item.customDays2 && (
+                                                                            <>
+                                                                                <p className="font-bold text-slate-800 pt-1">{item.customDays2}</p>
+                                                                                {item.customPeriod2 && <p>{item.customPeriod2}</p>}
+                                                                            </>
+                                                                        )}
+                                                                        {item.customValue && (
+                                                                            <p className="italic pt-1 text-slate-500">Valor unitário: R$ {item.customValue}</p>
+                                                                        )}
+                                                                    </div>
+                                                                </>
                                                             )}
                                                         </div>
                                                     </div>
