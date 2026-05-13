@@ -583,7 +583,7 @@ export function ProposalGeneratorView() {
                 @media print {
                     @page {
                         size: A4;
-                        margin: 0;
+                        margin: 20mm 15mm;
                     }
                     body {
                         background: white !important;
@@ -611,12 +611,11 @@ export function ProposalGeneratorView() {
                         right: 0;
                         top: 0;
                         margin: 0 !important;
-                        padding: 15mm !important;
+                        padding: 0 !important;
                         width: 100% !important;
                         max-width: 100% !important;
                         box-shadow: none !important;
                         border: none !important;
-                    }
                     }
                 }
                 .no-print-bg {
